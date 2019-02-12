@@ -6,40 +6,36 @@ name = "Nicholas M. Michalak"
 superuser = true
 
 # Role/position
-role = "Professor of Artificial Intelligence"
+role = "Ph.D. Candidate, Social Psychology"
 
 # Organizations/Affiliations
 #   Separate multiple entries with a comma, using the form: `[ {name="Org1", url=""}, {name="Org2", url=""} ]`.
-organizations = [ { name = "Stanford University", url = "" } ]
+organizations = [ { name = "Department of Psychology, University of Michigan", url = "https://lsa.umich.edu/psych" } ]
 
 # Short bio (displayed in user profile at end of posts)
-bio = "My research interests include distributed robotics, mobile computing and programmable matter."
+bio = "I study how both modern and evolutionarily-relevant threats affect how people perceive themselves and others."
 
 # Enter email to display Gravatar (if Gravatar enabled in Config)
-email = ""
+email = "nickmm@umich.edu"
 
 # List (academic) interests or hobbies
 interests = [
-  "Artificial Intelligence",
-  "Computational Linguistics",
-  "Information Retrieval"
+  "person perception",
+  "nonverbal",
+  "threat",
+  "evolution"
 ]
 
 # List qualifications (such as academic degrees)
 [[education.courses]]
-  course = "PhD in Artificial Intelligence"
-  institution = "Stanford University"
+  course = "M.S. in Social Psychology"
+  institution = "University of Michigan"
+  year = 2017
+
+[[education.courses]]
+  course = "B.S. in Neuroscience"
+  institution = "University of St. Thomas (MN)"
   year = 2012
-
-[[education.courses]]
-  course = "MEng in Artificial Intelligence"
-  institution = "Massachusetts Institute of Technology"
-  year = 2009
-
-[[education.courses]]
-  course = "BSc in Artificial Intelligence"
-  institution = "Massachusetts Institute of Technology"
-  year = 2008
 
 # Social/Academic Networking
 # For available icons, see: https://sourcethemes.com/academic/docs/widgets/#icons
@@ -49,32 +45,34 @@ interests = [
 [[social]]
   icon = "envelope"
   icon_pack = "fas"
-  link = "#contact"  # For a direct email link, use "mailto:test@example.org".
+  link = "#contact"  # For a direct email link, use "mailto:nickmm@umich.edu".
 
 [[social]]
   icon = "twitter"
   icon_pack = "fab"
-  link = "https://twitter.com/GeorgeCushen"
+  link = "https://twitter.com/nmmichalak"
 
 [[social]]
   icon = "google-scholar"
   icon_pack = "ai"
-  link = "https://scholar.google.co.uk/citations?user=sIwtMXoAAAAJ"
+  link = "https://scholar.google.com/citations?user=XuA8fSkAAAAJ&hl=en"
 
 [[social]]
   icon = "github"
   icon_pack = "fab"
-  link = "https://github.com/gcushen"
+  link = "https://github.com/nmmichalak"
 
 # Link to a PDF of your resume/CV from the About widget.
 # To enable, copy your resume/CV to `static/files/cv.pdf` and uncomment the lines below.
-# [[social]]
-#   icon = "cv"
-#   icon_pack = "ai"
-#   link = "files/cv.pdf"
+ [[social]]
+   icon = "cv"
+   icon_pack = "ai"
+   link = "files/cv/2019/2019_february_vitae_michalak.pdf"
 
 +++
 
-Nelson Bighetti is a professor of artificial intelligence at the Stanford AI Lab. His research interests include distributed robotics, mobile computing and programmable matter. He leads the Robotic Neurobiology group, which develops self-reconfiguring robots, systems of self-organizing robots, and mobile sensor networks.
+I’m a PhD candidate in social psychology working with [Josh Ackerman](https://sites.lsa.umich.edu/esplab/) at the University of Michigan. Before I started at Michigan, I received my bachelor’s degree in neuroscience from the University of St. Thomas in St. Paul, MN. After graduating, I worked as a research assistant and lab manager at the University of Minnesota and the Carlson School of Management.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed neque elit, tristique placerat feugiat ac, facilisis vitae arcu. Proin eget egestas augue. Praesent ut sem nec arcu pellentesque aliquet. Duis dapibus diam vel metus tempus vulputate. 
+Broadly, I use advanced methods and statistics to study how both modern and evolutionarily-relevant threats affect how people perceive themselves and others. For example, in my current work, I use the reverse correlation image classification task to estimate mental representations of infected persons. I’m also conducting a Cross-Temporal Meta-Analysis to test whether stereotype threat effects have dissapated over time, depending on negatively stereotyped group (e.g., Women, Black Americans).
+
+I’m asking three main questions right now: (1) How do people mentally represent threatening persons, (2) How do people use emotional expressions in trait judgements, and (3) What are the effects of negative stereotypes changing over time?
