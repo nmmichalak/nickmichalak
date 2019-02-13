@@ -60,7 +60,7 @@ thirst_dat %>%
 ```
 
 ## Conceptual Diagram
-![Figure 1. Room temperature is associated with water drinking indirectly through thirstiness ](images/figure_01.jpg)  
+![Figure 1. Room temperature is associated with water drinking indirectly through thirstiness ](/static/post/nrg01/nrg01_files/figure_01.jpg)  
 
 ## Write model to test indirect effect using `sem()` from lavaan
 > * `~` = Regress onto ...

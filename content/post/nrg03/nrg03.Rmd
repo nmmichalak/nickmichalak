@@ -22,7 +22,7 @@ output:
 > * Uninstalling R Studio [[**.html**](https://support.rstudio.com/hc/en-us/articles/200554736-How-To-Uninstall-RStudio-Desktop)]
 
 ## Understand all the panels in R Studio
-![Four panels in R Studio](r_studio_panels_tutorial.png)
+![Four panels in R Studio](/static/post/nrg03/r_studio_panels_tutorial.png)
 
 ## Packages: They're like apps you download for R
 > "Packages are collections of R functions, data, and compiled code in a well-defined format. The directory where packages are stored is called the library. R comes with a standard set of packages. Others are available for download and installation. Once installed, they have to be loaded into the session to be used." [[**.html**](https://www.statmethods.net/interface/packages.html)]
