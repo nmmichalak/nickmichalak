@@ -1,0 +1,17 @@
+---
+title: Using Principal Components or Common Factor Analysis in Social Psychology
+author: ''
+date: '2019-02-13'
+slug: using-principal-components-or-common-factor-analysis-in-social-psychology
+categories:
+  - measurement
+tags:
+  - principal component analysis
+  - latent variables
+  - measurement
+  - reliability
+  - common factor analysis
+image:
+  caption: ''
+  focal_point: ''
+---
