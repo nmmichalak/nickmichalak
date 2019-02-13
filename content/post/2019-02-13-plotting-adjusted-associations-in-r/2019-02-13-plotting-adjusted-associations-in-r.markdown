@@ -34,17 +34,17 @@ image:
 
 > The second part---the product of the standard deviations, also the correlation denominator---restricts the association to values from -1.00 to 1.00.
 
-## `\(\sqrt{var_X  var_Y} = \sqrt{\frac{\sum(X - \bar X)^2}{N - 1} \frac{\sum(Y - \bar Y)^2}{N - 1}}\)`  
+## `$$\sqrt{var_X  var_Y} = \sqrt{\frac{\sum(X - \bar X)^2}{N - 1} \frac{\sum(Y - \bar Y)^2}{N - 1}}$$`  
 
 > Divide the numerator by the denominator and you get a sort of "ratio of the sum of squares", the Pearson correlation coefficient:
 
-## `\(r_{XY} = \frac{\frac{\sum(X - \bar X)(Y - \bar Y)}{N - 1}}{\sqrt{\frac{\sum(X - \bar X)^2}{N - 1} \frac{\sum(Y - \bar Y)^2}{N - 1}}} = \frac{cov_{(X, Y)}}{\sqrt{var_X  var_Y}}\)`  
+## `$$r_{XY} = \frac{\frac{\sum(X - \bar X)(Y - \bar Y)}{N - 1}}{\sqrt{\frac{\sum(X - \bar X)^2}{N - 1} \frac{\sum(Y - \bar Y)^2}{N - 1}}} = \frac{cov_{(X, Y)}}{\sqrt{var_X  var_Y}}$$`  
 
-> Square this "standardized covariance" for an estimate of the proportion of variance of Y that can be accounted for by a linear function of X, `\(R^2_{XY}\)`.  
+> Square this "standardized covariance" for an estimate of the proportion of variance of Y that can be accounted for by a linear function of X, `$$R^2_{XY}$$`.  
 
 > By the way, the correlation equation is very similar to the bivariate linear regression beta coefficient equation. The only difference is in the denominator which excludes the Y variance:  
 
-## `\(\hat{\beta} = \frac{\frac{\sum(X - \bar X)(Y - \bar Y)}{N - 1}}{\sqrt{\frac{\sum(X - \bar X)^2}{N - 1} }} = \frac{cov_{(X, Y)}}{\sqrt{var_X}}\)`  
+## `$$\hat{\beta} = \frac{\frac{\sum(X - \bar X)(Y - \bar Y)}{N - 1}}{\sqrt{\frac{\sum(X - \bar X)^2}{N - 1} }} = \frac{cov_{(X, Y)}}{\sqrt{var_X}}$$`  
 
 # What does it mean to "adjust" a correlation?
 > An adjusted correlation refers to the (square root of the) change in a regression model's `\(R^2\)` after adding a single predictor to the model: `\(R^2_{full} - R^2_{reduced}\)`. This change quantifies that additional predictor's "unique" contribution to observed variance explained. Put another way, this value quantifies observed variance in Y explained by a linear function of X after removing variance shared between X and the other predictors in the model.
@@ -89,23 +89,23 @@ HSB %>% sample_n(size = 15) %>% kable()
 
 
 
-|  id|gender |race         |ses    |sch    |prog     | locus| concept|  mot|career     | read| write| math|  sci|   ss|
-|---:|:------|:------------|:------|:------|:--------|-----:|-------:|----:|:----------|----:|-----:|----:|----:|----:|
-| 318|female |white        |low    |public |general  | -0.44|   -0.47| 0.33|prof1      | 38.9|  46.3| 41.9| 41.7| 45.6|
-| 172|male   |white        |middle |public |vocation | -1.30|    0.03| 1.00|military   | 54.8|  41.1| 40.2| 44.4| 40.6|
-| 220|female |white        |middle |public |academic |  0.66|    0.34| 1.00|homemaker  | 56.9|  49.5| 49.5| 50.9| 58.1|
-| 432|male   |white        |high   |public |general  |  0.06|    0.03| 1.00|prof1      | 44.2|  54.1| 51.4| 39.0| 45.6|
-| 150|female |african-amer |middle |public |academic |  0.91|   -0.28| 1.00|military   | 60.1|  67.1| 56.2| 37.4| 50.6|
-| 250|male   |white        |middle |public |general  | -0.17|   -0.84| 0.67|service    | 62.7|  56.7| 54.3| 58.0| 50.6|
-| 232|female |white        |middle |public |academic |  0.20|   -0.47| 0.33|proprietor | 38.9|  54.1| 53.7| 52.6| 40.6|
-| 486|female |white        |middle |public |academic |  0.53|    0.81| 0.67|prof1      | 54.8|  59.3| 61.4| 47.1| 55.6|
-| 468|male   |white        |high   |public |general  | -0.16|    0.03| 0.33|proprietor | 44.2|  59.3| 49.5| 55.3| 45.6|
-| 118|male   |african-amer |low    |public |general  |  0.45|   -0.91| 0.33|craftsman  | 41.6|  41.1| 42.8| 49.8| 40.6|
-| 221|male   |white        |low    |public |general  | -0.36|   -1.67| 1.00|farmer     | 44.2|  43.7| 56.4| 58.0| 60.5|
-| 128|male   |african-amer |middle |public |academic |  0.49|    0.44| 0.67|prof2      | 53.7|  43.7| 51.1| 52.0| 43.1|
-| 448|male   |white        |middle |public |vocation |  0.68|    1.19| 0.33|school     | 41.6|  41.1| 57.2| 71.5| 30.6|
-| 345|male   |white        |middle |public |academic |  0.71|    0.34| 0.67|prof1      | 52.1|  41.1| 51.3| 60.7| 65.5|
-| 165|male   |white        |low    |public |vocation |  0.46|   -1.17| 0.33|laborer    | 46.9|  30.7| 40.3| 58.0| 35.6|
+|  id|gender |race     |ses    |sch     |prog     | locus| concept|  mot|career      | read| write| math|  sci|   ss|
+|---:|:------|:--------|:------|:-------|:--------|-----:|-------:|----:|:-----------|----:|-----:|----:|----:|----:|
+|  59|female |hispanic |low    |public  |vocation | -0.60|    0.32| 1.00|clerical    | 38.9|  56.7| 41.2| 33.6| 55.6|
+| 452|female |white    |middle |public  |general  |  0.06|    0.03| 1.00|not working | 41.6|  46.3| 46.2| 39.0| 45.6|
+| 306|female |white    |high   |public  |academic | -0.60|    0.28| 1.00|prof1       | 33.6|  41.1| 42.9| 41.7| 50.6|
+|  82|female |asian    |middle |public  |general  |  0.06|    0.90| 0.67|prof1       | 38.9|  52.8| 54.4| 49.8| 40.6|
+| 519|male   |white    |middle |private |academic |  0.32|    1.19| 1.00|prof1       | 57.4|  61.9| 64.0| 55.8| 55.6|
+| 344|female |white    |low    |public  |general  |  0.27|   -2.52| 0.33|operative   | 38.9|  32.0| 35.3| 46.6| 51.8|
+| 555|male   |white    |high   |private |academic |  0.06|    1.19| 1.00|proprietor  | 65.4|  64.5| 67.9| 63.4| 55.6|
+| 283|male   |white    |high   |public  |academic |  0.02|    0.13| 0.33|prof1       | 73.3|  59.9| 70.5| 60.7| 70.5|
+| 177|male   |white    |middle |public  |academic |  0.68|    0.03| 0.67|prof2       | 71.2|  63.2| 60.2| 65.5| 65.5|
+|  90|female |asian    |low    |public  |vocation | -0.65|   -1.17| 0.00|operative   | 36.3|  30.7| 45.9| 36.3| 40.6|
+| 524|female |white    |middle |private |academic | -0.66|   -1.07| 0.67|clerical    | 49.5|  61.9| 60.4| 47.1| 50.6|
+| 281|male   |white    |high   |public  |vocation | -0.18|    0.03| 0.67|craftsman   | 44.2|  48.9| 56.3| 41.7| 60.5|
+| 404|female |white    |middle |public  |general  | -0.38|   -0.47| 0.67|homemaker   | 62.7|  43.7| 44.7| 52.6| 41.9|
+| 207|female |white    |middle |public  |general  |  1.11|    0.90| 0.33|homemaker   | 55.3|  50.2| 41.7| 58.5| 55.6|
+| 287|female |white    |high   |public  |academic |  0.66|    0.34| 0.67|prof1       | 54.8|  56.7| 61.9| 63.4| 55.6|
 
 # Do students who score higher on a standardized math test tend to score higher on a standardized science test?
 

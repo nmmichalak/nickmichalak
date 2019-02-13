@@ -34,17 +34,17 @@ image:
 
 > The second part---the product of the standard deviations, also the correlation denominator---restricts the association to values from -1.00 to 1.00.
 
-## $\sqrt{var_X  var_Y} = \sqrt{\frac{\sum(X - \bar X)^2}{N - 1} \frac{\sum(Y - \bar Y)^2}{N - 1}}$  
+## $$\sqrt{var_X  var_Y} = \sqrt{\frac{\sum(X - \bar X)^2}{N - 1} \frac{\sum(Y - \bar Y)^2}{N - 1}}$$  
 
 > Divide the numerator by the denominator and you get a sort of "ratio of the sum of squares", the Pearson correlation coefficient:
 
-## $r_{XY} = \frac{\frac{\sum(X - \bar X)(Y - \bar Y)}{N - 1}}{\sqrt{\frac{\sum(X - \bar X)^2}{N - 1} \frac{\sum(Y - \bar Y)^2}{N - 1}}} = \frac{cov_{(X, Y)}}{\sqrt{var_X  var_Y}}$  
+## $$r_{XY} = \frac{\frac{\sum(X - \bar X)(Y - \bar Y)}{N - 1}}{\sqrt{\frac{\sum(X - \bar X)^2}{N - 1} \frac{\sum(Y - \bar Y)^2}{N - 1}}} = \frac{cov_{(X, Y)}}{\sqrt{var_X  var_Y}}$$  
 
-> Square this "standardized covariance" for an estimate of the proportion of variance of Y that can be accounted for by a linear function of X, $R^2_{XY}$.  
+> Square this "standardized covariance" for an estimate of the proportion of variance of Y that can be accounted for by a linear function of X, $$R^2_{XY}$$.  
 
 > By the way, the correlation equation is very similar to the bivariate linear regression beta coefficient equation. The only difference is in the denominator which excludes the Y variance:  
 
-## $\hat{\beta} = \frac{\frac{\sum(X - \bar X)(Y - \bar Y)}{N - 1}}{\sqrt{\frac{\sum(X - \bar X)^2}{N - 1} }} = \frac{cov_{(X, Y)}}{\sqrt{var_X}}$  
+## $$\hat{\beta} = \frac{\frac{\sum(X - \bar X)(Y - \bar Y)}{N - 1}}{\sqrt{\frac{\sum(X - \bar X)^2}{N - 1} }} = \frac{cov_{(X, Y)}}{\sqrt{var_X}}$$  
 
 # What does it mean to "adjust" a correlation?
 > An adjusted correlation refers to the (square root of the) change in a regression model's $R^2$ after adding a single predictor to the model: $R^2_{full} - R^2_{reduced}$. This change quantifies that additional predictor's "unique" contribution to observed variance explained. Put another way, this value quantifies observed variance in Y explained by a linear function of X after removing variance shared between X and the other predictors in the model.
