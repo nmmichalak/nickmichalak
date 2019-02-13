@@ -1,0 +1,879 @@
+---
+title: 'Learn R for Psychology Research: A Crash Course'
+author: ''
+date: '2019-02-13'
+slug: learn-r-for-psychology-research-a-crash-course
+categories:
+  - tutorial
+  - demonstration
+  - R
+tags:
+  - tutorial
+  - demonstration
+  - R
+image:
+  caption: ''
+  focal_point: ''
+---
+
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<blockquote>
+<p>I wrote this for psychologists who want to learn how to use R in their research <strong>right now.</strong> What does a psychologist need to know to use R to import, wrangle, plot, and model their data today? Here we go.</p>
+</blockquote>
+</div>
+<div id="foundations-people-and-their-resources-that-inspired-me." class="section level1">
+<h1>Foundations: People and their resources that inspired me.</h1>
+<blockquote>
+<ul>
+<li>Dan Robinson [<a href="http://varianceexplained.org/r/teach-tidyverse/"><strong>.html</strong></a>] convinced me that beginneRs should learn tidyverse first, not Base R. This tutorial uses tidyverse. All you need to know about the differnece is in his blog post. If you’ve learned some R before this, you might understand that difference as you go through this tutorial.</li>
+<li>If you want a more detailed introduction to R, start with R for Data Science (Wickham &amp; Grolemund, 2017) [<a href="http://r4ds.had.co.nz/"><strong>.html</strong></a>]. The chapters are short, easy to read, and filled with simple coding examples that demonstrate big principles. And <strong>it’s free.</strong></li>
+<li>Hadley Wickham is a legend in the R community. He’s responsible for the tidyverse, including ggplot2. Read his books and papers (e.g., <a href="http://vita.had.co.nz/papers/tidy-data.html"><strong>Wickham, 2014</strong></a>). Watch his talks (e.g., <a href="https://youtu.be/K-ss_ag2k9E?list=PLNtpLD4WiWbw9Cgcg6IU75u-44TrrN3A4"><strong>ReadCollegePDX, October 19, 2015</strong></a>). He’s profoundly changed how people think about structuring and visualizing data.</li>
+</ul>
+</blockquote>
+</div>
+<div id="need-to-know-basics" class="section level1">
+<h1>Need-to-Know Basics</h1>
+<div id="install-r-and-r-studio-you-need-both-in-that-order" class="section level2">
+<h2>Install R and R Studio (you need both in that order)</h2>
+<blockquote>
+<ul>
+<li>Installing R (<a href="https://stats.idre.ucla.edu/r/icu/installing-r-for-macintosh/"><strong>Macintosh</strong></a> / <a href="https://stats.idre.ucla.edu/r/icu/installing-r-for-windows/"><strong>Windows</strong></a>)</li>
+<li>Uninstalling R (<a href="https://cran.r-project.org/doc/manuals/r-release/R-admin.html#Uninstalling-under-macOS"><strong>Macintosh</strong></a> / <a href="https://cran.r-project.org/doc/manuals/r-release/R-admin.html#Uninstallation"><strong>Windows</strong></a>)</li>
+<li>Installing R Studio [<a href="https://www.rstudio.com/products/rstudio/download/"><strong>.html</strong></a>]</li>
+<li>Uninstalling R Studio [<a href="https://support.rstudio.com/hc/en-us/articles/200554736-How-To-Uninstall-RStudio-Desktop"><strong>.html</strong></a>]</li>
+</ul>
+</blockquote>
+</div>
+<div id="understand-all-the-panels-in-r-studio" class="section level2">
+<h2>Understand all the panels in R Studio</h2>
+<div class="figure">
+<img src="/post/nrg03/nrg03_files/r_studio_panels_tutorial.png" alt="Four panels in R Studio" />
+<p class="caption">Four panels in R Studio</p>
+</div>
+</div>
+<div id="packages-theyre-like-apps-you-download-for-r" class="section level2">
+<h2>Packages: They’re like apps you download for R</h2>
+<blockquote>
+<p>“Packages are collections of R functions, data, and compiled code in a well-defined format. The directory where packages are stored is called the library. R comes with a standard set of packages. Others are available for download and installation. Once installed, they have to be loaded into the session to be used.” [<a href="https://www.statmethods.net/interface/packages.html"><strong>.html</strong></a>]</p>
+</blockquote>
+<pre class="r"><code># before you can load these libraries, you need to install them first (remove the # part first):
+# install.packages(&quot;tidyverse&quot;)
+# install.packages(&quot;haven&quot;)
+# install.packages(&quot;psych&quot;)
+# install.packages(&quot;car&quot;)
+
+library(tidyverse)
+library(haven)
+library(psych)
+library(car)</code></pre>
+</div>
+<div id="objects-they-save-stuff-for-you" class="section level2">
+<h2>Objects: They save stuff for you</h2>
+<blockquote>
+<p>“<code>object &lt;- fuction(x)</code>, which means ‘object is created from function(x)’. An object is anything created in R. It could be a variable, a collection of variables, a statistical model, etc. Objects can be single values (such as the mean of a set of scores) or collections of information; for example, when you run an analysis, you create an object that contains the output of that analysis, which means that this object contains many different values and variables. Functions are the things that you do in R to create your objects.”<br />
+Field, A., Miles., J., &amp; Field, Z. (2012). Discovering statistics using R. London: SAGE Publications. [<a href="https://us.sagepub.com/en-us/nam/discovering-statistics-using-r/book236067"><strong>.html</strong></a>]</p>
+</blockquote>
+</div>
+<div id="c-function-combine-things-like-thing1-thing2-thing3" class="section level2">
+<h2><code>c()</code> Function: Combine things like thing1, thing2, thing3, …</h2>
+<blockquote>
+<p>“c” stands for combine. Use this to combine values into a vector. “A vector is a sequence of data ‘elements’ of the same basic type.” [<a href="http://www.r-tutor.com/r-introduction/vector"><strong>.html</strong></a>] Below, we create an object called five_numbers. We are naming it for what it is, but we could name it whatever we want: some_numbers, maple_tree, platypus. It doesn’t matter. We’ll use this in the examples in later chunks of code.</p>
+</blockquote>
+<pre class="r"><code># read: combine 1, 2, 3, 4, 5 and &quot;save to&quot;, &lt;-, five_numbers
+five_numbers &lt;- c(1, 2, 3, 4, 5)
+
+# print five_numbers by just excecuting/running the name of the object
+five_numbers</code></pre>
+<pre><code>## [1] 1 2 3 4 5</code></pre>
+</div>
+<div id="r-help-help-and" class="section level2">
+<h2>R Help: <code>help()</code> and <code>?</code></h2>
+<blockquote>
+<p>“The help() function and ? help operator in R provide access to the documentation pages for R functions, data sets, and other objects, both for packages in the standard R distribution and for contributed packages. To access documentation for the standard lm (linear model) function, for example, enter the command help(lm) or help(”lm“), or ?lm or ?”lm&quot; (i.e., the quotes are optional).&quot; [<a href="https://www.r-project.org/help.html"><strong>.html</strong></a>]</p>
+</blockquote>
+</div>
+<div id="piping-write-code-kinda-like-you-write-sentences" class="section level2">
+<h2>Piping, <code>%&gt;%</code>: Write code kinda like you write sentences</h2>
+<blockquote>
+<p>The <code>%&gt;%</code> operator allows you to “pipe” a value forward into an expression or function; something along the lines of x <code>%&gt;%</code> f, rather than f(x). See the magrittr page [<a href="http://magrittr.tidyverse.org/articles/magrittr.html"><strong>.html</strong></a>] for more details, but check out these examples below.</p>
+</blockquote>
+</div>
+<div id="compute-z-scores-for-those-five-numbers-called-five_numbers" class="section level2">
+<h2>Compute z-scores for those five numbers, called five_numbers</h2>
+<blockquote>
+<ul>
+<li>see help(scale) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>five_numbers %&gt;% scale()</code></pre>
+<pre><code>##            [,1]
+## [1,] -1.2649111
+## [2,] -0.6324555
+## [3,]  0.0000000
+## [4,]  0.6324555
+## [5,]  1.2649111
+## attr(,&quot;scaled:center&quot;)
+## [1] 3
+## attr(,&quot;scaled:scale&quot;)
+## [1] 1.581139</code></pre>
+</div>
+<div id="compute-z-scores-for-five_numbers-and-then-convert-the-result-into-only-numbers" class="section level2">
+<h2>Compute Z-scores for five_numbers and then convert the result into only numbers</h2>
+<blockquote>
+<ul>
+<li>see help(as.numeric) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>five_numbers %&gt;% scale() %&gt;% as.numeric()</code></pre>
+<pre><code>## [1] -1.2649111 -0.6324555  0.0000000  0.6324555  1.2649111</code></pre>
+</div>
+<div id="compute-z-scores-for-five_numbers-and-then-convert-the-result-into-only-numbers-and-then-compute-the-mean" class="section level2">
+<h2>Compute z-scores for five_numbers and then convert the result into only numbers and then compute the mean</h2>
+<blockquote>
+<ul>
+<li>see help(mean) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>five_numbers %&gt;% scale() %&gt;% as.numeric() %&gt;% mean()</code></pre>
+<pre><code>## [1] 0</code></pre>
+</div>
+<div id="tangent-most-r-introductions-will-teach-you-to-code-the-example-above-like-this" class="section level2">
+<h2>Tangent: most R introductions will teach you to code the example above like this:</h2>
+<pre class="r"><code>mean(as.numeric(scale(five_numbers)))</code></pre>
+<pre><code>## [1] 0</code></pre>
+<blockquote>
+<ul>
+<li>I think this code is counterintuitive. You’re reading the current sentence from left to right. That’s how I think code should read like: how you read sentences. Forget this “read from the inside out” way of coding for now. You can learn the “read R code inside out” way when you have time and feel motivated to learn harder things. I’m assuming you don’t right now.</li>
+</ul>
+</blockquote>
+</div>
+<div id="functions-they-do-things-for-you" class="section level2">
+<h2>Functions: they do things for you</h2>
+<blockquote>
+<p>“A function is a piece of code written to carry out a specified task; it can or can not accept arguments or parameters and it can or can not return one or more values.” Functions <strong>do</strong> things for you. [<a href="https://www.datacamp.com/community/tutorials/functions-in-r-a-tutorial#what"><strong>.html</strong></a>]</p>
+</blockquote>
+</div>
+<div id="compute-the-num-of-five_numbers" class="section level2">
+<h2>Compute the num of five_numbers</h2>
+<blockquote>
+<ul>
+<li>see help(sum) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>five_numbers %&gt;% sum()</code></pre>
+<pre><code>## [1] 15</code></pre>
+</div>
+<div id="compute-the-length-of-five_numbers" class="section level2">
+<h2>Compute the length of five_numbers</h2>
+<blockquote>
+<ul>
+<li>see help(length) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>five_numbers %&gt;% length()</code></pre>
+<pre><code>## [1] 5</code></pre>
+</div>
+<div id="compute-the-sum-of-five_numbers-and-divide-by-the-length-of-five_numbers" class="section level2">
+<h2>Compute the sum of five_numbers and divide by the length of five_numbers</h2>
+<blockquote>
+<ul>
+<li>see help(Arithmetic) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>five_numbers %&gt;% sum() / five_numbers %&gt;% length()</code></pre>
+<pre><code>## [1] 3</code></pre>
+</div>
+<div id="define-a-new-function-called-compute_mean" class="section level2">
+<h2>Define a new function called compute_mean</h2>
+<pre class="r"><code>compute_mean &lt;- function(some_numbers) {
+  some_numbers %&gt;% sum() / some_numbers %&gt;% length()
+}</code></pre>
+</div>
+<div id="compute-the-mean-of-five_numbers" class="section level2">
+<h2>Compute the mean of five_numbers</h2>
+<pre class="r"><code>five_numbers %&gt;% compute_mean()</code></pre>
+<pre><code>## [1] 3</code></pre>
+</div>
+<div id="tangent-functions-make-assumptions-know-what-they-are" class="section level2">
+<h2>Tangent: Functions make assumptions; know what they are</h2>
+<div id="what-is-the-mean-of-5-numbers-and-a-unknown-number-na" class="section level3">
+<h3>What is the mean of 5 numbers and a unknown number, NA?</h3>
+<blockquote>
+<ul>
+<li>see help(NA) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>c(1, 2, 3, 4, 5, NA) %&gt;% mean()</code></pre>
+<pre><code>## [1] NA</code></pre>
+<blockquote>
+<p>Is this what you expected? Turns out, this isn’t a quirky feature of R. R was designed by statisticians and mathematicians. <code>NA</code> represents a value that is unknown. Ask yourself, what is the sum of an unknown value and 17? If you don’t know the value, then you don’t know the value of adding it to 17 either. The <code>mean()</code> function gives <code>NA</code> for this reason: the mean of 5 values and an unknwon value is <code>NA</code>; it’s unknown; it’s not available; it’s missing. When you use functions in your own research, think about what the functions “assume” or “know”; ask, “What do I want the function to do? What do I expect it to do? Can the function do what I want with the information I gave it?”</p>
+</blockquote>
+</div>
+<div id="tell-the-mean-function-to-remove-missing-values" class="section level3">
+<h3>Tell the <code>mean()</code> function to remove missing values</h3>
+<pre class="r"><code>c(1, 2, 3, 4, 5, NA) %&gt;% mean(na.rm = TRUE)</code></pre>
+<pre><code>## [1] 3</code></pre>
+</div>
+</div>
+</div>
+<div id="create-data-for-psychology-like-examples" class="section level1">
+<h1>Create data for psychology-like examples</h1>
+<blockquote>
+<p>This is the hardest section of the tutorial. Keep this is mind: we’re making variables that you might see in a simple psychology dataset, and then we’re going to combine them into a dataset. Don’t worry about specifcs too much. If you want to understand how a function works, use ?name_of_function or help(name_of_function).</p>
+</blockquote>
+<div id="subject-numbers" class="section level2">
+<h2>Subject numbers</h2>
+<blockquote>
+<ul>
+<li>read like this: generate a sequence of values from 1 to 100 by 1</li>
+<li>see help(seq) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>subj_num &lt;- seq(from = 1, to = 100, by = 1)
+
+# print subj_num by just excecuting/running the name of the object
+subj_num</code></pre>
+<pre><code>##   [1]   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17
+##  [18]  18  19  20  21  22  23  24  25  26  27  28  29  30  31  32  33  34
+##  [35]  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51
+##  [52]  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68
+##  [69]  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85
+##  [86]  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100</code></pre>
+<blockquote>
+<p>See those numbers on the left hand side of the output above? Those help you keep track of a sequence (i.e., line) of elements as the output moves to each new line. This is obvious in the example above because numbers correspond exactly to their position. But if these were letters or random numbers, that index or position (e.g., [14] “N”) tells you the position of that element in the line.</p>
+</blockquote>
+</div>
+<div id="condition-assignments" class="section level2">
+<h2>Condition assignments</h2>
+<blockquote>
+<ul>
+<li>read like this: replicate each element of c(“control”, “manipulation”) 50 times, and then turn the result into a factor</li>
+<li>side: in R, factors are nominal variables (i.e., integers) with value labels (i.e., names for each integer).</li>
+<li>see help(rep) and help(factor) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>condition &lt;- c(&quot;control&quot;, &quot;manipulation&quot;) %&gt;% rep(each = 50) %&gt;% factor()
+
+# print condition by just excecuting/running the name of the object
+condition</code></pre>
+<pre><code>##   [1] control      control      control      control      control     
+##   [6] control      control      control      control      control     
+##  [11] control      control      control      control      control     
+##  [16] control      control      control      control      control     
+##  [21] control      control      control      control      control     
+##  [26] control      control      control      control      control     
+##  [31] control      control      control      control      control     
+##  [36] control      control      control      control      control     
+##  [41] control      control      control      control      control     
+##  [46] control      control      control      control      control     
+##  [51] manipulation manipulation manipulation manipulation manipulation
+##  [56] manipulation manipulation manipulation manipulation manipulation
+##  [61] manipulation manipulation manipulation manipulation manipulation
+##  [66] manipulation manipulation manipulation manipulation manipulation
+##  [71] manipulation manipulation manipulation manipulation manipulation
+##  [76] manipulation manipulation manipulation manipulation manipulation
+##  [81] manipulation manipulation manipulation manipulation manipulation
+##  [86] manipulation manipulation manipulation manipulation manipulation
+##  [91] manipulation manipulation manipulation manipulation manipulation
+##  [96] manipulation manipulation manipulation manipulation manipulation
+## Levels: control manipulation</code></pre>
+</div>
+<div id="dependent-measure" class="section level2">
+<h2>Dependent Measure</h2>
+<div id="save-5-values-that-represent-the-sample-sizes-and-the-true-means-and-standard-deviations-of-our-pretend-conditions" class="section level3">
+<h3>Save 5 values that represent the sample sizes and the true means and standard deviations of our pretend conditions</h3>
+<pre class="r"><code>sample_size &lt;- 50
+control_mean &lt;- 2.5
+control_sd &lt;- 1
+manip_mean &lt;- 5.5
+manip_sd &lt;- 1</code></pre>
+</div>
+<div id="introduce-a-neat-function-in-r-rnorm" class="section level3">
+<h3>Introduce a neat function in R: <code>rnorm()</code></h3>
+<blockquote>
+<p>rnorm stands for random normal. Tell it sample size, true mean, and the true sd, and it’ll draw from that normal population at random and spit out numbers. * see help(rnorm) for details</p>
+</blockquote>
+<pre class="r"><code># for example
+rnorm(n = 10, mean = 0, sd = 1)</code></pre>
+<pre><code>##  [1]  0.1256174 -1.1340381  1.0899959 -1.1568843  0.7216945 -0.6814857
+##  [7] -1.0228030  0.9627516 -0.1677938  2.0345940</code></pre>
+</div>
+<div id="randomly-sample-from-our-populations-we-made-up-above" class="section level3">
+<h3>Randomly sample from our populations we made up above</h3>
+<pre class="r"><code>control_values &lt;- rnorm(n = sample_size, mean = control_mean, sd = control_sd)
+
+manipulation_values &lt;- rnorm(n = sample_size, mean = manip_mean, sd = manip_sd)</code></pre>
+</div>
+<div id="combine-those-and-save-as-our-dependent-variable" class="section level3">
+<h3>Combine those and save as our dependent variable</h3>
+<pre class="r"><code>dep_var &lt;- c(control_values, manipulation_values)
+
+# print dep_var by just excecuting/running the name of the object
+dep_var</code></pre>
+<pre><code>##   [1] 1.7945682 4.4668208 1.6557947 2.8955877 4.6308321 1.2906078 3.7934787
+##   [8] 3.3340398 3.4281795 1.4169595 4.6622804 1.7966686 3.1112589 3.1582339
+##  [15] 4.8417084 1.9335091 1.5036189 3.7523772 2.9310085 3.9933177 4.1630785
+##  [22] 1.1282432 4.7312887 1.5907532 1.9364162 1.4222711 3.0238462 3.0309737
+##  [29] 2.7312404 2.6202115 3.4590658 1.8691570 2.2209002 3.5600462 3.8205094
+##  [36] 2.8839168 3.7732790 3.5924950 1.9415550 1.9464331 2.1559219 0.9842636
+##  [43] 1.4026560 2.3762010 1.1736988 2.6310882 1.5461628 3.2504391 3.7752043
+##  [50] 3.9483912 6.8066711 6.2115641 2.7795094 5.2923913 6.7183492 4.9841308
+##  [57] 5.3865401 5.6118504 3.9559813 4.9246828 7.7748781 4.2106976 5.5134301
+##  [64] 5.3205818 4.3013707 6.2637494 4.7951972 5.4308699 6.2795357 3.9066548
+##  [71] 5.9134889 3.9362178 4.6533576 4.5981578 5.8641924 5.9800059 5.5356871
+##  [78] 5.0767814 4.3746734 2.6088662 5.7966556 6.3450716 5.3881300 4.7952756
+##  [85] 5.1344969 5.2617302 4.7964364 4.5787543 5.4752635 2.7246913 5.8746246
+##  [92] 5.6900821 7.1594078 6.6390284 7.0845839 5.4993040 6.6074867 3.4222712
+##  [99] 6.3136816 4.5764079</code></pre>
+</div>
+</div>
+<div id="create-a-potentially-confounding-variable-or-a-control-variable" class="section level2">
+<h2>Create a potentially confounding variable or a control variable</h2>
+<blockquote>
+<p>in the code below, we multiply every value in dep_var by 0.5 and then we “add noise”: 100 random normal values whose true population has a mean = 0 and sd = 1. Every value in dep_var * 0.5 gets a random value added to it.</p>
+</blockquote>
+<pre class="r"><code>confound &lt;- dep_var * 0.5 + rnorm(n = 100, mean = 0, sd = 1)
+
+# print confound by just excecuting/running the name of the object
+confound</code></pre>
+<pre><code>##   [1]  0.7412415  0.1126697  2.1637316  2.8557977  2.5538354 -1.3468180
+##   [7]  2.1576967  0.3097667  1.0276132  0.6331506  2.9288979 -0.2316758
+##  [13]  1.8682641 -1.9274454  3.5963970 -0.3438837  0.9156074  2.5748497
+##  [19]  1.5538623  1.5022819  1.8393806  0.4302520  0.2165205 -0.3243255
+##  [25]  1.9446837 -0.3972429 -0.5030801 -0.1847373  2.8358599  1.9380723
+##  [31]  1.7433438  1.0025019  1.4635589  0.2107708  1.3984275  0.2717280
+##  [37]  2.0984161  2.1133864  2.3684375  0.7403585  1.0497451  1.7659743
+##  [43]  0.4338230  1.7796288 -1.5511667  1.2703823 -0.5376276  3.0340931
+##  [49] -0.2235552  1.6065412  4.0720958  1.8029187  1.0798445  2.3188237
+##  [55]  2.3370733  1.9673883  2.9300547  0.6431723  3.0374396  1.6297683
+##  [61]  5.1192206  3.5105838  1.2428270  3.9838191  1.1189671  3.1654232
+##  [67]  2.4758626  4.2306908  2.8471090  2.1488177  4.0219457  2.8587901
+##  [73]  2.0027162  1.9532586  2.4349733  4.0500553  2.5757734  2.9889008
+##  [79]  1.7318502  2.0218061  3.3294804  4.1384512  3.7307647  1.8728692
+##  [85]  2.5116614  3.6630782  2.2896328  3.0776789  3.5018945  2.7457725
+##  [91]  2.6417434  2.9227232  5.9935015  2.5160029  5.0755487  2.9660527
+##  [97]  3.2365429  2.1412897  4.0896622  1.6294811</code></pre>
+</div>
+<div id="subject-gender" class="section level2">
+<h2>Subject gender</h2>
+<blockquote>
+<ul>
+<li>read like this: replicate each element of c(“Woman”, “Man”) sample_size = 50 times, and then turn the result into a factor</li>
+</ul>
+</blockquote>
+<pre class="r"><code>gender &lt;- c(&quot;Woman&quot;, &quot;Man&quot;) %&gt;% rep(times = sample_size) %&gt;% factor()
+
+# print gender by just excecuting/running the name of the object
+gender</code></pre>
+<pre><code>##   [1] Woman Man   Woman Man   Woman Man   Woman Man   Woman Man   Woman
+##  [12] Man   Woman Man   Woman Man   Woman Man   Woman Man   Woman Man  
+##  [23] Woman Man   Woman Man   Woman Man   Woman Man   Woman Man   Woman
+##  [34] Man   Woman Man   Woman Man   Woman Man   Woman Man   Woman Man  
+##  [45] Woman Man   Woman Man   Woman Man   Woman Man   Woman Man   Woman
+##  [56] Man   Woman Man   Woman Man   Woman Man   Woman Man   Woman Man  
+##  [67] Woman Man   Woman Man   Woman Man   Woman Man   Woman Man   Woman
+##  [78] Man   Woman Man   Woman Man   Woman Man   Woman Man   Woman Man  
+##  [89] Woman Man   Woman Man   Woman Man   Woman Man   Woman Man   Woman
+## [100] Man  
+## Levels: Man Woman</code></pre>
+</div>
+<div id="subject-age" class="section level2">
+<h2>Subject age</h2>
+<blockquote>
+<ul>
+<li>read like this: generate a sequence of values from 18 to 25 by 1, and take a random sample of 100 values from that sequence (with replacement)</li>
+<li>see help(sample) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>age &lt;- seq(from = 18, to = 25, by = 1) %&gt;% sample(size = 100, replace = TRUE)
+
+# print gender by just excecuting/running the name of the object
+age</code></pre>
+<pre><code>##   [1] 20 25 18 20 21 18 22 24 18 23 19 24 25 25 22 18 25 23 25 21 25 24 23
+##  [24] 22 19 20 19 21 21 22 20 23 21 25 18 23 20 24 19 24 21 22 19 25 21 21
+##  [47] 23 18 23 23 25 18 18 23 19 21 21 23 25 20 22 20 20 21 24 24 24 22 21
+##  [70] 19 18 22 25 23 23 21 18 20 25 23 18 23 18 20 22 21 20 24 23 20 19 24
+##  [93] 18 21 22 22 22 18 18 18</code></pre>
+</div>
+<div id="data.frame-and-tibble" class="section level2">
+<h2><code>data.frame()</code> and <code>tibble()</code></h2>
+<blockquote>
+<p>“The concept of a data frame comes from the world of statistical software used in empirical research; it generally refers to”tabular&quot; data: a data structure representing cases (rows), each of which consists of a number of observations or measurements (columns). Alternatively, each row may be treated as a single observation of multiple “variables”. In any case, each row and each column has the same data type, but the row (“record”) datatype may be heterogenous (a tuple of different types), while the column datatype must be homogenous. Data frames usually contain some metadata in addition to data; for example, column and row names.&quot; [<a href="https://github.com/mobileink/data.frame/wiki/What-is-a-Data-Frame%3F"><strong>.html</strong></a>]</p>
+</blockquote>
+<blockquote>
+<p>“<strong>Tibbles</strong> are a modern take on data frames. They keep the features that have stood the test of time, and drop the features that used to be convenient but are now frustrating (i.e. converting character vectors to factors).” [<a href="https://cran.r-project.org/web/packages/tibble/vignettes/tibble.html"><strong>.html</strong></a>]</p>
+</blockquote>
+</div>
+<div id="put-all-our-variable-we-made-into-a-tibble" class="section level2">
+<h2>Put all our variable we made into a tibble</h2>
+<blockquote>
+<ul>
+<li>every variable we made above is seperated by a comma – these will become columns in our dataset</li>
+<li>see help(data.frame) and help(tibble) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>example_data &lt;- tibble(subj_num, condition, dep_var, confound, gender, age)
+
+# print example_data by just excecuting/running the name of the object
+example_data</code></pre>
+<pre><code>## # A tibble: 100 x 6
+##    subj_num condition dep_var confound gender   age
+##       &lt;dbl&gt; &lt;fct&gt;       &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;  &lt;dbl&gt;
+##  1        1 control      1.79    0.741 Woman     20
+##  2        2 control      4.47    0.113 Man       25
+##  3        3 control      1.66    2.16  Woman     18
+##  4        4 control      2.90    2.86  Man       20
+##  5        5 control      4.63    2.55  Woman     21
+##  6        6 control      1.29   -1.35  Man       18
+##  7        7 control      3.79    2.16  Woman     22
+##  8        8 control      3.33    0.310 Man       24
+##  9        9 control      3.43    1.03  Woman     18
+## 10       10 control      1.42    0.633 Man       23
+## # … with 90 more rows</code></pre>
+</div>
+</div>
+<div id="data-wrangling-examples" class="section level1">
+<h1>Data wrangling examples</h1>
+<div id="create-new-variables-in-data.frame-or-tibble" class="section level2">
+<h2>create new variables in data.frame or tibble</h2>
+<blockquote>
+<ul>
+<li><code>mutate()</code> adds new variables to your tibble.</li>
+<li>we’re adding new columns to our dataset, and we’re saving this new dataset as the same name as our old one (i.e., like changing an Excel file and saving with the same name)</li>
+<li>see help(mutate) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>example_data &lt;- example_data %&gt;%
+  mutate(dep_var_z = dep_var %&gt;% scale() %&gt;% as.numeric(),
+         confound_z = confound %&gt;% scale() %&gt;% as.numeric())
+
+# print example_data by just excecuting/running the name of the object
+example_data</code></pre>
+<pre><code>## # A tibble: 100 x 8
+##    subj_num condition dep_var confound gender   age dep_var_z confound_z
+##       &lt;dbl&gt; &lt;fct&gt;       &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;  &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+##  1        1 control      1.79    0.741 Woman     20    -1.33      -0.823
+##  2        2 control      4.47    0.113 Man       25     0.259     -1.25 
+##  3        3 control      1.66    2.16  Woman     18    -1.42       0.139
+##  4        4 control      2.90    2.86  Man       20    -0.677      0.607
+##  5        5 control      4.63    2.55  Woman     21     0.356      0.403
+##  6        6 control      1.29   -1.35  Man       18    -1.63      -2.24 
+##  7        7 control      3.79    2.16  Woman     22    -0.142      0.135
+##  8        8 control      3.33    0.310 Man       24    -0.416     -1.11 
+##  9        9 control      3.43    1.03  Woman     18    -0.360     -0.630
+## 10       10 control      1.42    0.633 Man       23    -1.56      -0.896
+## # … with 90 more rows</code></pre>
+</div>
+<div id="select-specific-columns" class="section level2">
+<h2>Select specific columns</h2>
+<blockquote>
+<ul>
+<li><code>select()</code> selects your tibble’s variables by name and in the exact order you specify.</li>
+<li>see help(select) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>example_data %&gt;% 
+  select(subj_num, condition, dep_var)</code></pre>
+<pre><code>## # A tibble: 100 x 3
+##    subj_num condition dep_var
+##       &lt;dbl&gt; &lt;fct&gt;       &lt;dbl&gt;
+##  1        1 control      1.79
+##  2        2 control      4.47
+##  3        3 control      1.66
+##  4        4 control      2.90
+##  5        5 control      4.63
+##  6        6 control      1.29
+##  7        7 control      3.79
+##  8        8 control      3.33
+##  9        9 control      3.43
+## 10       10 control      1.42
+## # … with 90 more rows</code></pre>
+</div>
+<div id="filter-specific-rows" class="section level2">
+<h2>Filter specific rows</h2>
+<blockquote>
+<ul>
+<li><code>filter()</code> returns rows that all meet some condition you give it.</li>
+<li>Note, <code>==</code> means “exactly equal to”. See ?Comparison.</li>
+<li>see help(filter) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>example_data %&gt;% 
+  filter(condition == &quot;control&quot;)</code></pre>
+<pre><code>## # A tibble: 50 x 8
+##    subj_num condition dep_var confound gender   age dep_var_z confound_z
+##       &lt;dbl&gt; &lt;fct&gt;       &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;  &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+##  1        1 control      1.79    0.741 Woman     20    -1.33      -0.823
+##  2        2 control      4.47    0.113 Man       25     0.259     -1.25 
+##  3        3 control      1.66    2.16  Woman     18    -1.42       0.139
+##  4        4 control      2.90    2.86  Man       20    -0.677      0.607
+##  5        5 control      4.63    2.55  Woman     21     0.356      0.403
+##  6        6 control      1.29   -1.35  Man       18    -1.63      -2.24 
+##  7        7 control      3.79    2.16  Woman     22    -0.142      0.135
+##  8        8 control      3.33    0.310 Man       24    -0.416     -1.11 
+##  9        9 control      3.43    1.03  Woman     18    -0.360     -0.630
+## 10       10 control      1.42    0.633 Man       23    -1.56      -0.896
+## # … with 40 more rows</code></pre>
+</div>
+<div id="make-your-own-table-of-summary-data" class="section level2">
+<h2>Make your own table of summary data</h2>
+<blockquote>
+<ul>
+<li><code>summarize()</code> let’s you apply functions to your data to reduce it to single values. Typically, you create new summary values based on groups (e.g., condition, gender, id); for this, use <code>group_by()</code> first.</li>
+<li>see help(summarize) and help(group_by) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>example_data %&gt;% 
+  group_by(gender, condition) %&gt;% 
+  summarize(Mean = mean(confound),
+            SD = sd(confound),
+            n = length(confound))</code></pre>
+<pre><code>## # A tibble: 4 x 5
+## # Groups:   gender [?]
+##   gender condition     Mean    SD     n
+##   &lt;fct&gt;  &lt;fct&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;
+## 1 Man    control      0.776 1.26     25
+## 2 Man    manipulation 2.68  0.922    25
+## 3 Woman  control      1.36  1.22     25
+## 4 Woman  manipulation 3.02  1.24     25</code></pre>
+</div>
+</div>
+<div id="plotting-your-data-with-ggplot2" class="section level1">
+<h1>Plotting your data with ggplot2</h1>
+<blockquote>
+<p>“ggplot2 is a plotting system for R, based on the grammar of graphics, which tries to take the good parts of base and lattice graphics and none of the bad parts. It takes care of many of the fiddly details that make plotting a hassle (like drawing legends) as well as providing a powerful model of graphics that makes it easy to produce complex multi-layered graphics.” [<a href="http://ggplot2.org/"><strong>.html</strong></a>]</p>
+</blockquote>
+<div id="make-ggplots-in-layers" class="section level2">
+<h2>Make ggplots in layers</h2>
+<blockquote>
+<ul>
+<li>Aesthetic mappings describe how variables in the data are mapped to visual properties (aesthetics) of geoms. [<a href="http://ggplot2.tidyverse.org/reference/aes.html"><strong>.html</strong></a>]</li>
+<li>Below, we map condition on our plot’s x-axis and dep_var on its y-axis</li>
+<li>see help(ggplot) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>example_data %&gt;%
+  ggplot(mapping = aes(x = condition, y = dep_var))</code></pre>
+<p><img src="/post/2019-02-13-learn-r-for-psychology-research-a-crash-course/2019-02-13-learn-r-for-psychology-research-a-crash-course_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<blockquote>
+<ul>
+<li>Think of this like a blank canvas that we’re going to add pictures to or like a map of the ocean we’re going to add land mass to</li>
+</ul>
+</blockquote>
+</div>
+<div id="boxplot" class="section level2">
+<h2>Boxplot</h2>
+<blockquote>
+<ul>
+<li>next, we add—yes, add, with a <code>+</code>—a geom, a geometric element: <code>geom_boxplot()</code></li>
+<li>see help(geom_boxplot) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>example_data %&gt;%
+  ggplot(mapping = aes(x = condition, y = dep_var)) +
+  geom_boxplot()</code></pre>
+<p><img src="/post/2019-02-13-learn-r-for-psychology-research-a-crash-course/2019-02-13-learn-r-for-psychology-research-a-crash-course_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
+<blockquote>
+<ul>
+<li>Here’s emphasis: we started with a blank canvas, and we added a boxplot. All ggplots work this way: start with a base and add layers.</li>
+</ul>
+</blockquote>
+</div>
+<div id="qq-plots" class="section level2">
+<h2>QQ-plots</h2>
+<blockquote>
+<ul>
+<li>Below, we plot the sample quantiles of dep_var against the theoretical quantiles</li>
+<li>Useful for exploring the distribution of a variable</li>
+<li>see help(geom_qq) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>example_data %&gt;%
+  ggplot(mapping = aes(sample = dep_var)) +
+  geom_qq()</code></pre>
+<p><img src="/post/2019-02-13-learn-r-for-psychology-research-a-crash-course/2019-02-13-learn-r-for-psychology-research-a-crash-course_files/figure-html/unnamed-chunk-30-1.png" width="672" /></p>
+</div>
+<div id="means-and-95-confidence-intervals" class="section level2">
+<h2>Means and 95% confidence intervals</h2>
+<blockquote>
+<ul>
+<li>add a new aesthetic, fill, which will fill the geoms with different colors, depending on the variable (e.g., levels of categorical variables are assigned their own fill color)</li>
+<li><code>stat_summary()</code> does what its name suggests: it applies statistical summaries to your raw data to make the geoms (bars and error bars in our case below)</li>
+<li>the width argument sets the width of the error bars.</li>
+<li>see help(stat_summary) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>example_data %&gt;%
+  ggplot(mapping = aes(x = condition, y = dep_var, fill = condition)) +
+  stat_summary(geom = &quot;bar&quot;, fun.data = mean_cl_normal) +
+  stat_summary(geom = &quot;errorbar&quot;, fun.data = mean_cl_normal, width = 0.1)</code></pre>
+<p><img src="/post/2019-02-13-learn-r-for-psychology-research-a-crash-course/2019-02-13-learn-r-for-psychology-research-a-crash-course_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+</div>
+<div id="scatterplots" class="section level2">
+<h2>Scatterplots</h2>
+<blockquote>
+<ul>
+<li>we add <code>geom_point()</code> and <code>geom_smooth()</code> below to add points to the scatterplot and fit a linear regression line with 95% confidence ribbons/bands around that line</li>
+<li>see help(geom_point) and help(geom_smooth)for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code>example_data %&gt;%
+  ggplot(mapping = aes(x = confound, y = dep_var)) +
+  geom_point() +
+  geom_smooth(method = &quot;lm&quot;, se = TRUE)</code></pre>
+<p><img src="/post/2019-02-13-learn-r-for-psychology-research-a-crash-course/2019-02-13-learn-r-for-psychology-research-a-crash-course_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
+</div>
+</div>
+<div id="descriptive-statistics" class="section level1">
+<h1>Descriptive statistics</h1>
+<blockquote>
+<ul>
+<li><code>describe()</code>, help(describe)</li>
+<li><code>describeBy()</code>, help(describeBy)</li>
+</ul>
+</blockquote>
+<div id="for-whole-sample" class="section level2">
+<h2>For whole sample</h2>
+<pre class="r"><code>example_data %&gt;% 
+  select(dep_var, dep_var_z, confound, confound_z) %&gt;% 
+  describe()</code></pre>
+<pre><code>##            vars   n mean   sd median trimmed  mad   min  max range  skew
+## dep_var       1 100 4.03 1.68   3.97    4.03 1.99  0.98 7.77  6.79 -0.01
+## dep_var_z     2 100 0.00 1.00  -0.03    0.00 1.19 -1.82 2.23  4.05 -0.01
+## confound      3 100 1.96 1.48   2.01    1.98 1.37 -1.93 5.99  7.92 -0.14
+## confound_z    4 100 0.00 1.00   0.04    0.02 0.93 -2.63 2.73  5.36 -0.14
+##            kurtosis   se
+## dep_var       -0.98 0.17
+## dep_var_z     -0.98 0.10
+## confound       0.06 0.15
+## confound_z     0.06 0.10</code></pre>
+</div>
+<div id="by-condition" class="section level2">
+<h2>By condition</h2>
+<blockquote>
+<p>The code below is a little confusing. First, we’re piping our subsetted tibble with only our four variables—dep_var and confound and their z-scored versions—into the first argument for the <code>describeBy()</code> function. But we need to give data to the group argument, so then we just give it another subsetted tibble with only our grouping variable, condition.</p>
+</blockquote>
+<pre class="r"><code>example_data %&gt;% 
+  select(dep_var, dep_var_z, confound, confound_z) %&gt;% 
+  describeBy(group = example_data %&gt;% select(condition))</code></pre>
+<pre><code>## 
+##  Descriptive statistics by group 
+## condition: control
+##            vars  n  mean   sd median trimmed  mad   min  max range  skew
+## dep_var       1 50  2.78 1.10   2.89    2.74 1.40  0.98 4.84  3.86  0.13
+## dep_var_z     2 50 -0.75 0.66  -0.68   -0.77 0.84 -1.82 0.48  2.30  0.13
+## confound      3 50  1.07 1.27   1.16    1.10 1.40 -1.93 3.60  5.52 -0.27
+## confound_z    4 50 -0.60 0.86  -0.54   -0.58 0.94 -2.63 1.11  3.74 -0.27
+##            kurtosis   se
+## dep_var       -1.20 0.16
+## dep_var_z     -1.20 0.09
+## confound      -0.61 0.18
+## confound_z    -0.61 0.12
+## -------------------------------------------------------- 
+## condition: manipulation
+##            vars  n mean   sd median trimmed  mad   min  max range  skew
+## dep_var       1 50 5.28 1.13   5.39    5.33 1.13  2.61 7.77  5.17 -0.34
+## dep_var_z     2 50 0.75 0.68   0.81    0.77 0.67 -0.85 2.23  3.08 -0.34
+## confound      3 50 2.85 1.10   2.80    2.80 1.10  0.64 5.99  5.35  0.50
+## confound_z    4 50 0.60 0.74   0.57    0.57 0.75 -0.89 2.73  3.62  0.50
+##            kurtosis   se
+## dep_var       -0.06 0.16
+## dep_var_z     -0.06 0.10
+## confound       0.14 0.16
+## confound_z     0.14 0.10</code></pre>
+</div>
+</div>
+<div id="read-in-your-own-data" class="section level1">
+<h1>Read in your own data</h1>
+<blockquote>
+<ul>
+<li>.csv file: <code>read_csv()</code></li>
+<li>.txt file: <code>read_delim()</code></li>
+<li>SPSS .sav file: <code>read_sav()</code></li>
+</ul>
+</blockquote>
+<div id="spss" class="section level2">
+<h2>SPSS</h2>
+<blockquote>
+<ul>
+<li>see help(read_sav) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code># path to where file lives on your computer
+coffee_filepath &lt;- &quot;data/coffee.sav&quot;
+
+coffee_data &lt;- coffee_filepath %&gt;% read_sav()
+
+# print coffee_data by just excecuting/running the name of the object
+coffee_data</code></pre>
+<pre><code>## # A tibble: 138 x 3
+##    image     brand      freq
+##    &lt;dbl+lbl&gt; &lt;dbl+lbl&gt; &lt;dbl&gt;
+##  1  1        1            82
+##  2  2        1            96
+##  3  3        1            72
+##  4  4        1           101
+##  5  5        1            66
+##  6  6        1             6
+##  7  7        1            47
+##  8  8        1             1
+##  9  9        1            16
+## 10 10        1            60
+## # … with 128 more rows</code></pre>
+</div>
+<div id="csv" class="section level2">
+<h2>CSV</h2>
+<blockquote>
+<ul>
+<li>see help(read_csv) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code># path to where file lives on your computer
+coffee_filepath &lt;- &quot;data/coffee.csv&quot;
+
+coffee_data &lt;- coffee_filepath %&gt;% read_csv()</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   image = col_double(),
+##   brand = col_double(),
+##   freq = col_double()
+## )</code></pre>
+</div>
+<div id="txt" class="section level2">
+<h2>TXT</h2>
+<blockquote>
+<ul>
+<li>see help(read_delim) for details</li>
+</ul>
+</blockquote>
+<pre class="r"><code># path to where file lives on your computer
+coffee_filepath &lt;- &quot;data/coffee.txt&quot;
+
+coffee_data &lt;- coffee_filepath %&gt;% read_delim(delim = &quot; &quot;)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   image = col_double(),
+##   brand = col_double(),
+##   freq = col_double()
+## )</code></pre>
+</div>
+</div>
+<div id="modeling-your-data" class="section level1">
+<h1>Modeling your data</h1>
+<div id="t.test-helpt.test" class="section level2">
+<h2><code>t.test()</code>, help(t.test)</h2>
+<pre class="r"><code>t.test(dep_var ~ condition, data = example_data)</code></pre>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  dep_var by condition
+## t = -11.191, df = 97.917, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  -2.945504 -2.058211
+## sample estimates:
+##      mean in group control mean in group manipulation 
+##                   2.781611                   5.283469</code></pre>
+</div>
+<div id="pairs.panels-helppairs.panels" class="section level2">
+<h2><code>pairs.panels()</code>, help(pairs.panels)</h2>
+<blockquote>
+<p>shows a scatter plot of matrices (SPLOM), with bivariate scatter plots below the diagonal, histograms on the diagonal, and the Pearson correlation above the diagonal (see ?pairs.panels).</p>
+</blockquote>
+<pre class="r"><code>example_data %&gt;% 
+  select(dep_var, confound, age) %&gt;% 
+  pairs.panels()</code></pre>
+<p><img src="/post/2019-02-13-learn-r-for-psychology-research-a-crash-course/2019-02-13-learn-r-for-psychology-research-a-crash-course_files/figure-html/unnamed-chunk-39-1.png" width="672" /></p>
+</div>
+<div id="lm-helplm" class="section level2">
+<h2><code>lm()</code>, help(lm)</h2>
+<pre class="r"><code>lm_fit &lt;- lm(dep_var ~ condition + confound, data = example_data)
+
+# print lm_fit by just excecuting/running the name of the object
+lm_fit</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = dep_var ~ condition + confound, data = example_data)
+## 
+## Coefficients:
+##           (Intercept)  conditionmanipulation               confound  
+##                2.3071                 1.7131                 0.4436</code></pre>
+</div>
+<div id="summary-helpsummary" class="section level2">
+<h2><code>summary()</code>, help(summary)</h2>
+<pre class="r"><code>lm_fit %&gt;% summary()</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = dep_var ~ condition + confound, data = example_data)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -2.51364 -0.63227 -0.04024  0.80754  2.32814 
+## 
+## Coefficients:
+##                       Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)            2.30710    0.16688  13.825  &lt; 2e-16 ***
+## conditionmanipulation  1.71311    0.24889   6.883 5.80e-10 ***
+## confound               0.44364    0.08457   5.246 9.14e-07 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.9916 on 97 degrees of freedom
+## Multiple R-squared:  0.658,  Adjusted R-squared:  0.651 
+## F-statistic: 93.32 on 2 and 97 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div id="anova-helpanova" class="section level2">
+<h2><code>Anova()</code>, help(Anova)</h2>
+<pre class="r"><code>lm_fit %&gt;% Anova(type = &quot;III&quot;)</code></pre>
+<pre><code>## Anova Table (Type III tests)
+## 
+## Response: dep_var
+##              Sum Sq Df F value    Pr(&gt;F)    
+## (Intercept) 187.940  1 191.119 &lt; 2.2e-16 ***
+## condition    46.589  1  47.377 5.802e-10 ***
+## confound     27.059  1  27.517 9.138e-07 ***
+## Residuals    95.387 97                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+</div>
+<div id="recommended-resources" class="section level2">
+<h2>Recommended Resources</h2>
+<blockquote>
+<ul>
+<li>ReadCollegePDX (2015, October 19). Hadley Wickham “Data Science with R”. [<a href="https://youtu.be/K-ss_ag2k9E?list=PLNtpLD4WiWbw9Cgcg6IU75u-44TrrN3A4"><strong>YouTube</strong></a>]</li>
+<li>Robinson, D. (2017, July 05). Teach the tidyverse to beginners. Variance Explained. [<a href="http://varianceexplained.org/r/teach-tidyverse/"><strong>.html</strong></a>]</li>
+<li>Wickham, H. (2014). Tidy data. <em>Journal of Statistical Software, 59</em>(10), 1-23. [<a href="http://vita.had.co.nz/papers/tidy-data.html"><strong>.html</strong></a>]</li>
+<li>The tidyverse style guide [<a href="http://style.tidyverse.org/"><strong>.html</strong></a>] by Hadley Wickham</li>
+<li>Wickham, H., &amp; Grolemund, G. (2017). R for Data Science: Import, Tidy, Transform, Visualize, and Model Data. Sebastopol, CA: O’Reilly Media, Inc. [<a href="http://r4ds.had.co.nz/"><strong>.html</strong></a>]</li>
+</ul>
+</blockquote>
+</div>
+<div id="more-advanced-data-wrangling-and-analysis-techniques-by-psychologists-for-psychologists" class="section level2">
+<h2>More advanced data wrangling and analysis techniques by psychologists, for psychologists</h2>
+<blockquote>
+<ul>
+<li>R programming for research [<a href="https://github.com/nmmichalak/R_programming_for_research"><strong>.html</strong></a>], a workshop instructed by Nick Michalak and Iris Wang at the University of Michigan</li>
+</ul>
+</blockquote>
+</div>
+<div id="more-information-about-tidyverse-and-the-psych-package" class="section level2">
+<h2>More information about tidyverse and the psych package</h2>
+<blockquote>
+<ul>
+<li>tidyverse: R packages for data science [<a href="https://www.tidyverse.org/"><strong>.html</strong></a>]</li>
+<li>Using R and psych for personality and psychological research [<a href="http://personality-project.org/r/psych/"><strong>.html</strong></a>]</li>
+</ul>
+</blockquote>
+</div>
+<div id="r-studio-cheat-sheets" class="section level2">
+<h2>R Studio Cheat Sheets</h2>
+<blockquote>
+<ul>
+<li>RStudio Cheat Sheets [<a href="https://www.rstudio.com/resources/cheatsheets/"><strong>.html</strong></a>]</li>
+</ul>
+</blockquote>
+</div>
+</div>

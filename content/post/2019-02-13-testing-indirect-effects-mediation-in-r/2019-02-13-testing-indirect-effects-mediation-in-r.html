@@ -1,8 +1,19 @@
 ---
-title: "Testing indirect effects/mediation in R"
-output: 
-  html_document: 
-    theme: readable
+title: Testing indirect effects/mediation in R
+author: ''
+date: '2019-02-13'
+slug: testing-indirect-effects-mediation-in-r
+categories:
+  - mediation
+  - indirect effect
+  - general linear model
+tags:
+  - mediation
+  - indirect effects
+  - general linear model
+image:
+  caption: ''
+  focal_point: ''
 ---
 
 
@@ -43,7 +54,7 @@ library(MBESS)</code></pre>
 <blockquote>
 <p>I took the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg01/data/mackinnon_2008_t3.1.csv"><strong>.csv</strong></a>]</p>
 </blockquote>
-<pre class="r"><code>thirst_dat &lt;- &quot;data/mackinnon_2008_t3.1.csv&quot; %&gt;% read_csv()</code></pre>
+<pre class="r"><code>thirst_dat &lt;- &quot;data/mackinnon_2008_t10.1.csv&quot; %&gt;% read_csv()</code></pre>
 <div id="print-first-and-last-five-observations" class="section level3">
 <h3>Print first and last five observations</h3>
 <pre class="r"><code>thirst_dat %&gt;% 
@@ -61,27 +72,27 @@ library(MBESS)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">1</td>
-<td align="left">70</td>
-<td align="left">4</td>
+<td align="left">69</td>
+<td align="left">2</td>
 <td align="left">3</td>
 </tr>
 <tr class="even">
 <td align="left">2</td>
-<td align="left">71</td>
+<td align="left">70</td>
+<td align="left">2</td>
 <td align="left">4</td>
-<td align="left">3</td>
 </tr>
 <tr class="odd">
 <td align="left">3</td>
 <td align="left">69</td>
 <td align="left">1</td>
-<td align="left">3</td>
+<td align="left">2</td>
 </tr>
 <tr class="even">
 <td align="left">4</td>
 <td align="left">70</td>
-<td align="left">1</td>
 <td align="left">3</td>
+<td align="left">2</td>
 </tr>
 <tr class="odd">
 <td align="left">…</td>
@@ -98,20 +109,20 @@ library(MBESS)</code></pre>
 <tr class="odd">
 <td align="left">48</td>
 <td align="left">71</td>
-<td align="left">3</td>
-<td align="left">2</td>
-</tr>
-<tr class="even">
-<td align="left">49</td>
-<td align="left">72</td>
 <td align="left">4</td>
 <td align="left">5</td>
 </tr>
+<tr class="even">
+<td align="left">49</td>
+<td align="left">70</td>
+<td align="left">3</td>
+<td align="left">3</td>
+</tr>
 <tr class="odd">
 <td align="left">50</td>
-<td align="left">70</td>
-<td align="left">2</td>
-<td align="left">2</td>
+<td align="left">71</td>
+<td align="left">4</td>
+<td align="left">3</td>
 </tr>
 </tbody>
 </table>
@@ -125,12 +136,12 @@ library(MBESS)</code></pre>
 <pre class="r"><code>thirst_dat %&gt;% 
   select(room_temp, thirst, consume) %&gt;% 
   pairs.panels()</code></pre>
-<p><img src="/post/nrg01/nrg01_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p><img src="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 </div>
 <div id="conceptual-diagram" class="section level2">
 <h2>Conceptual Diagram</h2>
 <div class="figure">
-<img src="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure_01.jpg" alt="Figure 1. Room temperature is associated with water drinking indirectly through thirstiness" />
+<img src="/static/post/nrg01/nrg01_files/figure_01.jpg" alt="Figure 1. Room temperature is associated with water drinking indirectly through thirstiness" />
 <p class="caption">Figure 1. Room temperature is associated with water drinking indirectly through thirstiness</p>
 </div>
 </div>
@@ -174,7 +185,7 @@ library(MBESS)</code></pre>
 <p>standardized = TRUE adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
 </blockquote>
 <pre class="r"><code>summary(fsem1, standardized = TRUE)</code></pre>
-<pre><code>## lavaan 0.6-3 ended normally after 11 iterations
+<pre><code>## lavaan 0.6-3 ended normally after 12 iterations
 ## 
 ##   Optimization method                           NLMINB
 ##   Number of free parameters                          5
@@ -184,7 +195,6 @@ library(MBESS)</code></pre>
 ##   Estimator                                         ML
 ##   Model Fit Test Statistic                       0.000
 ##   Degrees of freedom                                 0
-##   Minimum Function Value               0.0000000000000
 ## 
 ## Parameter Estimates:
 ## 
@@ -195,20 +205,20 @@ library(MBESS)</code></pre>
 ## Regressions:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
 ##   thirst ~                                                              
-##     room_temp  (a)    0.339    0.101    3.362    0.001    0.339    0.371
+##     room_temp  (a)    0.761    0.148    5.146    0.000    0.761    0.557
 ##   consume ~                                                             
-##     thirst     (b)    0.451    0.149    3.025    0.002    0.451    0.413
-##     room_temp (cp)    0.208    0.130    1.599    0.110    0.208    0.208
+##     thirst     (b)    0.348    0.135    2.566    0.010    0.348    0.377
+##     room_temp (cp)    0.036    0.189    0.190    0.850    0.036    0.029
 ## 
 ## Variances:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
-##    .thirst            0.911    0.153    5.966    0.000    0.911    0.862
-##    .consume           0.912    0.155    5.892    0.000    0.912    0.723
+##    .thirst            1.020    0.157    6.493    0.000    1.020    0.689
+##    .consume           1.065    0.208    5.130    0.000    1.065    0.845
 ## 
 ## Defined Parameters:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
-##     ab                0.153    0.064    2.396    0.017    0.153    0.153
-##     total             0.360    0.116    3.098    0.002    0.360    0.361</code></pre>
+##     ab                0.264    0.123    2.142    0.032    0.264    0.210
+##     total             0.300    0.176    1.708    0.088    0.300    0.238</code></pre>
 </div>
 <div id="print-all-model-parameters" class="section level2">
 <h2>Print all model parameters</h2>
@@ -241,120 +251,120 @@ library(MBESS)</code></pre>
 <td align="left">~</td>
 <td align="left">room_temp</td>
 <td align="left">a</td>
-<td align="right">0.3385926</td>
-<td align="right">0.1006968</td>
-<td align="right">3.362496</td>
-<td align="right">0.0007724</td>
-<td align="right">0.1303043</td>
-<td align="right">0.5290935</td>
-<td align="right">0.3385926</td>
-<td align="right">0.3708979</td>
-<td align="right">0.3294301</td>
+<td align="right">0.7610887</td>
+<td align="right">0.1478894</td>
+<td align="right">5.1463379</td>
+<td align="right">0.0000003</td>
+<td align="right">0.4615390</td>
+<td align="right">1.0516483</td>
+<td align="right">0.7610887</td>
+<td align="right">0.5573208</td>
+<td align="right">0.6256111</td>
 </tr>
 <tr class="even">
 <td align="left">consume</td>
 <td align="left">~</td>
 <td align="left">thirst</td>
 <td align="left">b</td>
-<td align="right">0.4510391</td>
-<td align="right">0.1491257</td>
-<td align="right">3.024556</td>
-<td align="right">0.0024900</td>
-<td align="right">0.1633510</td>
-<td align="right">0.7466368</td>
-<td align="right">0.4510391</td>
-<td align="right">0.4126006</td>
-<td align="right">0.4126006</td>
+<td align="right">0.3475013</td>
+<td align="right">0.1354310</td>
+<td align="right">2.5658923</td>
+<td align="right">0.0102911</td>
+<td align="right">0.0649463</td>
+<td align="right">0.5977806</td>
+<td align="right">0.3475013</td>
+<td align="right">0.3766787</td>
+<td align="right">0.3766787</td>
 </tr>
 <tr class="odd">
 <td align="left">consume</td>
 <td align="left">~</td>
 <td align="left">room_temp</td>
 <td align="left">cp</td>
-<td align="right">0.2076475</td>
-<td align="right">0.1298255</td>
-<td align="right">1.599436</td>
-<td align="right">0.1097238</td>
-<td align="right">-0.0568067</td>
-<td align="right">0.4465309</td>
-<td align="right">0.2076475</td>
-<td align="right">0.2080748</td>
-<td align="right">0.1848112</td>
+<td align="right">0.0359239</td>
+<td align="right">0.1894877</td>
+<td align="right">0.1895842</td>
+<td align="right">0.8496350</td>
+<td align="right">-0.3163420</td>
+<td align="right">0.4346033</td>
+<td align="right">0.0359239</td>
+<td align="right">0.0285146</td>
+<td align="right">0.0320086</td>
 </tr>
 <tr class="even">
 <td align="left">thirst</td>
 <td align="left">~~</td>
 <td align="left">thirst</td>
 <td align="left"></td>
-<td align="right">0.9110761</td>
-<td align="right">0.1527217</td>
-<td align="right">5.965598</td>
+<td align="right">1.0203024</td>
+<td align="right">0.1571380</td>
+<td align="right">6.4930346</td>
 <td align="right">0.0000000</td>
-<td align="right">0.6618918</td>
-<td align="right">1.2978137</td>
-<td align="right">0.9110761</td>
-<td align="right">0.8624347</td>
-<td align="right">0.8624347</td>
+<td align="right">0.7538658</td>
+<td align="right">1.3725827</td>
+<td align="right">1.0203024</td>
+<td align="right">0.6893935</td>
+<td align="right">0.6893935</td>
 </tr>
 <tr class="odd">
 <td align="left">consume</td>
 <td align="left">~~</td>
 <td align="left">consume</td>
 <td align="left"></td>
-<td align="right">0.9124389</td>
-<td align="right">0.1548648</td>
-<td align="right">5.891840</td>
-<td align="right">0.0000000</td>
-<td align="right">0.6772054</td>
-<td align="right">1.3154000</td>
-<td align="right">0.9124389</td>
-<td align="right">0.7227811</td>
-<td align="right">0.7227811</td>
+<td align="right">1.0647750</td>
+<td align="right">0.2075633</td>
+<td align="right">5.1298806</td>
+<td align="right">0.0000003</td>
+<td align="right">0.7421154</td>
+<td align="right">1.6034917</td>
+<td align="right">1.0647750</td>
+<td align="right">0.8453279</td>
+<td align="right">0.8453279</td>
 </tr>
 <tr class="even">
 <td align="left">room_temp</td>
 <td align="left">~~</td>
 <td align="left">room_temp</td>
 <td align="left"></td>
-<td align="right">1.2676000</td>
+<td align="right">0.7936000</td>
 <td align="right">0.0000000</td>
 <td align="right">NA</td>
 <td align="right">NA</td>
-<td align="right">1.2676000</td>
-<td align="right">1.2676000</td>
-<td align="right">1.2676000</td>
+<td align="right">0.7936000</td>
+<td align="right">0.7936000</td>
+<td align="right">0.7936000</td>
 <td align="right">1.0000000</td>
-<td align="right">1.2676000</td>
+<td align="right">0.7936000</td>
 </tr>
 <tr class="odd">
 <td align="left">ab</td>
 <td align="left">:=</td>
 <td align="left">a*b</td>
 <td align="left">ab</td>
-<td align="right">0.1527185</td>
-<td align="right">0.0637271</td>
-<td align="right">2.396444</td>
-<td align="right">0.0165550</td>
-<td align="right">0.0557988</td>
-<td align="right">0.3153882</td>
-<td align="right">0.1527185</td>
-<td align="right">0.1530327</td>
-<td align="right">0.1359231</td>
+<td align="right">0.2644793</td>
+<td align="right">0.1234479</td>
+<td align="right">2.1424361</td>
+<td align="right">0.0321584</td>
+<td align="right">0.0644499</td>
+<td align="right">0.5583698</td>
+<td align="right">0.2644793</td>
+<td align="right">0.2099309</td>
+<td align="right">0.2356543</td>
 </tr>
 <tr class="even">
 <td align="left">total</td>
 <td align="left">:=</td>
 <td align="left">cp+ab</td>
 <td align="left">total</td>
-<td align="right">0.3603660</td>
-<td align="right">0.1163348</td>
-<td align="right">3.097664</td>
-<td align="right">0.0019505</td>
-<td align="right">0.1186142</td>
-<td align="right">0.5777528</td>
-<td align="right">0.3603660</td>
-<td align="right">0.3611075</td>
-<td align="right">0.3207343</td>
+<td align="right">0.3004032</td>
+<td align="right">0.1758694</td>
+<td align="right">1.7081042</td>
+<td align="right">0.0876170</td>
+<td align="right">0.0007138</td>
+<td align="right">0.7019997</td>
+<td align="right">0.3004032</td>
+<td align="right">0.2384455</td>
+<td align="right">0.2676630</td>
 </tr>
 </tbody>
 </table>
@@ -373,35 +383,35 @@ library(MBESS)</code></pre>
 <pre class="r"><code>with(thirst_dat, mediation(x = room_temp, mediator = thirst, dv = consume, bootstrap = TRUE, which.boot = &quot;BCa&quot;, B = 10000))</code></pre>
 <pre><code>## [1] &quot;Bootstrap resampling has begun. This process may take a considerable amount of time if the number of replications is large, which is optimal for the bootstrap procedure.&quot;</code></pre>
 <pre><code>##                                          Estimate CI.Lower_BCa
-## Indirect.Effect                        0.15271850  0.054774249
-## Indirect.Effect.Partially.Standardized 0.13455697  0.047500499
-## Index.of.Mediation                     0.15303271  0.056483230
-## R2_4.5                                 0.09305941  0.017104506
-## R2_4.6                                 0.02322601  0.003224223
-## R2_4.7                                 0.08378220  0.018697373
-## Ratio.of.Indirect.to.Total.Effect      0.42378715  0.114709549
-## Ratio.of.Indirect.to.Direct.Effect     0.73546979 -0.139295208
-## Success.of.Surrogate.Endpoint          1.06430568  0.356034288
-## Residual.Based_Gamma                   0.05094366 -0.012101027
-## Residual.Based.Standardized_gamma      0.04865370 -0.015292266
-## SOS                                    0.71365334  0.250959300
+## Indirect.Effect                        0.26447934  0.067266940
+## Indirect.Effect.Partially.Standardized 0.23328589  0.049494759
+## Index.of.Mediation                     0.20993085  0.051674603
+## R2_4.5                                 0.05629571 -0.026310687
+## R2_4.6                                 0.03221379  0.001860142
+## R2_4.7                                 0.20827151  0.043495582
+## Ratio.of.Indirect.to.Total.Effect      0.88041445  0.095311306
+## Ratio.of.Indirect.to.Direct.Effect     7.36221455  3.153580178
+## Success.of.Surrogate.Endpoint          0.39470199 -0.033430066
+## Residual.Based_Gamma                   0.11312492  0.019489023
+## Residual.Based.Standardized_gamma      0.10885100  0.018547109
+## SOS                                    0.99014119  0.917763141
 ##                                        CI.Upper_BCa
-## Indirect.Effect                          0.31703756
-## Indirect.Effect.Partially.Standardized   0.26609057
-## Index.of.Mediation                       0.32588089
-## R2_4.5                                   0.24214258
-## R2_4.6                                   0.08866451
-## R2_4.7                                   0.23564896
-## Ratio.of.Indirect.to.Total.Effect        1.46825891
-## Ratio.of.Indirect.to.Direct.Effect      17.49103913
-## Success.of.Surrogate.Endpoint            2.63708443
-## Residual.Based_Gamma                     0.16891177
-## Residual.Based.Standardized_gamma        0.16425113
-## SOS                                      0.99749314</code></pre>
+## Indirect.Effect                           0.5650835
+## Indirect.Effect.Partially.Standardized    0.4675337
+## Index.of.Mediation                        0.4328584
+## R2_4.5                                    0.2023460
+## R2_4.6                                    0.1141848
+## R2_4.7                                    0.4346039
+## Ratio.of.Indirect.to.Total.Effect         7.2734388
+## Ratio.of.Indirect.to.Direct.Effect     7784.3084246
+## Success.of.Surrogate.Endpoint             0.9278002
+## Residual.Based_Gamma                      0.2163837
+## Residual.Based.Standardized_gamma         0.2098652
+## SOS                                       1.0000000</code></pre>
 <div id="plot-the-mediation-effect" class="section level3">
 <h3>Plot the mediation effect</h3>
 <pre class="r"><code>with(thirst_dat, mediation.effect.plot(x = room_temp, mediator = thirst, dv = consume, ylab = &quot;Water Drank (dl)&quot;, xlab = &quot;Thirstiness (1/5 = Not at all thirty/Very thirsty)&quot;))</code></pre>
-<p><img src="/post/nrg01/nrg01_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <blockquote>
 <p>The plot above depicts the relationship between the proposed mediator (thirstiness) and outcome variable (water drank, in dl) at different levels of the proposed antecedent (room temperature, in &amp;degF). The plot doesn’t label this, but if check out the right triangle formed in between the vertical lines marking the <em>a</em> coefficient, you’ll see the indirect effect, which is the height of this triangle.</p>
 </blockquote>
@@ -410,7 +420,7 @@ library(MBESS)</code></pre>
 <div id="test-the-same-model-using-mediate-from-psych" class="section level2">
 <h2>Test the same model using <code>mediate()</code> from psych</h2>
 <pre class="r"><code>mediate(consume ~ room_temp + thirst, data = thirst_dat, n.iter = 10000) %&gt;% print(short = FALSE)</code></pre>
-<p><img src="/post/nrg01/nrg01_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <pre><code>## 
 ## Mediation/Moderation Analysis 
 ## Call: mediate(y = consume ~ room_temp + thirst, data = thirst_dat, 
@@ -418,12 +428,12 @@ library(MBESS)</code></pre>
 ## 
 ## The DV (Y) was  consume . The IV (X) was  room_temp thirst . The mediating variable(s) =  .
 ##  DV =  consume 
-##           slope   se    t      p
-## room_temp  0.21 0.13 1.56 0.1300
-## thirst     0.45 0.15 3.09 0.0034
+##           slope   se    t     p
+## room_temp  0.04 0.20 0.18 0.860
+## thirst     0.35 0.15 2.33 0.024
 ## 
-## With R2 =  0.28
-## R = 0.53 R2 = 0.28   F = 9.01 on 2 and 47 DF   p-value:  0.000486</code></pre>
+## With R2 =  0.15
+## R = 0.39 R2 = 0.15   F = 4.3 on 2 and 47 DF   p-value:  0.0193</code></pre>
 </div>
 <div id="resources" class="section level2">
 <h2>Resources</h2>

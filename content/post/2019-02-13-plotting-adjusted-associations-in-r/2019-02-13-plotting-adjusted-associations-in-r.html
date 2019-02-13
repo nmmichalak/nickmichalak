@@ -1,0 +1,563 @@
+---
+title: Plotting Adjusted Associations in R
+author: Nick Michalak
+date: '2019-02-13'
+slug: plotting-adjusted-associations-in-r
+categories:
+  - demonstration
+  - general linear model
+  - plotting
+  - R
+  - regression
+  - tutorial
+  - covariates
+tags:
+  - regression
+  - demonstration
+  - plotting
+  - tutorial
+  - R
+  - covariates
+image:
+  caption: ''
+  focal_point: ''
+---
+
+
+
+<div id="what-is-a-correlation" class="section level1">
+<h1>What is a correlation?</h1>
+<blockquote>
+<p>A correlation quantifies the linear association between two variables. From one perspective, a correlation has two parts: one part quantifies the association, and the other part sets the scale of that association.</p>
+</blockquote>
+<blockquote>
+<p>The first part—the covariance, also the correlation numerator—equates to a sort of “average sum of squares” of two variables:</p>
+</blockquote>
+<div id="cov_x-y-fracsumx---bar-xy---bar-yn---1" class="section level2">
+<h2><span class="math inline">\(cov_{(X, Y)} = \frac{\sum(X - \bar X)(Y - \bar Y)}{N - 1}\)</span></h2>
+<blockquote>
+<p>It could be easier to interpret the covariance as an “average of the X-Y matches”: Deviations of X scores above the X mean multipled by deviations of Y scores below the Y mean will be negative, and deviations of X scores above the X mean multipled by deviations of Y scores above the Y mean will be positive. More “mismatches” leads to a negative covariance and more “matches” leads to a positive covariance.</p>
+</blockquote>
+<blockquote>
+<p>The second part—the product of the standard deviations, also the correlation denominator—restricts the association to values from -1.00 to 1.00.</p>
+</blockquote>
+</div>
+<div id="sqrtvar_x-var_y-sqrtfracsumx---bar-x2n---1-fracsumy---bar-y2n---1" class="section level2">
+<h2><span class="math inline">\(\sqrt{var_X var_Y} = \sqrt{\frac{\sum(X - \bar X)^2}{N - 1} \frac{\sum(Y - \bar Y)^2}{N - 1}}\)</span></h2>
+<blockquote>
+<p>Divide the numerator by the denominator and you get a sort of “ratio of the sum of squares”, the Pearson correlation coefficient:</p>
+</blockquote>
+</div>
+<div id="r_xy-fracfracsumx---bar-xy---bar-yn---1sqrtfracsumx---bar-x2n---1-fracsumy---bar-y2n---1-fraccov_x-ysqrtvar_x-var_y" class="section level2">
+<h2><span class="math inline">\(r_{XY} = \frac{\frac{\sum(X - \bar X)(Y - \bar Y)}{N - 1}}{\sqrt{\frac{\sum(X - \bar X)^2}{N - 1} \frac{\sum(Y - \bar Y)^2}{N - 1}}} = \frac{cov_{(X, Y)}}{\sqrt{var_X var_Y}}\)</span></h2>
+<blockquote>
+<p>Square this “standardized covariance” for an estimate of the proportion of variance of Y that can be accounted for by a linear function of X, <span class="math inline">\(R^2_{XY}\)</span>.</p>
+</blockquote>
+<blockquote>
+<p>By the way, the correlation equation is very similar to the bivariate linear regression beta coefficient equation. The only difference is in the denominator which excludes the Y variance:</p>
+</blockquote>
+</div>
+<div id="hatbeta-fracfracsumx---bar-xy---bar-yn---1sqrtfracsumx---bar-x2n---1-fraccov_x-ysqrtvar_x" class="section level2">
+<h2><span class="math inline">\(\hat{\beta} = \frac{\frac{\sum(X - \bar X)(Y - \bar Y)}{N - 1}}{\sqrt{\frac{\sum(X - \bar X)^2}{N - 1} }} = \frac{cov_{(X, Y)}}{\sqrt{var_X}}\)</span></h2>
+</div>
+</div>
+<div id="what-does-it-mean-to-adjust-a-correlation" class="section level1">
+<h1>What does it mean to “adjust” a correlation?</h1>
+<blockquote>
+<p>An adjusted correlation refers to the (square root of the) change in a regression model’s <span class="math inline">\(R^2\)</span> after adding a single predictor to the model: <span class="math inline">\(R^2_{full} - R^2_{reduced}\)</span>. This change quantifies that additional predictor’s “unique” contribution to observed variance explained. Put another way, this value quantifies observed variance in Y explained by a linear function of X after removing variance shared between X and the other predictors in the model.</p>
+</blockquote>
+</div>
+<div id="model-and-conceptual-assumptions-for-linear-regression" class="section level1">
+<h1>Model and Conceptual Assumptions for Linear Regression</h1>
+<blockquote>
+<ul>
+<li><strong>Correct functional form.</strong> Your model variables share linear relationships.<br />
+</li>
+<li><strong>No omitted influences.</strong> This one is hard: Your model accounts for all relevant influences on the variables included. All models are wrong, but how wrong is yours?<br />
+</li>
+<li><strong>Accurate measurement.</strong> Your measurements are valid and reliable. Note that unreliable measures can’t be valid, and reliable measures don’t necessairly measure just one construct or even your construct.<br />
+</li>
+<li><strong>Well-behaved residuals.</strong> Residuals (i.e., prediction errors) aren’t correlated with predictor variables or eachother, and residuals have constant variance across values of your predictor variables.</li>
+</ul>
+</blockquote>
+<div id="libraries" class="section level2">
+<h2>Libraries</h2>
+<pre class="r"><code># library(&quot;tidyverse&quot;)
+# library(&quot;knitr&quot;)
+# library(&quot;effects&quot;)
+# library(&quot;psych&quot;)
+# library(&quot;candisc&quot;)
+
+library(tidyverse)
+library(knitr)
+library(effects)
+library(psych)
+library(candisc)
+
+# select from dplyr
+select &lt;- dplyr::select
+recode &lt;- dplyr::recode</code></pre>
+</div>
+<div id="load-data" class="section level2">
+<h2>Load data</h2>
+<blockquote>
+<p>From <code>help(&quot;HSB&quot;)</code>: “The High School and Beyond Project was a longitudinal study of students in the U.S. carried out in 1980 by the National Center for Education Statistics. Data were collected from 58,270 high school students (28,240 seniors and 30,030 sophomores) and 1,015 secondary schools. The HSB data frame is sample of 600 observations, of unknown characteristics, originally taken from Tatsuoka (1988).”</p>
+</blockquote>
+<pre class="r"><code>HSB &lt;- as_tibble(HSB)
+
+# print a random subset of rows from the dataset
+HSB %&gt;% sample_n(size = 15) %&gt;% kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">id</th>
+<th align="left">gender</th>
+<th align="left">race</th>
+<th align="left">ses</th>
+<th align="left">sch</th>
+<th align="left">prog</th>
+<th align="right">locus</th>
+<th align="right">concept</th>
+<th align="right">mot</th>
+<th align="left">career</th>
+<th align="right">read</th>
+<th align="right">write</th>
+<th align="right">math</th>
+<th align="right">sci</th>
+<th align="right">ss</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">404</td>
+<td align="left">female</td>
+<td align="left">white</td>
+<td align="left">middle</td>
+<td align="left">public</td>
+<td align="left">general</td>
+<td align="right">-0.38</td>
+<td align="right">-0.47</td>
+<td align="right">0.67</td>
+<td align="left">homemaker</td>
+<td align="right">62.7</td>
+<td align="right">43.7</td>
+<td align="right">44.7</td>
+<td align="right">52.6</td>
+<td align="right">41.9</td>
+</tr>
+<tr class="even">
+<td align="right">257</td>
+<td align="left">male</td>
+<td align="left">white</td>
+<td align="left">middle</td>
+<td align="left">public</td>
+<td align="left">general</td>
+<td align="right">0.20</td>
+<td align="right">-0.47</td>
+<td align="right">0.33</td>
+<td align="left">farmer</td>
+<td align="right">38.9</td>
+<td align="right">38.5</td>
+<td align="right">53.0</td>
+<td align="right">52.6</td>
+<td align="right">50.6</td>
+</tr>
+<tr class="odd">
+<td align="right">450</td>
+<td align="left">female</td>
+<td align="left">white</td>
+<td align="left">high</td>
+<td align="left">public</td>
+<td align="left">academic</td>
+<td align="right">0.50</td>
+<td align="right">0.03</td>
+<td align="right">0.67</td>
+<td align="left">not working</td>
+<td align="right">68.0</td>
+<td align="right">59.3</td>
+<td align="right">58.8</td>
+<td align="right">66.1</td>
+<td align="right">65.5</td>
+</tr>
+<tr class="even">
+<td align="right">294</td>
+<td align="left">male</td>
+<td align="left">white</td>
+<td align="left">low</td>
+<td align="left">public</td>
+<td align="left">academic</td>
+<td align="right">-0.82</td>
+<td align="right">-0.76</td>
+<td align="right">0.00</td>
+<td align="left">clerical</td>
+<td align="right">57.4</td>
+<td align="right">43.7</td>
+<td align="right">59.6</td>
+<td align="right">52.6</td>
+<td align="right">50.6</td>
+</tr>
+<tr class="odd">
+<td align="right">90</td>
+<td align="left">female</td>
+<td align="left">asian</td>
+<td align="left">low</td>
+<td align="left">public</td>
+<td align="left">vocation</td>
+<td align="right">-0.65</td>
+<td align="right">-1.17</td>
+<td align="right">0.00</td>
+<td align="left">operative</td>
+<td align="right">36.3</td>
+<td align="right">30.7</td>
+<td align="right">45.9</td>
+<td align="right">36.3</td>
+<td align="right">40.6</td>
+</tr>
+<tr class="even">
+<td align="right">67</td>
+<td align="left">female</td>
+<td align="left">asian</td>
+<td align="left">low</td>
+<td align="left">public</td>
+<td align="left">academic</td>
+<td align="right">-0.71</td>
+<td align="right">-2.29</td>
+<td align="right">0.33</td>
+<td align="left">prof1</td>
+<td align="right">65.4</td>
+<td align="right">64.5</td>
+<td align="right">63.7</td>
+<td align="right">58.0</td>
+<td align="right">70.5</td>
+</tr>
+<tr class="odd">
+<td align="right">226</td>
+<td align="left">male</td>
+<td align="left">white</td>
+<td align="left">high</td>
+<td align="left">public</td>
+<td align="left">academic</td>
+<td align="right">0.49</td>
+<td align="right">1.19</td>
+<td align="right">1.00</td>
+<td align="left">prof2</td>
+<td align="right">46.9</td>
+<td align="right">51.5</td>
+<td align="right">50.6</td>
+<td align="right">49.8</td>
+<td align="right">55.6</td>
+</tr>
+<tr class="even">
+<td align="right">198</td>
+<td align="left">female</td>
+<td align="left">white</td>
+<td align="left">middle</td>
+<td align="left">public</td>
+<td align="left">academic</td>
+<td align="right">0.66</td>
+<td align="right">-0.47</td>
+<td align="right">0.67</td>
+<td align="left">prof1</td>
+<td align="right">54.8</td>
+<td align="right">59.3</td>
+<td align="right">50.6</td>
+<td align="right">60.7</td>
+<td align="right">50.6</td>
+</tr>
+<tr class="odd">
+<td align="right">59</td>
+<td align="left">female</td>
+<td align="left">hispanic</td>
+<td align="left">low</td>
+<td align="left">public</td>
+<td align="left">vocation</td>
+<td align="right">-0.60</td>
+<td align="right">0.32</td>
+<td align="right">1.00</td>
+<td align="left">clerical</td>
+<td align="right">38.9</td>
+<td align="right">56.7</td>
+<td align="right">41.2</td>
+<td align="right">33.6</td>
+<td align="right">55.6</td>
+</tr>
+<tr class="even">
+<td align="right">278</td>
+<td align="left">male</td>
+<td align="left">white</td>
+<td align="left">low</td>
+<td align="left">public</td>
+<td align="left">academic</td>
+<td align="right">0.46</td>
+<td align="right">-0.18</td>
+<td align="right">1.00</td>
+<td align="left">prof2</td>
+<td align="right">52.1</td>
+<td align="right">46.3</td>
+<td align="right">48.3</td>
+<td align="right">58.0</td>
+<td align="right">60.5</td>
+</tr>
+<tr class="odd">
+<td align="right">286</td>
+<td align="left">female</td>
+<td align="left">white</td>
+<td align="left">high</td>
+<td align="left">public</td>
+<td align="left">academic</td>
+<td align="right">0.52</td>
+<td align="right">0.34</td>
+<td align="right">1.00</td>
+<td align="left">prof2</td>
+<td align="right">65.4</td>
+<td align="right">54.1</td>
+<td align="right">61.4</td>
+<td align="right">58.0</td>
+<td align="right">55.6</td>
+</tr>
+<tr class="even">
+<td align="right">195</td>
+<td align="left">male</td>
+<td align="left">white</td>
+<td align="left">high</td>
+<td align="left">public</td>
+<td align="left">academic</td>
+<td align="right">0.27</td>
+<td align="right">0.03</td>
+<td align="right">1.00</td>
+<td align="left">prof2</td>
+<td align="right">60.1</td>
+<td align="right">51.5</td>
+<td align="right">48.1</td>
+<td align="right">52.6</td>
+<td align="right">55.6</td>
+</tr>
+<tr class="odd">
+<td align="right">154</td>
+<td align="left">female</td>
+<td align="left">african-amer</td>
+<td align="left">low</td>
+<td align="left">public</td>
+<td align="left">academic</td>
+<td align="right">0.45</td>
+<td align="right">0.03</td>
+<td align="right">1.00</td>
+<td align="left">clerical</td>
+<td align="right">49.5</td>
+<td align="right">46.3</td>
+<td align="right">52.9</td>
+<td align="right">52.6</td>
+<td align="right">65.5</td>
+</tr>
+<tr class="even">
+<td align="right">543</td>
+<td align="left">female</td>
+<td align="left">white</td>
+<td align="left">high</td>
+<td align="left">private</td>
+<td align="left">academic</td>
+<td align="right">-0.47</td>
+<td align="right">0.28</td>
+<td align="right">1.00</td>
+<td align="left">prof2</td>
+<td align="right">65.4</td>
+<td align="right">61.9</td>
+<td align="right">47.1</td>
+<td align="right">60.7</td>
+<td align="right">60.5</td>
+</tr>
+<tr class="odd">
+<td align="right">209</td>
+<td align="left">female</td>
+<td align="left">white</td>
+<td align="left">middle</td>
+<td align="left">public</td>
+<td align="left">general</td>
+<td align="right">-0.63</td>
+<td align="right">0.44</td>
+<td align="right">0.33</td>
+<td align="left">homemaker</td>
+<td align="right">41.6</td>
+<td align="right">43.7</td>
+<td align="right">46.8</td>
+<td align="right">36.3</td>
+<td align="right">50.6</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="do-students-who-score-higher-on-a-standardized-math-test-tend-to-score-higher-on-a-standardized-science-test" class="section level1">
+<h1>Do students who score higher on a standardized math test tend to score higher on a standardized science test?</h1>
+<div id="scatterplot" class="section level2">
+<h2>Scatterplot</h2>
+<blockquote>
+<p><code>alpha</code> below refers to the points’ transparency (0.5 = 50%), <code>lm</code> refers to linear model and <code>se</code> refers to standard error bands</p>
+</blockquote>
+<pre class="r"><code>HSB %&gt;% 
+  ggplot(mapping = aes(x = math, y = sci)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;red&quot;)</code></pre>
+<p><img src="/post/2019-02-13-plotting-adjusted-associations-in-r/2019-02-13-plotting-adjusted-associations-in-r_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="center-the-standardized-math-scores" class="section level2">
+<h2>Center the standardized math scores</h2>
+<blockquote>
+<p>If the standardized math scores are centered around their mean (i.e., 0 = mean), then we can interpret the regression intercept—x = 0 when the regression line crosses the y-axis—as the grand mean standardized science score.</p>
+</blockquote>
+<pre class="r"><code>HSB &lt;- HSB %&gt;% mutate(math_c = math - mean(math, na.rm = TRUE))</code></pre>
+</div>
+<div id="fit-linear-regression-model" class="section level2">
+<h2>Fit linear regression model</h2>
+<pre class="r"><code>scimath1 &lt;- lm(sci ~ math_c, data = HSB)</code></pre>
+</div>
+<div id="summarize-model" class="section level2">
+<h2>Summarize model</h2>
+<pre class="r"><code>summary(scimath1)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = sci ~ math_c, data = HSB)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -20.7752  -4.8505   0.3355   5.1096  25.4184 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 51.76333    0.30154  171.66   &lt;2e-16 ***
+## math_c       0.66963    0.03206   20.89   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 7.386 on 598 degrees of freedom
+## Multiple R-squared:  0.4219, Adjusted R-squared:  0.4209 
+## F-statistic: 436.4 on 1 and 598 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code># print the standardized science score descriptive statistics
+HSB %&gt;% pull(sci) %&gt;% describe()</code></pre>
+<pre><code>##    vars   n  mean   sd median trimmed   mad min  max range  skew kurtosis
+## X1    1 600 51.76 9.71   52.6   51.93 12.01  26 74.2  48.2 -0.16     -0.7
+##     se
+## X1 0.4</code></pre>
+</div>
+<div id="interpretation" class="section level2">
+<h2>Interpretation</h2>
+<blockquote>
+<p>On average, students scored 51.76 points (<em>SD</em> = 9.71 points) on the standardized science test. However, for every one more point students scored on the standardized math test, they scored 0.67 more points (<em>SE</em> = 0.03) on the standardized science test, <em>t</em>(598) = 20.89, <em>p</em> &lt; .001.</p>
+</blockquote>
+</div>
+</div>
+<div id="if-we-account-for-the-fact-that-students-who-score-higher-on-a-standardized-math-test-also-tend-to-score-higher-on-a-standardized-reading-test-do-students-who-score-higher-on-the-standardized-math-test-still-tend-to-score-higher-on-the-standardized-science-test" class="section level1">
+<h1>If we account for the fact that students who score higher on a standardized math test also tend to score higher on a standardized reading test, do students who score higher on the standardized math test <strong>still</strong> tend to score higher on the standardized science test?</h1>
+<div id="center-the-standardized-reading-scores" class="section level2">
+<h2>Center the standardized reading scores</h2>
+<blockquote>
+<p>Same explanation as above: Because the regression line crosses the y-axis when the predictors’ axes = 0, transforming those predictors so that 0 reflects their means allows us to interpret the regression intercept as the grand mean standardized science score.</p>
+</blockquote>
+<pre class="r"><code>HSB &lt;- HSB %&gt;% mutate(read_c = read - mean(read, na.rm = TRUE))</code></pre>
+</div>
+<div id="fit-linear-regression-model-1" class="section level2">
+<h2>Fit linear regression model</h2>
+<pre class="r"><code>scimath2 &lt;- lm(sci ~ math_c + read_c, data = HSB)</code></pre>
+</div>
+<div id="summarize-model-1" class="section level2">
+<h2>Summarize model</h2>
+<pre class="r"><code>summary(scimath2)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = sci ~ math_c + read_c, data = HSB)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -19.5139  -4.5883   0.0933   4.5700  22.4739 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 51.76333    0.26995 191.754   &lt;2e-16 ***
+## math_c       0.34524    0.03910   8.829   &lt;2e-16 ***
+## read_c       0.44503    0.03644  12.213   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 6.612 on 597 degrees of freedom
+## Multiple R-squared:  0.5375, Adjusted R-squared:  0.5359 
+## F-statistic: 346.8 on 2 and 597 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div id="compute-r2-change-and-compare-models" class="section level2">
+<h2>Compute <span class="math inline">\(R^2\)</span> change and compare models</h2>
+<pre class="r"><code># adjusted R-squared is an unbiased estimate of R-squared
+summary(scimath2)$adj.r.squared - summary(scimath1)$adj.r.squared</code></pre>
+<pre><code>## [1] 0.114985</code></pre>
+<pre class="r"><code># compare models
+anova(scimath1, scimath2)</code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: sci ~ math_c
+## Model 2: sci ~ math_c + read_c
+##   Res.Df   RSS Df Sum of Sq      F    Pr(&gt;F)    
+## 1    598 32624                                  
+## 2    597 26102  1    6521.7 149.16 &lt; 2.2e-16 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+</div>
+<div id="save-both-model-predictions-in-tables" class="section level2">
+<h2>Save both model predictions in tables</h2>
+<blockquote>
+<p>Below, I use the <code>effect()</code> function to estimate predicted standardized science scores across a range of unique values of standardized math scores; for scimath2, the full model, the predicted scores have been purged of the linear effect of standardized reading scores. I transform the result from <code>effect()</code> into a <code>tibble</code> <code>data.frame</code>, which includes predicted values (fitted values), predictor values, standard errors of the predictions, and upper and lower confidence limits for the predictions. I can use this table to create a regression line and confidence bands in a plot.</p>
+</blockquote>
+<pre class="r"><code>(scimath_predtable1 &lt;- effect(term = &quot;math_c&quot;, mod = scimath1) %&gt;% as_tibble())</code></pre>
+<pre><code>## # A tibble: 5 x 5
+##   math_c   fit    se lower upper
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1    -20  38.4 0.708  37.0  39.8
+## 2     -9  45.7 0.417  44.9  46.6
+## 3      2  53.1 0.308  52.5  53.7
+## 4     10  58.5 0.440  57.6  59.3
+## 5     20  65.2 0.708  63.8  66.5</code></pre>
+<pre class="r"><code>(scimath_predtable2 &lt;- effect(term = &quot;math_c&quot;, mod = scimath2) %&gt;% as_tibble())</code></pre>
+<pre><code>## # A tibble: 5 x 5
+##   math_c   fit    se lower upper
+##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1    -20  44.9 0.827  43.2  46.5
+## 2     -9  48.7 0.444  47.8  49.5
+## 3      2  52.5 0.281  51.9  53.0
+## 4     10  55.2 0.475  54.3  56.1
+## 5     20  58.7 0.827  57.0  60.3</code></pre>
+</div>
+<div id="plot-adjusted-relationship" class="section level2">
+<h2>Plot adjusted relationship</h2>
+<blockquote>
+<p>Below, I create the lines and the confidence “ribbons” from the tables I created above. The points come from the original <code>data.frame</code> though. Follow the code line by line: <code>geom_point</code> uses the HSB data, and both <code>geom_line</code>s use data from different tables of predicted values. In other words, layers of lines and ribbons are added on top of the layer of points.</p>
+</blockquote>
+<pre class="r"><code>HSB %&gt;% 
+  ggplot(mapping = aes(x = math_c, y = sci)) +
+  geom_point(alpha = 0.5) +
+  geom_line(data = scimath_predtable1, mapping = aes(x = math_c, y = fit), color = &quot;red&quot;) +
+  geom_line(data = scimath_predtable2, mapping = aes(x = math_c, y = fit), color = &quot;blue&quot;) +
+  geom_ribbon(data = scimath_predtable2, mapping = aes(x = math_c, y = fit, ymin = lower, ymax = upper), fill = &quot;blue&quot;, alpha = 0.25) +
+  labs(x = &quot;Standardized math score (grand mean centered)&quot;, y = &quot;Standardized science score&quot;)</code></pre>
+<pre><code>## Warning: Ignoring unknown aesthetics: y</code></pre>
+<p><img src="/post/2019-02-13-plotting-adjusted-associations-in-r/2019-02-13-plotting-adjusted-associations-in-r_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+</div>
+<div id="interpretation-1" class="section level2">
+<h2>Interpretation</h2>
+<blockquote>
+<p>After partialling out variance shared between standardized math and reading scores, for every one more point students scored on the standardized math test, they scored 0.35 more points (<em>SE</em> = 0.04) on the standardized science test, <em>t</em>(597) = 12.21, <em>p</em> &lt; .001. Importantly, the model that includes standardized reading scores explained 53.60% of the observed variance in standardized science scores, an 11.50% improvement over the model that included only standardized math scores.</p>
+</blockquote>
+</div>
+</div>
+<div id="resources" class="section level1">
+<h1>Resources</h1>
+<blockquote>
+<ul>
+<li>Cohen, J., Cohen, P., West, S. G., &amp; Aiken, L. S. (2003). <em>Applied multiple regression/correlation analysis for the behavioral sciences</em>. New York, NY: Routledge.</li>
+<li>Gonzalez, R. (December, 2016). <em>Lecture Notes #8: Advanced Regression Techniques I</em> Retreived from <a href="http://www-personal.umich.edu/~gonzo/coursenotes/file8.pdf" class="uri">http://www-personal.umich.edu/~gonzo/coursenotes/file8.pdf</a> on June 28th, 2018.</li>
+<li>MacKinnon, D. P. (2008). <em>Introduction to statistical mediation analysis.</em> New York, NY: Lawrence Erlbaum Associates.</li>
+</ul>
+</blockquote>
+</div>
+<div id="general-word-of-caution" class="section level1">
+<h1>General word of caution</h1>
+<blockquote>
+<p>Above, I listed resources prepared by experts on these and related topics. Although I generally do my best to write accurate posts, don’t assume my posts are 100% accurate or that they apply to your data or research questions. Trust statistics and methodology experts, not blog posts.</p>
+</blockquote>
+</div>

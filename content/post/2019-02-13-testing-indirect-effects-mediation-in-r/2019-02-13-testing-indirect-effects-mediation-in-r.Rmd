@@ -1,8 +1,19 @@
 ---
-title: "Testing indirect effects/mediation in R"
-output: 
-  html_document: 
-    theme: readable
+title: Testing indirect effects/mediation in R
+author: ''
+date: '2019-02-13'
+slug: testing-indirect-effects-mediation-in-r
+categories:
+  - mediation
+  - indirect effect
+  - general linear model
+tags:
+  - mediation
+  - indirect effects
+  - general linear model
+image:
+  caption: ''
+  focal_point: ''
 ---
 
 ## What is mediation?
@@ -34,7 +45,7 @@ library(MBESS)
 
 ```{r, message = FALSE, warning = FALSE}
 
-thirst_dat <- "data/mackinnon_2008_t3.1.csv" %>% read_csv()
+thirst_dat <- "data/mackinnon_2008_t10.1.csv" %>% read_csv()
 
 ```
 
@@ -60,7 +71,7 @@ thirst_dat %>%
 ```
 
 ## Conceptual Diagram
-![Figure 1. Room temperature is associated with water drinking indirectly through thirstiness ](/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure_01.jpg)  
+![Figure 1. Room temperature is associated with water drinking indirectly through thirstiness ](/static/post/nrg01/nrg01_files/figure_01.jpg)  
 
 ## Write model to test indirect effect using `sem()` from lavaan
 > * `~` = Regress onto ...

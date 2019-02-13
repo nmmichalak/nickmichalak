@@ -14,10 +14,25 @@ weight = 7
 # Add/remove as many `[[feature]]` blocks below as you like.
 # 
 # For available icons, see: https://sourcethemes.com/academic/docs/widgets/#icons
-
-[[feature]]
+  
+  [[feature]]
+  icon = "ruler"
+  icon_pack = "fas"
+  name = "Measurement"
+  
+  [[feature]]
+  icon = "dice"
+  icon_pack = "fas"
+  name = "Experimental Design"
+  
+  [[feature]]
   icon = "r-project"
   icon_pack = "fab"
   name = "R"
+  
+  [[feature]]
+  icon = "chart-line"
+  icon_pack = "fas"
+  name = "SPSS"
 
 +++
