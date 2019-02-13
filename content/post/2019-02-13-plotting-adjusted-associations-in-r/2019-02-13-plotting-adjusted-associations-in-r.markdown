@@ -1,6 +1,6 @@
 ---
 title: Plotting Adjusted Associations in R
-author: Nick Michalak
+author: 'Nick Michalak'
 date: '2019-02-13'
 slug: plotting-adjusted-associations-in-r
 categories:
@@ -89,23 +89,23 @@ HSB %>% sample_n(size = 15) %>% kable()
 
 
 
-|  id|gender |race     |ses    |sch     |prog     | locus| concept|  mot|career      | read| write| math|  sci|   ss|
-|---:|:------|:--------|:------|:-------|:--------|-----:|-------:|----:|:-----------|----:|-----:|----:|----:|----:|
-|  59|female |hispanic |low    |public  |vocation | -0.60|    0.32| 1.00|clerical    | 38.9|  56.7| 41.2| 33.6| 55.6|
-| 452|female |white    |middle |public  |general  |  0.06|    0.03| 1.00|not working | 41.6|  46.3| 46.2| 39.0| 45.6|
-| 306|female |white    |high   |public  |academic | -0.60|    0.28| 1.00|prof1       | 33.6|  41.1| 42.9| 41.7| 50.6|
-|  82|female |asian    |middle |public  |general  |  0.06|    0.90| 0.67|prof1       | 38.9|  52.8| 54.4| 49.8| 40.6|
-| 519|male   |white    |middle |private |academic |  0.32|    1.19| 1.00|prof1       | 57.4|  61.9| 64.0| 55.8| 55.6|
-| 344|female |white    |low    |public  |general  |  0.27|   -2.52| 0.33|operative   | 38.9|  32.0| 35.3| 46.6| 51.8|
-| 555|male   |white    |high   |private |academic |  0.06|    1.19| 1.00|proprietor  | 65.4|  64.5| 67.9| 63.4| 55.6|
-| 283|male   |white    |high   |public  |academic |  0.02|    0.13| 0.33|prof1       | 73.3|  59.9| 70.5| 60.7| 70.5|
-| 177|male   |white    |middle |public  |academic |  0.68|    0.03| 0.67|prof2       | 71.2|  63.2| 60.2| 65.5| 65.5|
-|  90|female |asian    |low    |public  |vocation | -0.65|   -1.17| 0.00|operative   | 36.3|  30.7| 45.9| 36.3| 40.6|
-| 524|female |white    |middle |private |academic | -0.66|   -1.07| 0.67|clerical    | 49.5|  61.9| 60.4| 47.1| 50.6|
-| 281|male   |white    |high   |public  |vocation | -0.18|    0.03| 0.67|craftsman   | 44.2|  48.9| 56.3| 41.7| 60.5|
-| 404|female |white    |middle |public  |general  | -0.38|   -0.47| 0.67|homemaker   | 62.7|  43.7| 44.7| 52.6| 41.9|
-| 207|female |white    |middle |public  |general  |  1.11|    0.90| 0.33|homemaker   | 55.3|  50.2| 41.7| 58.5| 55.6|
-| 287|female |white    |high   |public  |academic |  0.66|    0.34| 0.67|prof1       | 54.8|  56.7| 61.9| 63.4| 55.6|
+|  id|gender |race         |ses    |sch     |prog     | locus| concept|  mot|career     | read| write| math|  sci|   ss|
+|---:|:------|:------------|:------|:-------|:--------|-----:|-------:|----:|:----------|----:|-----:|----:|----:|----:|
+| 513|male   |white        |high   |public  |academic |  0.06|    0.32| 0.67|protective | 49.5|  43.7| 55.5| 68.8| 65.5|
+| 159|male   |african-amer |low    |public  |general  | -0.68|    0.32| 0.67|prof1      | 36.3|  44.3| 34.4| 47.1| 45.6|
+| 258|female |white        |middle |public  |vocation | -0.64|   -0.51| 0.67|homemaker  | 49.5|  56.7| 47.7| 44.4| 60.5|
+| 277|female |white        |high   |public  |academic |  1.11|    0.34| 1.00|prof2      | 73.3|  67.1| 62.3| 58.0| 65.5|
+|   4|female |hispanic     |middle |public  |vocation |  0.06|    0.03| 0.00|service    | 38.9|  41.1| 32.7| 41.7| 40.6|
+| 344|female |white        |low    |public  |general  |  0.27|   -2.52| 0.33|operative  | 38.9|  32.0| 35.3| 46.6| 51.8|
+| 577|female |white        |middle |private |academic |  0.47|    0.34| 0.67|technical  | 44.2|  48.9| 48.0| 39.0| 50.6|
+| 156|male   |african-amer |high   |public  |vocation | -0.42|   -0.60| 1.00|school     | 54.8|  56.7| 64.7| 58.0| 60.5|
+| 261|male   |white        |middle |public  |vocation |  0.28|    0.03| 1.00|prof1      | 54.8|  59.3| 49.5| 63.4| 56.8|
+|  14|female |hispanic     |middle |public  |general  |  0.52|   -0.59| 0.67|homemaker  | 41.6|  59.3| 38.6| 36.3| 50.6|
+| 116|female |african-amer |middle |public  |academic |  0.27|    0.34| 1.00|military   | 49.5|  48.9| 48.0| 41.7| 60.5|
+|  30|female |hispanic     |middle |public  |academic |  0.31|    1.19| 1.00|prof1      | 46.9|  44.3| 41.9| 39.0| 50.6|
+| 196|female |white        |middle |public  |vocation |  0.06|    0.03| 1.00|clerical   | 68.0|  61.9| 55.5| 49.8| 50.6|
+| 230|female |white        |high   |public  |general  | -0.20|    1.19| 1.00|service    | 41.6|  46.9| 41.7| 47.1| 60.5|
+| 231|female |white        |low    |public  |general  |  0.00|   -1.09| 0.67|prof1      | 62.7|  51.5| 45.9| 47.1| 45.6|
 
 # Do students who score higher on a standardized math test tend to score higher on a standardized science test?
 

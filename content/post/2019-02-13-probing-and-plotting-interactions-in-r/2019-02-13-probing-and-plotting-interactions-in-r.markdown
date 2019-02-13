@@ -1,6 +1,6 @@
 ---
 title: Probing and Plotting Interactions in R
-author: ''
+author: 'Nik Michalak'
 date: '2019-02-13'
 slug: probing-and-plotting-interactions-in-r
 categories:

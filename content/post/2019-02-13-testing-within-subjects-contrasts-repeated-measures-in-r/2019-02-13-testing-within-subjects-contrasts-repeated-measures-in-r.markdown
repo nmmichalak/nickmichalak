@@ -1,6 +1,6 @@
 ---
 title: Testing Within-Subjects Contrasts (Repeated Measures) in R
-author: Nick Michalak
+author: 'Nick Michalak'
 date: '2019-02-13'
 slug: testing-within-subjects-contrasts-repeated-measures-in-r
 categories:
