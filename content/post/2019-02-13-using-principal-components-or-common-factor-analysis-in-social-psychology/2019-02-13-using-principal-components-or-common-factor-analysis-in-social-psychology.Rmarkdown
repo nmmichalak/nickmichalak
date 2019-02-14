@@ -15,3 +15,118 @@ image:
   caption: ''
   focal_point: ''
 ---
+
+# INCOMPLETE POST
+
+# Measuring variables we can't observe
+
+# Multidimensional Scaling
+
+# Partitioning variance
+
+## Common Variance
+
+### Communality
+
+## Unique Variance
+
+### Specific Variance
+
+### Error Variance
+
+# SPSS Anxiety Questionnaire (SAQ)
+
+## Description
+
+## Data
+
+### Install packages and/or load libraries
+
+```{r}
+
+# install.packages("tidyverse")
+# install.packages("haven")
+# install.packages("psych")
+
+library(tidyverse)
+library(haven)
+library(psych)
+
+```
+
+### Read SPSS Anxiety Questionnaire data
+
+```{r}
+
+saq <- read_spss(file = "data/SAQ.sav")
+
+```
+
+### Correlation matrix
+
+```{r}
+
+cor.plot(saq, numbers = TRUE, scale = FALSE)
+
+```
+
+### Histograms
+
+```{r}
+
+saq %>% 
+  gather(key = variable, value = response) %>% 
+  ggplot(mapping = aes(x = response)) +
+  geom_histogram(binwidth = 1, color = "white") +
+  facet_wrap(facets = ~ variable)
+
+```
+
+### Parallel Analysis
+
+```{r}
+
+fa.parallel(saq, fm = "minres", fa = "both")
+
+```
+
+# Principal Components Analysis
+
+## all items
+
+```{r}
+
+principal(saq, rotate = "varimax")
+
+```
+
+## 4 components
+
+```{r}
+
+principal(saq, nfactors = 4, rotate = "varimax")
+
+```
+
+# Common Factor Analysis
+
+## all items
+
+```{r}
+
+fa(saq, fm = "minres", rotate = "oblimin")
+
+```
+
+## 6 factors
+
+```{r}
+
+fa(saq, nfactors = 6, fm = "minres", rotate = "oblimin")
+
+```
+
+# General word of caution
+> Above, I listed resources prepared by experts on these and related topics. Although I generally do my best to write accurate posts, don't assume my posts are 100% accurate or that they apply to your data or research questions. Trust statistics and methodology experts, not blog posts.
+
+
