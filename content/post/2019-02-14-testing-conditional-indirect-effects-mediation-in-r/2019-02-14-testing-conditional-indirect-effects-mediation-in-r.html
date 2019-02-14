@@ -1,0 +1,1095 @@
+---
+title: Testing Conditional Indirect Effects/Mediation in R
+author: Nick Michalak
+date: '2019-02-14'
+slug: testing-conditional-indirect-effects-mediation-in-r
+categories:
+  - indirect effect
+  - general linear model
+  - mediation
+  - regression
+  - tutorial
+  - demonstration
+  - moderation
+  - interactions
+tags:
+  - indirect effects
+  - general linear model
+  - mediation
+  - regression
+  - tutorial
+  - demonstration
+  - moderation
+  - interactions
+image:
+  caption: ''
+  focal_point: ''
+---
+
+
+
+<blockquote>
+<p>This post builds on a previous post on Testing Indirect Effects/Mediation in R [<a href="https://nickmichalak.netlify.com/post/2019-02-13-testing-indirect-effects-mediation-in-r/testing-indirect-effects-mediation-in-r/"><strong>.html</strong></a>].</p>
+</blockquote>
+<div id="what-is-mediation" class="section level2">
+<h2>What is mediation?</h2>
+<blockquote>
+<p>There are many ways to define mediation and mediators. Here’s one way: Mediation is the process by which one variable transmits an effect onto another through one or more mediating variables. For example, as room temperature increases, people get thirstier, and then they drink more water. In this case, thirst transmits the effect of room temperature on water drinking.</p>
+</blockquote>
+</div>
+<div id="what-is-an-indirect-effect" class="section level2">
+<h2>What is an indirect effect?</h2>
+<blockquote>
+<p>The indirect effect quantifies a mediation effect, if such an effect exists. Referring to the thirst example above, in statistical terms, the indirect effect quantifies the extent to which room temperature is associated with water drinking indirectly through thirstiness. If you’re familiar with interpreting regression coefficients and the idea of controlling for other variables, then you might find it intuitive to think of the indirect effect as the decrease in the relationship between room temperature and water drinking after you’ve partialed out the association between room temperature and thirtiness. In other words, how much does the coefficient for room temperature decrease when you control for thirstiness?</p>
+</blockquote>
+</div>
+<div id="what-is-moderation" class="section level2">
+<h2>What is moderation?</h2>
+<blockquote>
+<p>Moderation refers to how some variable modifies the direction or the strength of the association between two variables. In other words, a moderator variable qualifies the relation between two variables. A moderator is not a part of some proposed causal process; instead, it interacts with the relation between two variables in such a way that their relation is stronger, weaker, or opposite in direction—depending on values of the moderator. For example, as room temperature increases, people may report feeling thirstier. But that may depend on how physically fit people are. Maybe physically fit people don’t report feeling thirsty as room temperature increases, or maybe physically fit people—compared to less physically fit people—have a higher room temperature threshold at which they start feeling thirstier. In this example, the product of one predictor variables and the moderator—their interaction—quantifies the moderator’s effect. Statistically, the product term accounts for variability in thirst or water drinking independently of either predictor variable by itself.</p>
+</blockquote>
+</div>
+<div id="what-is-a-conditional-indirect-effect-i.e.-moderated-mediation" class="section level2">
+<h2>What is a conditional indirect effect (i.e., moderated mediation)?</h2>
+<blockquote>
+<p>The conditional indirect concept combines moderation and mediaition. Think back to the idea behind a simple indirect effect: It quantifies the extent to which two variables are related through a third variable, the mediator. Coneptually, the conditional indirect effect quantifies the indirect effect at different values of a moderator. In this sense, an indirect effect may be stronger, weaker, or opposite in sign, depending on values of a moderator. Importantly, a moderator may qualify any relation that’s a part of some proposed mediation model. For example, physical fitness might qualify the association between room temperature and thirstiness, between thirstiness and water drinking, or both.</p>
+</blockquote>
+</div>
+<div id="what-is-the-index-of-moderated-mediation" class="section level2">
+<h2>What is the Index of Moderated Mediation?</h2>
+<blockquote>
+<p>Much like the product or interaction term in a linear regression analysis quantifies the relation between a predictor and a moderator, the index of moderated mediation quantifies the relationship between the indirect effect and a moderator. An index of moderated mediation that is significantly different from zero implies that any two conditional indirect effects are smaller, larger, or opposite in sign at different levels of the moderator.</p>
+</blockquote>
+</div>
+<div id="model-and-conceptual-assumptions" class="section level2">
+<h2>Model and Conceptual Assumptions</h2>
+<blockquote>
+<ul>
+<li><strong>Correct functional form.</strong> Your model variables share linear relationships and don’t interact with eachother.</li>
+<li><strong>No omitted influences.</strong> This one is hard: Your model accounts for all relevant influences on the variables included. All models are wrong, but how wrong is yours?</li>
+<li><strong>Accurate measurement.</strong> Your measurements are valid and reliable. Note that unreliable measures can’t be valid, and reliable measures don’t necessairly measure just one construct or even your construct.</li>
+<li><strong>Well-behaved residuals.</strong> Residuals (i.e., prediction errors) aren’t correlated with predictor variables or eachother, and residuals have constant variance across values of your predictor variables. Also, residual error terms aren’t correlated across regression equations. This could happen if, for example, some omitted variable causes both thirst and water drinking.</li>
+</ul>
+</blockquote>
+</div>
+<div id="libraries" class="section level2">
+<h2>Libraries</h2>
+<pre class="r"><code>library(tidyverse)
+library(knitr)
+library(lavaan)
+library(psych)</code></pre>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<blockquote>
+<p>I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="!%5B%5D(post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t3.1.csv)"><strong>.csv</strong></a>] with those from Table 10.1 in Mackinnon (2008, p. 291) [<a href="post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t10.1.csv"><strong>.csv</strong></a>]</p>
+</blockquote>
+<pre class="r"><code>thirst_norm &lt;- &quot;data/mackinnon_2008_t3.1.csv&quot; %&gt;% read_csv()
+thirst_fit &lt;- &quot;data/mackinnon_2008_t10.1.csv&quot; %&gt;% read_csv()</code></pre>
+</div>
+<div id="code-new-ids-for-fit-data" class="section level2">
+<h2>Code new IDs for fit data</h2>
+<pre class="r"><code>thirst_fit &lt;- thirst_fit %&gt;% mutate(id = 51:100)</code></pre>
+</div>
+<div id="add-column-in-both-datasets-that-identifies-fitness-group" class="section level2">
+<h2>Add column in both datasets that identifies fitness group</h2>
+<blockquote>
+<p>Unfit = -0.5 and Fit = 0.5</p>
+</blockquote>
+<pre class="r"><code>thirst_norm &lt;- thirst_norm %&gt;% mutate(phys_fit = -0.5)
+thirst_fit &lt;- thirst_fit %&gt;% mutate(phys_fit = 0.5)</code></pre>
+</div>
+<div id="bind-unfit-and-fit-data-by-rows" class="section level2">
+<h2>Bind unfit and fit data by rows</h2>
+<blockquote>
+<p>Imagine stacking these datasets on top of eachother</p>
+</blockquote>
+<pre class="r"><code>thirst_data &lt;- bind_rows(thirst_norm, thirst_fit)</code></pre>
+</div>
+<div id="mean-center-predictors" class="section level2">
+<h2>Mean-center predictors</h2>
+<blockquote>
+<p>i.e., mean-center everything but the consume variable</p>
+</blockquote>
+<pre class="r"><code>thirst_data &lt;- thirst_data %&gt;% mutate(room_temp_c = room_temp - mean(room_temp),
+                                      thirst_c = thirst - mean(thirst))</code></pre>
+</div>
+<div id="compute-interaction-terms" class="section level2">
+<h2>Compute interaction terms</h2>
+<pre class="r"><code>thirst_data &lt;- thirst_data %&gt;% mutate(tmp_fit = room_temp_c * phys_fit,
+                                      thrst_fit = thirst_c * phys_fit)</code></pre>
+<div id="print-first-and-last-five-observations" class="section level3">
+<h3>Print first and last five observations</h3>
+<pre class="r"><code>thirst_data %&gt;% 
+  headTail() %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">id</th>
+<th align="left">room_temp</th>
+<th align="left">thirst</th>
+<th align="left">consume</th>
+<th align="left">phys_fit</th>
+<th align="left">room_temp_c</th>
+<th align="left">thirst_c</th>
+<th align="left">tmp_fit</th>
+<th align="left">thrst_fit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">70</td>
+<td align="left">4</td>
+<td align="left">3</td>
+<td align="left">-0.5</td>
+<td align="left">-0.13</td>
+<td align="left">0.87</td>
+<td align="left">0.06</td>
+<td align="left">-0.44</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="left">71</td>
+<td align="left">4</td>
+<td align="left">3</td>
+<td align="left">-0.5</td>
+<td align="left">0.87</td>
+<td align="left">0.87</td>
+<td align="left">-0.44</td>
+<td align="left">-0.44</td>
+</tr>
+<tr class="odd">
+<td align="left">3</td>
+<td align="left">69</td>
+<td align="left">1</td>
+<td align="left">3</td>
+<td align="left">-0.5</td>
+<td align="left">-1.13</td>
+<td align="left">-2.13</td>
+<td align="left">0.56</td>
+<td align="left">1.06</td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="left">70</td>
+<td align="left">1</td>
+<td align="left">3</td>
+<td align="left">-0.5</td>
+<td align="left">-0.13</td>
+<td align="left">-2.13</td>
+<td align="left">0.06</td>
+<td align="left">1.06</td>
+</tr>
+<tr class="odd">
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+</tr>
+<tr class="even">
+<td align="left">97</td>
+<td align="left">71</td>
+<td align="left">4</td>
+<td align="left">4</td>
+<td align="left">0.5</td>
+<td align="left">0.87</td>
+<td align="left">0.87</td>
+<td align="left">0.44</td>
+<td align="left">0.44</td>
+</tr>
+<tr class="odd">
+<td align="left">98</td>
+<td align="left">71</td>
+<td align="left">4</td>
+<td align="left">5</td>
+<td align="left">0.5</td>
+<td align="left">0.87</td>
+<td align="left">0.87</td>
+<td align="left">0.44</td>
+<td align="left">0.44</td>
+</tr>
+<tr class="even">
+<td align="left">99</td>
+<td align="left">70</td>
+<td align="left">3</td>
+<td align="left">3</td>
+<td align="left">0.5</td>
+<td align="left">-0.13</td>
+<td align="left">-0.13</td>
+<td align="left">-0.06</td>
+<td align="left">-0.06</td>
+</tr>
+<tr class="odd">
+<td align="left">100</td>
+<td align="left">71</td>
+<td align="left">4</td>
+<td align="left">3</td>
+<td align="left">0.5</td>
+<td align="left">0.87</td>
+<td align="left">0.87</td>
+<td align="left">0.44</td>
+<td align="left">0.44</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="save-to-data-folder" class="section level3">
+<h3>Save to data folder</h3>
+<pre class="r"><code>thirst_data %&gt;% write_csv(path = &quot;data/thirst_data.csv&quot;)</code></pre>
+</div>
+</div>
+<div id="visualize-relationships" class="section level2">
+<h2>Visualize relationships</h2>
+<blockquote>
+<p>It’s always a good idea to look at your data. Check some assumptions.</p>
+</blockquote>
+<pre class="r"><code>thirst_data %&gt;% 
+  select(room_temp, room_temp_c, thirst, thirst_c, consume, phys_fit, tmp_fit, thrst_fit) %&gt;% 
+  pairs.panels()</code></pre>
+<p><img src="/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
+<div id="conceptual-diagram" class="section level2">
+<h2>Conceptual Diagram</h2>
+<div class="figure">
+<embed src="!%5B%5D(/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure_01.jpeg)" />
+<p class="caption">Figure 1. Focus on which association fitness group could moderate. Here, the association between room temperature and thirstiness depends on fitness group.</p>
+</div>
+</div>
+<div id="write-model-to-test-conditional-indirect-effect-using-sem-from-lavaan" class="section level2">
+<h2>Write model to test conditional indirect effect using <code>sem()</code> from lavaan</h2>
+<blockquote>
+<ul>
+<li><code>~</code> = Regress onto …</li>
+<li>Within the regression models, I label coefficients with the astrix.</li>
+<li><code>:=</code> = Define a new parameter. Note when you define a new parameter with <code>:=</code>, you can use the astrix to multiply values</li>
+<li>For more details about lavaan syntax, see the tutorials tab at the lavaan website (linked in Resources below)</li>
+</ul>
+</blockquote>
+<pre class="r"><code>mod1 &lt;- &quot;# a path
+         thirst_c ~ a1 * room_temp_c
+         thirst_c ~ a2 * phys_fit
+         thirst_c ~ a3 * tmp_fit
+
+         # b paths
+         consume ~ b1 * thirst_c
+
+         # c prime path 
+         consume ~ cp * room_temp_c
+
+         # index of moderated mediation and conditional indirect effects
+         b1a3 := b1 * a3
+         normss := a1 + a3 * -0.5
+         fitss := a1 + a3 * 0.5
+         norm := a1 * b1 + b1a3 * -0.5
+         fit := a1 * b1 + b1a3 * 0.5&quot;</code></pre>
+</div>
+<div id="set-random-seed-so-results-can-be-reproduced" class="section level2">
+<h2>Set random seed so results can be reproduced</h2>
+<pre class="r"><code>set.seed(1234)</code></pre>
+</div>
+<div id="fit-model" class="section level2">
+<h2>Fit model</h2>
+<blockquote>
+<p>You must specify bootstrapping in the <code>sem()</code> function</p>
+</blockquote>
+<pre class="r"><code>fsem1 &lt;- sem(mod1, data = thirst_data, se = &quot;bootstrap&quot;, bootstrap = 10000)</code></pre>
+</div>
+<div id="summarize-model" class="section level2">
+<h2>Summarize model</h2>
+<blockquote>
+<p>standardized = TRUE adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
+</blockquote>
+<pre class="r"><code>summary(fsem1, standardized = TRUE, fit.measures = TRUE)</code></pre>
+<pre><code>## lavaan 0.6-3 ended normally after 16 iterations
+## 
+##   Optimization method                           NLMINB
+##   Number of free parameters                          7
+## 
+##   Number of observations                           100
+## 
+##   Estimator                                         ML
+##   Model Fit Test Statistic                       2.828
+##   Degrees of freedom                                 2
+##   P-value (Chi-square)                           0.243
+## 
+## Model test baseline model:
+## 
+##   Minimum Function Test Statistic               52.668
+##   Degrees of freedom                                 7
+##   P-value                                        0.000
+## 
+## User model versus baseline model:
+## 
+##   Comparative Fit Index (CFI)                    0.982
+##   Tucker-Lewis Index (TLI)                       0.937
+## 
+## Loglikelihood and Information Criteria:
+## 
+##   Loglikelihood user model (H0)               -283.013
+##   Loglikelihood unrestricted model (H1)       -281.599
+## 
+##   Number of free parameters                          7
+##   Akaike (AIC)                                 580.027
+##   Bayesian (BIC)                               598.263
+##   Sample-size adjusted Bayesian (BIC)          576.155
+## 
+## Root Mean Square Error of Approximation:
+## 
+##   RMSEA                                          0.064
+##   90 Percent Confidence Interval          0.000  0.219
+##   P-value RMSEA &lt;= 0.05                          0.326
+## 
+## Standardized Root Mean Square Residual:
+## 
+##   SRMR                                           0.037
+## 
+## Parameter Estimates:
+## 
+##   Standard Errors                            Bootstrap
+##   Number of requested bootstrap draws            10000
+##   Number of successful bootstrap draws           10000
+## 
+## Regressions:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##   thirst_c ~                                                            
+##     rom_tmp_c (a1)    0.550    0.090    6.093    0.000    0.550    0.495
+##     phys_fit  (a2)    0.195    0.198    0.983    0.325    0.195    0.086
+##     tmp_fit   (a3)    0.422    0.181    2.333    0.020    0.422    0.190
+##   consume ~                                                             
+##     thirst_c  (b1)    0.361    0.102    3.554    0.000    0.361    0.361
+##     rom_tmp_c (cp)    0.162    0.111    1.466    0.143    0.162    0.146
+## 
+## Variances:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .thirst_c          0.966    0.109    8.870    0.000    0.966    0.759
+##    .consume           1.020    0.137    7.428    0.000    1.020    0.801
+## 
+## Defined Parameters:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##     b1a3              0.153    0.084    1.824    0.068    0.153    0.069
+##     normss            0.339    0.103    3.294    0.001    0.339    0.400
+##     fitss             0.761    0.149    5.118    0.000    0.761    0.590
+##     norm              0.122    0.050    2.458    0.014    0.122    0.145
+##     fit               0.275    0.098    2.814    0.005    0.275    0.213</code></pre>
+</div>
+<div id="print-all-model-parameters" class="section level2">
+<h2>Print all model parameters</h2>
+<blockquote>
+<p>in the boot.ci.type argument, I ask for bia-corrected and accelerated confidence intervals</p>
+</blockquote>
+<pre class="r"><code>parameterestimates(fsem1, boot.ci.type = &quot;bca.simple&quot;, standardized = TRUE) %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">lhs</th>
+<th align="left">op</th>
+<th align="left">rhs</th>
+<th align="left">label</th>
+<th align="right">est</th>
+<th align="right">se</th>
+<th align="right">z</th>
+<th align="right">pvalue</th>
+<th align="right">ci.lower</th>
+<th align="right">ci.upper</th>
+<th align="right">std.lv</th>
+<th align="right">std.all</th>
+<th align="right">std.nox</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">thirst_c</td>
+<td align="left">~</td>
+<td align="left">room_temp_c</td>
+<td align="left">a1</td>
+<td align="right">0.5498407</td>
+<td align="right">0.0902423</td>
+<td align="right">6.0929355</td>
+<td align="right">0.0000000</td>
+<td align="right">0.3721695</td>
+<td align="right">0.7288016</td>
+<td align="right">0.5498407</td>
+<td align="right">0.4953097</td>
+<td align="right">0.4873103</td>
+</tr>
+<tr class="even">
+<td align="left">thirst_c</td>
+<td align="left">~</td>
+<td align="left">phys_fit</td>
+<td align="left">a2</td>
+<td align="right">0.1949840</td>
+<td align="right">0.1982628</td>
+<td align="right">0.9834622</td>
+<td align="right">0.3253800</td>
+<td align="right">-0.1830428</td>
+<td align="right">0.5837959</td>
+<td align="right">0.1949840</td>
+<td align="right">0.0864048</td>
+<td align="right">0.1728096</td>
+</tr>
+<tr class="odd">
+<td align="left">thirst_c</td>
+<td align="left">~</td>
+<td align="left">tmp_fit</td>
+<td align="left">a3</td>
+<td align="right">0.4224961</td>
+<td align="right">0.1810685</td>
+<td align="right">2.3333499</td>
+<td align="right">0.0196298</td>
+<td align="right">0.0637116</td>
+<td align="right">0.7788685</td>
+<td align="right">0.4224961</td>
+<td align="right">0.1900669</td>
+<td align="right">0.3744480</td>
+</tr>
+<tr class="even">
+<td align="left">consume</td>
+<td align="left">~</td>
+<td align="left">thirst_c</td>
+<td align="left">b1</td>
+<td align="right">0.3611336</td>
+<td align="right">0.1016088</td>
+<td align="right">3.5541554</td>
+<td align="right">0.0003792</td>
+<td align="right">0.1600217</td>
+<td align="right">0.5569569</td>
+<td align="right">0.3611336</td>
+<td align="right">0.3611336</td>
+<td align="right">0.3611336</td>
+</tr>
+<tr class="odd">
+<td align="left">consume</td>
+<td align="left">~</td>
+<td align="left">room_temp_c</td>
+<td align="left">cp</td>
+<td align="right">0.1624260</td>
+<td align="right">0.1107634</td>
+<td align="right">1.4664229</td>
+<td align="right">0.1425331</td>
+<td align="right">-0.0600536</td>
+<td align="right">0.3759548</td>
+<td align="right">0.1624260</td>
+<td align="right">0.1463173</td>
+<td align="right">0.1439542</td>
+</tr>
+<tr class="even">
+<td align="left">thirst_c</td>
+<td align="left">~~</td>
+<td align="left">thirst_c</td>
+<td align="left"></td>
+<td align="right">0.9656892</td>
+<td align="right">0.1088703</td>
+<td align="right">8.8700859</td>
+<td align="right">0.0000000</td>
+<td align="right">0.7891153</td>
+<td align="right">1.2159609</td>
+<td align="right">0.9656892</td>
+<td align="right">0.7585337</td>
+<td align="right">0.7585337</td>
+</tr>
+<tr class="odd">
+<td align="left">consume</td>
+<td align="left">~~</td>
+<td align="left">consume</td>
+<td align="left"></td>
+<td align="right">1.0196157</td>
+<td align="right">0.1372662</td>
+<td align="right">7.4280159</td>
+<td align="right">0.0000000</td>
+<td align="right">0.7945891</td>
+<td align="right">1.3449966</td>
+<td align="right">1.0196157</td>
+<td align="right">0.8008921</td>
+<td align="right">0.8008921</td>
+</tr>
+<tr class="even">
+<td align="left">room_temp_c</td>
+<td align="left">~~</td>
+<td align="left">room_temp_c</td>
+<td align="left"></td>
+<td align="right">1.0331000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">1.0331000</td>
+<td align="right">1.0331000</td>
+<td align="right">1.0331000</td>
+<td align="right">1.0000000</td>
+<td align="right">1.0331000</td>
+</tr>
+<tr class="odd">
+<td align="left">room_temp_c</td>
+<td align="left">~~</td>
+<td align="left">phys_fit</td>
+<td align="left"></td>
+<td align="right">-0.0250000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">-0.0250000</td>
+<td align="right">-0.0250000</td>
+<td align="right">-0.0250000</td>
+<td align="right">-0.0491925</td>
+<td align="right">-0.0250000</td>
+</tr>
+<tr class="even">
+<td align="left">room_temp_c</td>
+<td align="left">~~</td>
+<td align="left">tmp_fit</td>
+<td align="left"></td>
+<td align="right">-0.1185000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">-0.1185000</td>
+<td align="right">-0.1185000</td>
+<td align="right">-0.1185000</td>
+<td align="right">-0.2296847</td>
+<td align="right">-0.1185000</td>
+</tr>
+<tr class="odd">
+<td align="left">phys_fit</td>
+<td align="left">~~</td>
+<td align="left">phys_fit</td>
+<td align="left"></td>
+<td align="right">0.2500000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.2500000</td>
+<td align="right">0.2500000</td>
+<td align="right">0.2500000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.2500000</td>
+</tr>
+<tr class="even">
+<td align="left">phys_fit</td>
+<td align="left">~~</td>
+<td align="left">tmp_fit</td>
+<td align="left"></td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">tmp_fit</td>
+<td align="left">~~</td>
+<td align="left">tmp_fit</td>
+<td align="left"></td>
+<td align="right">0.2576500</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.2576500</td>
+<td align="right">0.2576500</td>
+<td align="right">0.2576500</td>
+<td align="right">1.0000000</td>
+<td align="right">0.2576500</td>
+</tr>
+<tr class="even">
+<td align="left">b1a3</td>
+<td align="left">:=</td>
+<td align="left">b1*a3</td>
+<td align="left">b1a3</td>
+<td align="right">0.1525775</td>
+<td align="right">0.0836278</td>
+<td align="right">1.8244835</td>
+<td align="right">0.0680790</td>
+<td align="right">0.0263707</td>
+<td align="right">0.3565039</td>
+<td align="right">0.1525775</td>
+<td align="right">0.0686396</td>
+<td align="right">0.1352257</td>
+</tr>
+<tr class="odd">
+<td align="left">normss</td>
+<td align="left">:=</td>
+<td align="left">a1+a3*-0.5</td>
+<td align="left">normss</td>
+<td align="right">0.3385926</td>
+<td align="right">0.1027928</td>
+<td align="right">3.2939323</td>
+<td align="right">0.0009880</td>
+<td align="right">0.1288963</td>
+<td align="right">0.5308571</td>
+<td align="right">0.3385926</td>
+<td align="right">0.4002762</td>
+<td align="right">0.3000863</td>
+</tr>
+<tr class="even">
+<td align="left">fitss</td>
+<td align="left">:=</td>
+<td align="left">a1+a3*0.5</td>
+<td align="left">fitss</td>
+<td align="right">0.7610887</td>
+<td align="right">0.1487184</td>
+<td align="right">5.1176509</td>
+<td align="right">0.0000003</td>
+<td align="right">0.4684898</td>
+<td align="right">1.0587654</td>
+<td align="right">0.7610887</td>
+<td align="right">0.5903431</td>
+<td align="right">0.6745343</td>
+</tr>
+<tr class="odd">
+<td align="left">norm</td>
+<td align="left">:=</td>
+<td align="left">a1<em>b1+b1a3</em>-0.5</td>
+<td align="left">norm</td>
+<td align="right">0.1222772</td>
+<td align="right">0.0497408</td>
+<td align="right">2.4582864</td>
+<td align="right">0.0139602</td>
+<td align="right">0.0432260</td>
+<td align="right">0.2426515</td>
+<td align="right">0.1222772</td>
+<td align="right">0.1445532</td>
+<td align="right">0.1083713</td>
+</tr>
+<tr class="even">
+<td align="left">fit</td>
+<td align="left">:=</td>
+<td align="left">a1<em>b1+b1a3</em>0.5</td>
+<td align="left">fit</td>
+<td align="right">0.2748547</td>
+<td align="right">0.0976629</td>
+<td align="right">2.8143207</td>
+<td align="right">0.0048880</td>
+<td align="right">0.1132201</td>
+<td align="right">0.5028417</td>
+<td align="right">0.2748547</td>
+<td align="right">0.2131927</td>
+<td align="right">0.2435970</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="interpretation" class="section level2">
+<h2>Interpretation</h2>
+<blockquote>
+<p>There was no sufficient evidence that physically fit people were thirstier than normal people, <em>a2</em> = 0.195 (<em>S.E.</em> = 0.198). Every 1°F increase in room temperature was associated with an <em>a1</em> = 0.550 (<em>S.E.</em> = 0.090) increase in thirstiness units. However, this association was different between physically fit people and normal people, <em>a3</em> = 0.422 (<em>S.E.</em> = 0.181). Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking <em>b1</em> = 0.361 (<em>S.E.</em> = 0.106) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, <em>b1a3</em> = 0.153 (<em>S.E.</em> = 0.084); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.011, 0.316]. Among normal people, for every <em>a1</em> = 0.550 unit increase in the association between room temperature and thirstiness, there was an <em>a1b1 + a1b3</em> = 0.339 (<em>S.E.</em> = 0.103) increase in deciliters of water people drank. Among physically fit people, for every <em>a1</em> = 0.550 unit increase in the association between room temperature and thirstiness, there was an <em>a1b1 + a1b3</em> = 0.275 (<em>S.E.</em> = 0.098) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.162 (<em>S.E.</em> = 0.111).</p>
+</blockquote>
+</div>
+<div id="conceptual-diagram-1" class="section level2">
+<h2>Conceptual Diagram</h2>
+<div class="figure">
+<embed src="!%5B%5D(/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure_02.jpeg)" />
+<p class="caption">Figure 2. Focus on which association fitness group could moderate. Here, the association between thirstiness and water drinking depends on fitness group.</p>
+</div>
+</div>
+<div id="write-model-to-test-conditional-indirect-effect-using-sem-from-lavaan-1" class="section level2">
+<h2>Write model to test conditional indirect effect using <code>sem()</code> from lavaan</h2>
+<blockquote>
+<ul>
+<li><code>~</code> = Regress onto …</li>
+<li>Within the regression models, I label coefficients with the astrix.</li>
+<li><code>:=</code> = Define a new parameter. Note when you define a new parameter with <code>:=</code>, you can use the astrix to multiply values</li>
+<li>For more details about lavaan syntax, see the tutorials tab at the lavaan website (linked in Resources below)</li>
+</ul>
+</blockquote>
+<pre class="r"><code>mod2 &lt;- &quot;# a path
+         thirst_c ~ a1 * room_temp_c
+
+         # b paths
+         consume ~ b1 * thirst_c
+         consume ~ b2 * phys_fit
+         consume ~ b3 * thrst_fit
+
+         # c prime path 
+         consume ~ cp * room_temp_c
+
+         # index of moderated mediation and conditional indirect effects
+         a1b3 := a1 * b3
+         normie := a1 * b1 + a1b3 * -0.5
+         fitie := a1 * b1 + a1b3 * 0.5&quot;</code></pre>
+</div>
+<div id="fit-model-1" class="section level2">
+<h2>Fit model</h2>
+<blockquote>
+<p>You must specify bootstrapping in the <code>sem()</code> function</p>
+</blockquote>
+<pre class="r"><code>fsem2 &lt;- sem(mod2, data = thirst_data, se = &quot;bootstrap&quot;, bootstrap = 10000)</code></pre>
+</div>
+<div id="summarize-model-1" class="section level2">
+<h2>Summarize model</h2>
+<blockquote>
+<p>standardized = TRUE adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
+</blockquote>
+<pre class="r"><code>summary(fsem2, standardized = TRUE, fit.measures = TRUE)</code></pre>
+<pre><code>## lavaan 0.6-3 ended normally after 15 iterations
+## 
+##   Optimization method                           NLMINB
+##   Number of free parameters                          7
+## 
+##   Number of observations                           100
+## 
+##   Estimator                                         ML
+##   Model Fit Test Statistic                       3.132
+##   Degrees of freedom                                 2
+##   P-value (Chi-square)                           0.209
+## 
+## Model test baseline model:
+## 
+##   Minimum Function Test Statistic               50.217
+##   Degrees of freedom                                 7
+##   P-value                                        0.000
+## 
+## User model versus baseline model:
+## 
+##   Comparative Fit Index (CFI)                    0.974
+##   Tucker-Lewis Index (TLI)                       0.908
+## 
+## Loglikelihood and Information Criteria:
+## 
+##   Loglikelihood user model (H0)               -284.391
+##   Loglikelihood unrestricted model (H1)       -282.825
+## 
+##   Number of free parameters                          7
+##   Akaike (AIC)                                 582.782
+##   Bayesian (BIC)                               601.018
+##   Sample-size adjusted Bayesian (BIC)          578.910
+## 
+## Root Mean Square Error of Approximation:
+## 
+##   RMSEA                                          0.075
+##   90 Percent Confidence Interval          0.000  0.226
+##   P-value RMSEA &lt;= 0.05                          0.288
+## 
+## Standardized Root Mean Square Residual:
+## 
+##   SRMR                                           0.044
+## 
+## Parameter Estimates:
+## 
+##   Standard Errors                            Bootstrap
+##   Number of requested bootstrap draws            10000
+##   Number of successful bootstrap draws           10000
+## 
+## Regressions:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##   thirst_c ~                                                            
+##     rom_tmp_c (a1)    0.497    0.086    5.765    0.000    0.497    0.447
+##   consume ~                                                             
+##     thirst_c  (b1)    0.388    0.100    3.879    0.000    0.388    0.384
+##     phys_fit  (b2)   -0.259    0.201   -1.291    0.197   -0.259   -0.114
+##     thrst_fit (b3)   -0.174    0.181   -0.956    0.339   -0.174   -0.086
+##     rom_tmp_c (cp)    0.150    0.109    1.382    0.167    0.150    0.134
+## 
+## Variances:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .thirst_c          1.018    0.114    8.963    0.000    1.018    0.800
+##    .consume           0.994    0.127    7.857    0.000    0.994    0.768
+## 
+## Defined Parameters:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##     a1b3             -0.086    0.090   -0.960    0.337   -0.086   -0.038
+##     normie            0.236    0.080    2.938    0.003    0.236    0.191
+##     fitie             0.149    0.069    2.170    0.030    0.149    0.153</code></pre>
+</div>
+<div id="print-all-model-parameters-1" class="section level2">
+<h2>Print all model parameters</h2>
+<blockquote>
+<p>in the boot.ci.type argument, I ask for bia-corrected and accelerated confidence intervals</p>
+</blockquote>
+<pre class="r"><code>parameterestimates(fsem2, boot.ci.type = &quot;bca.simple&quot;, standardized = TRUE) %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">lhs</th>
+<th align="left">op</th>
+<th align="left">rhs</th>
+<th align="left">label</th>
+<th align="right">est</th>
+<th align="right">se</th>
+<th align="right">z</th>
+<th align="right">pvalue</th>
+<th align="right">ci.lower</th>
+<th align="right">ci.upper</th>
+<th align="right">std.lv</th>
+<th align="right">std.all</th>
+<th align="right">std.nox</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">thirst_c</td>
+<td align="left">~</td>
+<td align="left">room_temp_c</td>
+<td align="left">a1</td>
+<td align="right">0.4966607</td>
+<td align="right">0.0861541</td>
+<td align="right">5.7647913</td>
+<td align="right">0.0000000</td>
+<td align="right">0.3222938</td>
+<td align="right">0.6611485</td>
+<td align="right">0.4966607</td>
+<td align="right">0.4474038</td>
+<td align="right">0.4401782</td>
+</tr>
+<tr class="even">
+<td align="left">consume</td>
+<td align="left">~</td>
+<td align="left">thirst_c</td>
+<td align="left">b1</td>
+<td align="right">0.3875517</td>
+<td align="right">0.0999002</td>
+<td align="right">3.8793900</td>
+<td align="right">0.0001047</td>
+<td align="right">0.1948484</td>
+<td align="right">0.5862784</td>
+<td align="right">0.3875517</td>
+<td align="right">0.3844165</td>
+<td align="right">0.3844165</td>
+</tr>
+<tr class="odd">
+<td align="left">consume</td>
+<td align="left">~</td>
+<td align="left">phys_fit</td>
+<td align="left">b2</td>
+<td align="right">-0.2592202</td>
+<td align="right">0.2008515</td>
+<td align="right">-1.2906061</td>
+<td align="right">0.1968403</td>
+<td align="right">-0.6762858</td>
+<td align="right">0.1283306</td>
+<td align="right">-0.2592202</td>
+<td align="right">-0.1139410</td>
+<td align="right">-0.2278820</td>
+</tr>
+<tr class="even">
+<td align="left">consume</td>
+<td align="left">~</td>
+<td align="left">thrst_fit</td>
+<td align="left">b3</td>
+<td align="right">-0.1735151</td>
+<td align="right">0.1814711</td>
+<td align="right">-0.9561580</td>
+<td align="right">0.3389924</td>
+<td align="right">-0.5541755</td>
+<td align="right">0.1553659</td>
+<td align="right">-0.1735151</td>
+<td align="right">-0.0858899</td>
+<td align="right">-0.1525381</td>
+</tr>
+<tr class="odd">
+<td align="left">consume</td>
+<td align="left">~</td>
+<td align="left">room_temp_c</td>
+<td align="left">cp</td>
+<td align="right">0.1503720</td>
+<td align="right">0.1087761</td>
+<td align="right">1.3823988</td>
+<td align="right">0.1668493</td>
+<td align="right">-0.0709680</td>
+<td align="right">0.3587754</td>
+<td align="right">0.1503720</td>
+<td align="right">0.1343629</td>
+<td align="right">0.1321929</td>
+</tr>
+<tr class="even">
+<td align="left">thirst_c</td>
+<td align="left">~~</td>
+<td align="left">thirst_c</td>
+<td align="left"></td>
+<td align="right">1.0182634</td>
+<td align="right">0.1136086</td>
+<td align="right">8.9629045</td>
+<td align="right">0.0000000</td>
+<td align="right">0.8157392</td>
+<td align="right">1.2675973</td>
+<td align="right">1.0182634</td>
+<td align="right">0.7998298</td>
+<td align="right">0.7998298</td>
+</tr>
+<tr class="odd">
+<td align="left">consume</td>
+<td align="left">~~</td>
+<td align="left">consume</td>
+<td align="left"></td>
+<td align="right">0.9939831</td>
+<td align="right">0.1265148</td>
+<td align="right">7.8566577</td>
+<td align="right">0.0000000</td>
+<td align="right">0.8005747</td>
+<td align="right">1.3374865</td>
+<td align="right">0.9939831</td>
+<td align="right">0.7681770</td>
+<td align="right">0.7681770</td>
+</tr>
+<tr class="even">
+<td align="left">room_temp_c</td>
+<td align="left">~~</td>
+<td align="left">room_temp_c</td>
+<td align="left"></td>
+<td align="right">1.0331000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">1.0331000</td>
+<td align="right">1.0331000</td>
+<td align="right">1.0331000</td>
+<td align="right">1.0000000</td>
+<td align="right">1.0331000</td>
+</tr>
+<tr class="odd">
+<td align="left">room_temp_c</td>
+<td align="left">~~</td>
+<td align="left">phys_fit</td>
+<td align="left"></td>
+<td align="right">-0.0250000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">-0.0250000</td>
+<td align="right">-0.0250000</td>
+<td align="right">-0.0250000</td>
+<td align="right">-0.0491925</td>
+<td align="right">-0.0250000</td>
+</tr>
+<tr class="even">
+<td align="left">room_temp_c</td>
+<td align="left">~~</td>
+<td align="left">thrst_fit</td>
+<td align="left"></td>
+<td align="right">0.0437000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.0437000</td>
+<td align="right">0.0437000</td>
+<td align="right">0.0437000</td>
+<td align="right">0.0763566</td>
+<td align="right">0.0437000</td>
+</tr>
+<tr class="odd">
+<td align="left">phys_fit</td>
+<td align="left">~~</td>
+<td align="left">phys_fit</td>
+<td align="left"></td>
+<td align="right">0.2500000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.2500000</td>
+<td align="right">0.2500000</td>
+<td align="right">0.2500000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.2500000</td>
+</tr>
+<tr class="even">
+<td align="left">phys_fit</td>
+<td align="left">~~</td>
+<td align="left">thrst_fit</td>
+<td align="left"></td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">thrst_fit</td>
+<td align="left">~~</td>
+<td align="left">thrst_fit</td>
+<td align="left"></td>
+<td align="right">0.3170500</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.3170500</td>
+<td align="right">0.3170500</td>
+<td align="right">0.3170500</td>
+<td align="right">1.0000000</td>
+<td align="right">0.3170500</td>
+</tr>
+<tr class="even">
+<td align="left">a1b3</td>
+<td align="left">:=</td>
+<td align="left">a1*b3</td>
+<td align="left">a1b3</td>
+<td align="right">-0.0861781</td>
+<td align="right">0.0897744</td>
+<td align="right">-0.9599411</td>
+<td align="right">0.3370848</td>
+<td align="right">-0.2818981</td>
+<td align="right">0.0733223</td>
+<td align="right">-0.0861781</td>
+<td align="right">-0.0384275</td>
+<td align="right">-0.0671439</td>
+</tr>
+<tr class="odd">
+<td align="left">normie</td>
+<td align="left">:=</td>
+<td align="left">a1<em>b1+a1b3</em>-0.5</td>
+<td align="left">normie</td>
+<td align="right">0.2355707</td>
+<td align="right">0.0801761</td>
+<td align="right">2.9381648</td>
+<td align="right">0.0033016</td>
+<td align="right">0.1030349</td>
+<td align="right">0.4261216</td>
+<td align="right">0.2355707</td>
+<td align="right">0.1912031</td>
+<td align="right">0.2027837</td>
+</tr>
+<tr class="even">
+<td align="left">fitie</td>
+<td align="left">:=</td>
+<td align="left">a1<em>b1+a1b3</em>0.5</td>
+<td align="left">fitie</td>
+<td align="right">0.1493926</td>
+<td align="right">0.0688598</td>
+<td align="right">2.1695180</td>
+<td align="right">0.0300434</td>
+<td align="right">0.0249656</td>
+<td align="right">0.2984616</td>
+<td align="right">0.1493926</td>
+<td align="right">0.1527757</td>
+<td align="right">0.1356398</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="interpretation-1" class="section level2">
+<h2>Interpretation</h2>
+<blockquote>
+<p>Every 1°F increase in room temperature was associated with an <em>a1</em> = 0.497 (<em>S.E.</em> = 0.086) increase in thirstiness units. Adjusting for all other predictors, every 1-unit increase in thirstiness was associated with drinking <em>b1</em> = 0.388 (<em>S.E.</em> = 0.100) more deciliters of water. Also, adjusting for all other predictors, there was no sufficient evidence that physically fit people drank less water than normal people, <em>b2</em> = -0.259 (<em>S.E.</em> = 0.200). There was also no sufficient evidence that the relation between thirstiness and water drinking depended on physical fitness group, <em>b3</em> = -0.174 (<em>S.E.</em> = 0.181). Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, <em>a1b3</em> = -0.086 (<em>S.E.</em> = 0.090); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.262, 0.090]. Among normal people, for every <em>a1</em> = 0.497 unit increase in the association between room temperature and thirstiness, there was an <em>a1b1 + a1b3</em> = 0.236 (<em>S.E.</em> = 0.080) increase in deciliters of water people drank. Among physically fit people, for every <em>a1</em> = 0.497 unit increase in the association between room temperature and thirstiness, there was an <em>a1b1 + a1b3</em> = 0.149 (<em>S.E.</em> = 0.069) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.150 (<em>S.E.</em> = 0.109).</p>
+</blockquote>
+</div>
+<div id="resources" class="section level2">
+<h2>Resources</h2>
+<blockquote>
+<ul>
+<li>Hayes, A. F. (2015). An index and test of linear moderated mediation. <em>Multivariate Behavioral Research, 50</em>(1), 1-22.</li>
+<li>MacKinnon, D. P. (2008). <em>Introduction to statistical mediation analysis.</em> New York, NY: Lawrence Erlbaum Associates.</li>
+<li>Revelle, W. (2017) How to use the psych package for mediation/moderation/regression analysis. [<a href="http://personality-project.org/r/psych/HowTo/mediation.pdf"><strong>.pdf</strong></a>]</li>
+<li>Rosseel, Y. (2012). Lavaan: An R package for structural equation modeling and more. Version 0.5–12 (BETA). <em>Journal of statistical software, 48</em>(2), 1-36. [<a href="http://lavaan.ugent.be/"><strong>website</strong></a>]</li>
+<li>Rucker, D. D., Preacher, K. J., Tormala, Z. L., &amp; Petty, R. E. (2011). Mediation analysis in social psychology: Current practices and new recommendations. <em>Social and Personality Psychology Compass, 5</em>(6), 359-371. [<a href="http://quantpsy.org/pubs/rucker_preacher_tormala_petty_2011.pdf"><strong>.pdf</strong></a>]</li>
+</ul>
+</blockquote>
+</div>
+<div id="general-word-of-caution" class="section level2">
+<h2>General word of caution</h2>
+<blockquote>
+<p>Above, I listed resources prepared by experts on these and related topics. Although I generally do my best to write accurate posts, don’t assume my posts are 100% accurate or that they apply to your data or research questions. Trust statistics and methodology experts, not blog posts.</p>
+</blockquote>
+</div>

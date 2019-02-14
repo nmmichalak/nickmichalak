@@ -32,6 +32,12 @@ image:
 
 ```{r, message = FALSE, warning = FALSE}
 
+# install.packages("tidyverse")
+# install.packages("knitr")
+# install.packages("lavaan")
+# install.packages("psych")
+# install.packages("MBESS")
+
 library(tidyverse)
 library(knitr)
 library(lavaan)
@@ -41,7 +47,7 @@ library(MBESS)
 ```
 
 ## Data
-> I took the data from Table 3.1 in Mackinnon (2008, p. 56) [[**.csv**](https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg01/data/mackinnon_2008_t3.1.csv)]
+> I took the data from Table 3.1 in Mackinnon (2008, p. 56) [[**.csv**](post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/mackinnon_2008_t10.1.csv)]
 
 ```{r, message = FALSE, warning = FALSE}
 
@@ -71,7 +77,7 @@ thirst_dat %>%
 ```
 
 ## Conceptual Diagram
-![Figure 1. Room temperature is associated with water drinking indirectly through thirstiness ](/static/post/nrg01/nrg01_files/figure_01.jpg)  
+![Figure 1. Room temperature is associated with water drinking indirectly through thirstiness ](post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure_01.jpg)  
 
 ## Write model to test indirect effect using `sem()` from lavaan
 > * `~` = Regress onto ...

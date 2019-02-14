@@ -43,7 +43,13 @@ image:
 </div>
 <div id="libraries" class="section level2">
 <h2>Libraries</h2>
-<pre class="r"><code>library(tidyverse)
+<pre class="r"><code># install.packages(&quot;tidyverse&quot;)
+# install.packages(&quot;knitr&quot;)
+# install.packages(&quot;lavaan&quot;)
+# install.packages(&quot;psych&quot;)
+# install.packages(&quot;MBESS&quot;)
+
+library(tidyverse)
 library(knitr)
 library(lavaan)
 library(psych)
@@ -52,7 +58,7 @@ library(MBESS)</code></pre>
 <div id="data" class="section level2">
 <h2>Data</h2>
 <blockquote>
-<p>I took the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg01/data/mackinnon_2008_t3.1.csv"><strong>.csv</strong></a>]</p>
+<p>I took the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/mackinnon_2008_t10.1.csv"><strong>.csv</strong></a>]</p>
 </blockquote>
 <pre class="r"><code>thirst_dat &lt;- &quot;data/mackinnon_2008_t10.1.csv&quot; %&gt;% read_csv()</code></pre>
 <div id="print-first-and-last-five-observations" class="section level3">
@@ -141,7 +147,7 @@ library(MBESS)</code></pre>
 <div id="conceptual-diagram" class="section level2">
 <h2>Conceptual Diagram</h2>
 <div class="figure">
-<img src="/static/post/nrg01/nrg01_files/figure_01.jpg" alt="Figure 1. Room temperature is associated with water drinking indirectly through thirstiness" />
+<img src="post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure_01.jpg" alt="Figure 1. Room temperature is associated with water drinking indirectly through thirstiness" />
 <p class="caption">Figure 1. Room temperature is associated with water drinking indirectly through thirstiness</p>
 </div>
 </div>
