@@ -29,7 +29,7 @@ image:
 
 
 <blockquote>
-<p>This post builds on a previous post on Testing Indirect Effects/Mediation in R [<a href="https://nickmichalak.netlify.com/post/2019-02-13-testing-indirect-effects-mediation-in-r/testing-indirect-effects-mediation-in-r/"><strong>.html</strong></a>].</p>
+<p>This post builds on a previous post on <a href="https://nickmichalak.netlify.com/post/2019-02-13-testing-indirect-effects-mediation-in-r/testing-indirect-effects-mediation-in-r/"><strong>Testing Indirect Effects/Mediation in R</strong></a>].</p>
 </blockquote>
 <div id="what-is-mediation" class="section level2">
 <h2>What is mediation?</h2>
@@ -82,7 +82,7 @@ library(psych)</code></pre>
 <div id="data" class="section level2">
 <h2>Data</h2>
 <blockquote>
-<p>I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="!%5B%5D(post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t3.1.csv)"><strong>.csv</strong></a>] with those from Table 10.1 in Mackinnon (2008, p. 291) [<a href="post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t10.1.csv"><strong>.csv</strong></a>]</p>
+<p>I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t3.1.csv"><strong>.csv</strong></a>] with those from Table 10.1 in Mackinnon (2008, p. 291) [<a href="post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t10.1.csv"><strong>.csv</strong></a>]</p>
 </blockquote>
 <pre class="r"><code>thirst_norm &lt;- &quot;data/mackinnon_2008_t3.1.csv&quot; %&gt;% read_csv()
 thirst_fit &lt;- &quot;data/mackinnon_2008_t10.1.csv&quot; %&gt;% read_csv()</code></pre>
@@ -258,7 +258,7 @@ thirst_fit &lt;- thirst_fit %&gt;% mutate(phys_fit = 0.5)</code></pre>
 <div id="conceptual-diagram" class="section level2">
 <h2>Conceptual Diagram</h2>
 <div class="figure">
-<embed src="!%5B%5D(/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure_01.jpeg)" />
+<img src="post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure_01.jpeg" alt="Figure 1. Focus on which association fitness group could moderate. Here, the association between room temperature and thirstiness depends on fitness group." />
 <p class="caption">Figure 1. Focus on which association fitness group could moderate. Here, the association between room temperature and thirstiness depends on fitness group.</p>
 </div>
 </div>
@@ -687,7 +687,7 @@ thirst_fit &lt;- thirst_fit %&gt;% mutate(phys_fit = 0.5)</code></pre>
 <div id="conceptual-diagram-1" class="section level2">
 <h2>Conceptual Diagram</h2>
 <div class="figure">
-<embed src="!%5B%5D(/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure_02.jpeg)" />
+<img src="/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure_02.jpeg" alt="Figure 2. Focus on which association fitness group could moderate. Here, the association between thirstiness and water drinking depends on fitness group." />
 <p class="caption">Figure 2. Focus on which association fitness group could moderate. Here, the association between thirstiness and water drinking depends on fitness group.</p>
 </div>
 </div>
