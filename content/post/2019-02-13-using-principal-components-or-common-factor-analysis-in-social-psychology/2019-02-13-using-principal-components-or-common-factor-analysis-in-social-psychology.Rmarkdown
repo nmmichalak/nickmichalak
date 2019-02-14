@@ -27,11 +27,13 @@ image:
 ```{r, warning = FALSE, message = FALSE}
 
 # install.packages("tidyverse")
+# install.packages("knitr")
 # install.packages("haven")
 # install.packages("MASS")
 # install.packages("psych")
 
 library(tidyverse)
+library(knitr)
 library(haven)
 library(MASS)
 library(psych)
@@ -46,7 +48,8 @@ library(psych)
 
 UScitiesD %>% 
   as.matrix() %>% 
-  as.data.frame()
+  as.data.frame() %>% 
+  kable()
 
 ```
 
@@ -114,7 +117,7 @@ isoMDS.data %>%
 
 ```{r, warning = FALSE, message = FALSE}
 
-saq <- read_spss(file = "content/post/2019-02-13-using-principal-components-or-common-factor-analysis-in-social-psychology/data/SAQ.sav")
+saq <- read_spss(file = "data/SAQ.sav")
 
 ```
 
@@ -155,6 +158,10 @@ fa.parallel(saq, fm = "minres", fa = "both")
 principal(saq, rotate = "varimax") %>% 
   print(sort = TRUE)
 
+# plot
+principal(saq, rotate = "varimax") %>% 
+  fa.diagram(sort = TRUE)
+
 ```
 
 ## 4 components
@@ -163,6 +170,10 @@ principal(saq, rotate = "varimax") %>%
 
 principal(saq, nfactors = 4, rotate = "varimax") %>% 
   print(sort = TRUE)
+
+# plot
+principal(saq, nfactors = 4, rotate = "varimax") %>% 
+  fa.diagram(sort = TRUE)
 
 ```
 
@@ -175,6 +186,10 @@ principal(saq, nfactors = 4, rotate = "varimax") %>%
 fa(saq, fm = "minres", rotate = "oblimin") %>% 
   print(sort = TRUE)
 
+# plot
+fa(saq, fm = "minres", rotate = "oblimin") %>% 
+  fa.diagram(sort = TRUE)
+
 ```
 
 ## 6 factors
@@ -183,6 +198,10 @@ fa(saq, fm = "minres", rotate = "oblimin") %>%
 
 fa(saq, nfactors = 6, fm = "minres", rotate = "oblimin") %>% 
   print(sort = TRUE)
+
+# plot
+fa(saq, nfactors = 6, fm = "minres", rotate = "oblimin") %>% 
+  fa.diagram(sort = TRUE)
 
 ```
 
