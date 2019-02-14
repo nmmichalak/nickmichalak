@@ -1,6 +1,6 @@
 ---
 title: Using Principal Components or Common Factor Analysis in Social Psychology
-author: ''
+author: 'Nick Michalak'
 date: '2019-02-13'
 slug: using-principal-components-or-common-factor-analysis-in-social-psychology
 categories:
@@ -48,8 +48,7 @@ library(psych)
 
 UScitiesD %>% 
   as.matrix() %>% 
-  as.data.frame() %>% 
-  kable()
+  as.data.frame()
 
 ```
 
