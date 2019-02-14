@@ -61,5 +61,5 @@ preserveTaxonomyNames = true
   publication_type = "publication_types"
   author = "authors"
 
-# Latex math
-  math = true
+# comments
+  disable_comments = false
