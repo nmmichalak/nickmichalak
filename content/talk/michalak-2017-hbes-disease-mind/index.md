@@ -5,6 +5,6 @@ authors = ["Nicholas M. Michalak", "Joshua M. Ackerman"]
 featured = false
 event = "Human Behavior and Evolution Society Conference"
 location = "Boise, ID."
-url_slides = "https://github.com/nmmichalak/nicholas_michalak/raw/master/presentations/2017/2017HBES_michalak_ackerman.pptx"
+url_slides = "2017HBES_michalak_ackerman.pptx"
 +++
 

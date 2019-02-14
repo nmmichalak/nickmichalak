@@ -5,6 +5,6 @@ authors = ["Nicholas M. Michalak", "Joshua M. Ackerman"]
 featured = false
 event = "Nonverbal Preconference at the Society for Personality and Social Psychology Convention"
 location = "Atlanta, GA."
-url_slides = "https://osf.io/2d96k/"
+url_slides = "2018SPSP_michalak_nonvernal_preconference.pptx"
 +++
 

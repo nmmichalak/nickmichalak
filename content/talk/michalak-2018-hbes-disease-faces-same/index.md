@@ -5,6 +5,6 @@ authors = ["Nicholas M. Michalak", "Joshua M. Ackerman"]
 featured = false
 event = "Human Behavior and Evolution Society Conference"
 location = "Amsterdam."
-url_slides = "https://osf.io/2d96k/"
+url_slides = "2018HBES_michalak_ackerman.pptx"
 +++
 

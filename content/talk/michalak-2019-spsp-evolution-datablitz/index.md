@@ -5,6 +5,6 @@ authors = ["Nicholas M. Michalak", "Koji J. Takahashi", "Joshua M. Ackerman"]
 featured = false
 event = "Society for Personality and Social Psychology Convention"
 location = "Portland, OR"
-url_slides = "https://osf.io/spkm7/"
+url_slides = "2019W_anger_potential_coalition_cue.pptx"
 +++
 
