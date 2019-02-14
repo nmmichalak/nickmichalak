@@ -5,6 +5,6 @@ authors = ["Nicholas M. Michalak", "Robin S. Edelstein"]
 featured = false
 event = "Human Behavior and Evolution Society Conference"
 location = "Vancouver, CA"
-url_slides = "https://github.com/nmmichalak/nicholas_michalak/raw/master/presentations/2017/2017SPSP_intergroup_processes_poster_michalak_edelstein.pptx"
+url_slides = "2016HBES_social_neuroendocrinology_preconference_michalak_edelstein.pptx"
 +++
 

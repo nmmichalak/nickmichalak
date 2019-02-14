@@ -42,7 +42,7 @@ image:
 
 ### Install packages and/or load libraries
 
-```{r}
+```{r, warning = FALSE, message = FALSE}
 
 # install.packages("tidyverse")
 # install.packages("haven")
@@ -56,7 +56,7 @@ library(psych)
 
 ### Read SPSS Anxiety Questionnaire data
 
-```{r}
+```{r, warning = FALSE, message = FALSE}
 
 saq <- read_spss(file = "data/SAQ.sav")
 
@@ -96,7 +96,8 @@ fa.parallel(saq, fm = "minres", fa = "both")
 
 ```{r}
 
-principal(saq, rotate = "varimax")
+principal(saq, rotate = "varimax") %>% 
+  print(sort = TRUE)
 
 ```
 
@@ -104,7 +105,8 @@ principal(saq, rotate = "varimax")
 
 ```{r}
 
-principal(saq, nfactors = 4, rotate = "varimax")
+principal(saq, nfactors = 4, rotate = "varimax") %>% 
+  print(sort = TRUE)
 
 ```
 
@@ -114,7 +116,8 @@ principal(saq, nfactors = 4, rotate = "varimax")
 
 ```{r}
 
-fa(saq, fm = "minres", rotate = "oblimin")
+fa(saq, fm = "minres", rotate = "oblimin") %>% 
+  print(sort = TRUE)
 
 ```
 
@@ -122,7 +125,8 @@ fa(saq, fm = "minres", rotate = "oblimin")
 
 ```{r}
 
-fa(saq, nfactors = 6, fm = "minres", rotate = "oblimin")
+fa(saq, nfactors = 6, fm = "minres", rotate = "oblimin") %>% 
+  print(sort = TRUE)
 
 ```
 
