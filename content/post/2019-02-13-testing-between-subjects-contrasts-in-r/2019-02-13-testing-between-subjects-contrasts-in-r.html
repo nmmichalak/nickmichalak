@@ -1,0 +1,568 @@
+---
+title: Testing Between-Subjects Contrasts in R
+author: ''
+date: '2019-02-13'
+slug: testing-between-subjects-contrasts-in-r
+categories:
+  - ANOVA
+  - contrasts
+  - general linear model
+  - between-subjects designs
+tags:
+  - ANOVA
+  - contrasts
+  - general linear model
+  - between-subjects designs
+image:
+  caption: ''
+  focal_point: ''
+---
+
+
+
+<div id="between-subjects-factors" class="section level1">
+<h1>Between-Subjects Factors</h1>
+<blockquote>
+<p>A between-subjects factor refers to independent groups that vary along some dimension. Put another way, a between-subjects factor assumes that each level of the factor represents an independent (i.e., not correlated) group of observations. For example, an experimental factor could represent 2 independent groups of participants who were randomly assigned to either a control or a treatment groupition. In this case, the between-subjects experimental factor assumes that measurements from both groups of participants are not correlated – they are independent.</p>
+</blockquote>
+</div>
+<div id="what-are-contrasts" class="section level1">
+<h1>What are contrasts?</h1>
+<blockquote>
+<p>Broadly, contrasts test focused research hypotheses. A contrast comprises a set of weights or numeric values that represent some comparison. For example, when comparing two experimental group means (i.e., control vs. treatment), you can apply weights to each group mean and then sum them up. This is the same thing as subtracting one group’s mean from the other’s.</p>
+</blockquote>
+<div id="heres-a-quick-demonstration" class="section level2">
+<h2>Here’s a quick demonstration</h2>
+<pre class="r"><code># group means
+control &lt;- 5
+treatment &lt;- 3
+
+# apply contrast weights and sum up the results
+sum(c(control, treatment) * c(1, -1))</code></pre>
+<pre><code>## [1] 2</code></pre>
+</div>
+</div>
+<div id="model-and-conceptual-assumptions-for-linear-regression" class="section level1">
+<h1>Model and Conceptual Assumptions for Linear Regression</h1>
+<blockquote>
+<ul>
+<li><strong>Correct functional form.</strong> Your model variables share linear relationships.<br />
+</li>
+<li><strong>No omitted influences.</strong> This one is hard: Your model accounts for all relevant influences on the variables included. All models are wrong, but how wrong is yours?<br />
+</li>
+<li><strong>Accurate measurement.</strong> Your measurements are valid and reliable. Note that unreliable measures can’t be valid, and reliable measures don’t necessairly measure just one construct or even your construct.<br />
+</li>
+<li><strong>Well-behaved residuals.</strong> Residuals (i.e., prediction errors) aren’t correlated with predictor variables or eachother, and residuals have constant variance across values of your predictor variables.</li>
+</ul>
+</blockquote>
+</div>
+<div id="some-assumptions-worded-differently-for-anova" class="section level1">
+<h1>Some assumptions worded differently for ANOVA</h1>
+<blockquote>
+<ul>
+<li><strong>Homogenous group variances.</strong> Group variances are equal. In this case, you can think of group variance as the “average” difference from the group mean (differences are squared so that they are all positive). Link this to the well-behaved residuals assumption above. Residuals (i.e., prediction errors) should be equal across groups; remember that, in ANOVA, groups are predictors.<br />
+</li>
+<li><strong>Normally distributed group observations.</strong> Group observations come from normal distributions. Also link this to the well-behaved residuals assumption above. Residuals should come from a normal distribution too.</li>
+</ul>
+</blockquote>
+<div id="libraries" class="section level2">
+<h2>Libraries</h2>
+<pre class="r"><code>library(tidyverse)
+library(knitr)
+library(AMCP)</code></pre>
+</div>
+<div id="load-data" class="section level2">
+<h2>Load data</h2>
+<blockquote>
+<p>From Chapter 5, Table 4 in Maxwell, Delaney, &amp; Kelley (2018)<br />
+From <code>help(&quot;C5T4&quot;)</code>: “The following data consists of blood pressure measurements for six individuals randomly assigned to one of four groups. Our purpose here is to perform four planed contrasts in order to discern if group differences exist for the selected contrasts of interests.”</p>
+</blockquote>
+<pre class="r"><code>data(&quot;C5T4&quot;)
+
+# add labels
+C5T4 &lt;- C5T4 %&gt;% mutate(group_lbl = group %&gt;% recode(`1` = &quot;Drug Therapy&quot;, `2` = &quot;Biofeedback&quot;, `3` = &quot;Diet&quot;, `4` = &quot;Combination&quot;))</code></pre>
+<div id="print-full-dataset" class="section level3">
+<h3>Print full dataset</h3>
+<pre class="r"><code>C5T4 %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">group</th>
+<th align="right">sbp</th>
+<th align="left">group_lbl</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">84</td>
+<td align="left">Drug Therapy</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">95</td>
+<td align="left">Drug Therapy</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">93</td>
+<td align="left">Drug Therapy</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">104</td>
+<td align="left">Drug Therapy</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">99</td>
+<td align="left">Drug Therapy</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">106</td>
+<td align="left">Drug Therapy</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">81</td>
+<td align="left">Biofeedback</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">84</td>
+<td align="left">Biofeedback</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">92</td>
+<td align="left">Biofeedback</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">101</td>
+<td align="left">Biofeedback</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">80</td>
+<td align="left">Biofeedback</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">108</td>
+<td align="left">Biofeedback</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">98</td>
+<td align="left">Diet</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="right">95</td>
+<td align="left">Diet</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">86</td>
+<td align="left">Diet</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="right">87</td>
+<td align="left">Diet</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">94</td>
+<td align="left">Diet</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="right">101</td>
+<td align="left">Diet</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">91</td>
+<td align="left">Combination</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">78</td>
+<td align="left">Combination</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">85</td>
+<td align="left">Combination</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">80</td>
+<td align="left">Combination</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">81</td>
+<td align="left">Combination</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">76</td>
+<td align="left">Combination</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="visualize-relationships" class="section level2">
+<h2>Visualize relationships</h2>
+<blockquote>
+<p>It’s always a good idea to look at your data. Check some assumptions.</p>
+</blockquote>
+<div id="boxplots" class="section level3">
+<h3>boxplots</h3>
+<blockquote>
+<p>Do variances look equal?</p>
+</blockquote>
+<pre class="r"><code>C5T4 %&gt;% 
+  ggplot(mapping = aes(x = group_lbl, y = sbp, fill = group_lbl)) +
+  geom_boxplot() +
+  theme_bw() +
+  theme(legend.position = &quot;top&quot;)</code></pre>
+<p><img src="/post/2019-02-13-testing-between-subjects-contrasts-in-r/2019-02-13-testing-between-subjects-contrasts-in-r_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+<div id="qq-plots" class="section level3">
+<h3>QQ-plots</h3>
+<blockquote>
+<p>Do observations look normal?</p>
+</blockquote>
+<pre class="r"><code>C5T4 %&gt;% 
+  ggplot(mapping = aes(sample = sbp)) +
+  geom_qq() +
+  facet_wrap(facets = ~ group_lbl, scales = &quot;free&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2019-02-13-testing-between-subjects-contrasts-in-r/2019-02-13-testing-between-subjects-contrasts-in-r_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+</div>
+<div id="define-custom-oneway-function-similar-to-ibm-spsss-oneway-command" class="section level2">
+<h2>Define custom oneway function (similar to <a href="https://www.ibm.com/support/knowledgecenter/en/SSLVMB_24.0.0/spss/base/syn_oneway.html">IBM SPSS’s ONEWAY command</a>)</h2>
+<pre class="r"><code>oneway &lt;- function(dv, group, contrast, alpha = .05) {
+  # -- arguments --
+  # dv: vector of measurements (i.e., dependent variable)
+  # group: vector that identifies which group the dv measurement came from
+  # contrast: list of named contrasts
+  # alpha: alpha level for 1 - alpha confidence level
+  # -- output --
+  # computes confidence interval and test statistic for a linear contrast of population means in a between-subjects design
+  # returns a data.frame object
+  # estimate (est), standard error (se), t-statistic (z), degrees of freedom (df), two-tailed p-value (p), and lower (lwr) and upper (upr) confidence limits at requested 1 - alpha confidence level
+  # first line reports test statistics that assume variances are equal
+  # second line reports test statistics that do not assume variances are equal
+
+  # means, standard deviations, and sample sizes
+  ms &lt;- by(dv, group, mean, na.rm = TRUE)
+  vars &lt;- by(dv, group, var, na.rm = TRUE)
+  ns &lt;- by(dv, group, function(x) sum(!is.na(x)))
+  
+  # convert list of contrasts to a matrix of named contrasts by row
+  contrast &lt;- matrix(unlist(contrast), nrow = length(contrast), byrow = TRUE, dimnames = list(names(contrast), NULL))
+  
+  # contrast estimate
+  est &lt;- contrast %*% ms
+  
+  # welch test statistic
+  se_welch &lt;- sqrt(contrast^2 %*% (vars / ns))
+  t_welch &lt;- est / se_welch
+  
+  # classic test statistic
+  mse &lt;- anova(lm(dv ~ factor(group)))$&quot;Mean Sq&quot;[2]
+  se_classic &lt;- sqrt(mse * (contrast^2 %*% (1 / ns)))
+  t_classic &lt;- est / se_classic
+  
+  # if dimensions of contrast are NULL, nummer of contrasts = 1, if not, nummer of contrasts = dimensions of contrast
+  num_contrast &lt;- ifelse(is.null(dim(contrast)), 1, dim(contrast)[1])
+  df_welch &lt;- rep(0, num_contrast)
+  df_classic &lt;- rep(0, num_contrast)
+  
+  # makes rows of contrasts if contrast dimensions aren&#39;t NULL
+  if(is.null(dim(contrast))) contrast &lt;- t(as.matrix(contrast))
+  
+  # calculating degrees of freedom for welch and classic
+  for(i in 1:num_contrast) {
+    df_classic[i] &lt;- sum(ns) - length(ns)
+    df_welch[i] &lt;- sum(contrast[i, ]^2 * vars / ns)^2 / sum((contrast[i, ]^2 * vars / ns)^2 / (ns - 1))
+  }
+  
+  # p-values
+  p_welch &lt;- 2 * (1 - pt(abs(t_welch), df_welch))
+  p_classic &lt;- 2 * (1 - pt(abs(t_classic), df_classic))
+  
+  # 95% confidence intervals
+  lwr_welch &lt;- est - se_welch * qt(p = 1 - (alpha / 2), df = df_welch)
+  upr_welch &lt;- est + se_welch * qt(p = 1 - (alpha / 2), df = df_welch)
+  lwr_classic &lt;- est - se_classic * qt(p = 1 - (alpha / 2), df = df_classic)
+  upr_classic &lt;- est + se_classic * qt(p = 1 - (alpha / 2), df = df_classic)
+  
+  # output
+  data.frame(contrast = rep(rownames(contrast), times = 2),
+             equal_var = rep(c(&quot;Assumed&quot;, &quot;Not Assumed&quot;), each = num_contrast),
+             est = rep(est, times = 2),
+             se = c(se_classic, se_welch),
+             t = c(t_classic, t_welch),
+             df = c(df_classic, df_welch),
+             p = c(p_classic, p_welch),
+             lwr = c(lwr_classic, lwr_welch),
+             upr = c(upr_classic, upr_welch))
+}</code></pre>
+</div>
+<div id="test-contrasts-maxwell-dalaney-2004-p.207" class="section level2">
+<h2>Test contrasts (Maxwell &amp; Dalaney, 2004, p. 207)</h2>
+<blockquote>
+<p>Drug Therapy vs. Biofeedback: 1, -1, 0, 0<br />
+Drug Therapy vs. Diet: 1, 0, -1, 0<br />
+Biofeedback vs. Diet: 0, 1, -1, 0<br />
+Drug Therapy, Biofeedback, and Diet vs. Combination: 1, 1, 1, -3</p>
+</blockquote>
+<pre class="r"><code>with(C5T4,
+oneway(dv = sbp, group = group, contrast = list(dtVbf = c(1, -1, 0, 0),
+                                                dtVd = c(1, 0, -1, 0),
+                                                bfVd = c(0, 1, -1, 0),
+                                                dtbfdVc = c(1, 1, 1, -3)), alpha = 0.05)
+) %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">contrast</th>
+<th align="left">equal_var</th>
+<th align="right">est</th>
+<th align="right">se</th>
+<th align="right">t</th>
+<th align="right">df</th>
+<th align="right">p</th>
+<th align="right">lwr</th>
+<th align="right">upr</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">dtVbf</td>
+<td align="left">Assumed</td>
+<td align="right">5.833333</td>
+<td align="right">4.667559</td>
+<td align="right">1.2497609</td>
+<td align="right">20.000000</td>
+<td align="right">0.2258144</td>
+<td align="right">-3.903025</td>
+<td align="right">15.569692</td>
+</tr>
+<tr class="even">
+<td align="left">dtVd</td>
+<td align="left">Assumed</td>
+<td align="right">3.333333</td>
+<td align="right">4.667559</td>
+<td align="right">0.7141491</td>
+<td align="right">20.000000</td>
+<td align="right">0.4833872</td>
+<td align="right">-6.403025</td>
+<td align="right">13.069692</td>
+</tr>
+<tr class="odd">
+<td align="left">bfVd</td>
+<td align="left">Assumed</td>
+<td align="right">-2.500000</td>
+<td align="right">4.667559</td>
+<td align="right">-0.5356118</td>
+<td align="right">20.000000</td>
+<td align="right">0.5981333</td>
+<td align="right">-12.236358</td>
+<td align="right">7.236358</td>
+</tr>
+<tr class="even">
+<td align="left">dtbfdVc</td>
+<td align="left">Assumed</td>
+<td align="right">35.833333</td>
+<td align="right">11.433139</td>
+<td align="right">3.1341641</td>
+<td align="right">20.000000</td>
+<td align="right">0.0052236</td>
+<td align="right">11.984223</td>
+<td align="right">59.682443</td>
+</tr>
+<tr class="odd">
+<td align="left">dtVbf</td>
+<td align="left">Not Assumed</td>
+<td align="right">5.833333</td>
+<td align="right">5.723732</td>
+<td align="right">1.0191485</td>
+<td align="right">8.947047</td>
+<td align="right">0.3348981</td>
+<td align="right">-7.126340</td>
+<td align="right">18.793006</td>
+</tr>
+<tr class="even">
+<td align="left">dtVd</td>
+<td align="left">Not Assumed</td>
+<td align="right">3.333333</td>
+<td align="right">4.083844</td>
+<td align="right">0.8162246</td>
+<td align="right">9.221906</td>
+<td align="right">0.4349481</td>
+<td align="right">-5.871187</td>
+<td align="right">12.537854</td>
+</tr>
+<tr class="odd">
+<td align="left">bfVd</td>
+<td align="left">Not Assumed</td>
+<td align="right">-2.500000</td>
+<td align="right">5.283622</td>
+<td align="right">-0.4731602</td>
+<td align="right">7.507995</td>
+<td align="right">0.6495483</td>
+<td align="right">-14.824442</td>
+<td align="right">9.824442</td>
+</tr>
+<tr class="even">
+<td align="left">dtbfdVc</td>
+<td align="left">Not Assumed</td>
+<td align="right">35.833333</td>
+<td align="right">9.095481</td>
+<td align="right">3.9396853</td>
+<td align="right">13.288009</td>
+<td align="right">0.0016279</td>
+<td align="right">16.226946</td>
+<td align="right">55.439720</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="interpretation" class="section level2">
+<h2>Interpretation</h2>
+<blockquote>
+<p>We found no sufficient evidence that, following treatment, those in the Drug Therapy condition had different blood pressure values, on average, than those in the Biofeedback condition, <em>t</em>(8.95) = 1.02, <em>p</em> = .335; that those in the Drug Therapy condition had different blood pressure values, on average, than those in the Diet condition, <em>t</em>(9.22) = 0.82, <em>p</em> = .435; or that those in the Biofeedback condition had different blood pressure values, on average, than those in the Diet condition, <em>t</em>(7.51) = -0.47, <em>p</em> = .650. However, we found evidence that, following treatment, those in the Drug Therapy, Biofeedback, and Diet conditions all together had higher blood pressure values, on average, than those in the Combination condition, <em>b</em> = 35.83, 95% CI [16.23, 55.44], <em>t</em>(13.29) = 3.95, <em>p</em> = .002.</p>
+</blockquote>
+</div>
+</div>
+<div id="a-simulation" class="section level1">
+<h1>A simulation</h1>
+<blockquote>
+<p>The correction for unequal equal variances <a href="https://en.wikipedia.org/wiki/Welch%27s_t-test">Welch’s t-test</a> may seem to have only trivial effects on the contrast test statistics, but the corrected test statistics maintain error rates (i.e., rejecting a true null 5% of the time) much better than the classic contrast test statistics when sample sizes and standard deviaitions are different. Moreover, when sample sizes and standard deviaitions are equal, the corrected test statistics give more or less the same results as the classic test statistics without sacrificing power in any practical sense. Below I simulate both extremes.</p>
+</blockquote>
+<div id="generate-simulation-data" class="section level2">
+<h2>Generate simulation data</h2>
+<blockquote>
+<ol style="list-style-type: decimal">
+<li>Equal sample sizes and equal standard deviations</li>
+<li>Unequal sample sizes and unequal standard deviations</li>
+</ol>
+</blockquote>
+<pre class="r"><code># set random seed so results can be reproduced
+set.seed(7777)
+
+# sample sizes for both conditions
+ns1 &lt;- c(50, 50, 50, 50); ns2 &lt;- c(75, 25, 50, 50)
+
+# means (only 1 set of group means)
+ms &lt;- c(4, 4, 4, 4)
+
+# standard deviations for both conditions
+sds1 &lt;- c(1, 1, 1, 1); sds2 &lt;- c(0.5, 1, 1, 1)
+
+# g identifies which groups the data come from
+g1 &lt;- rep(rep(1:4, times = ns1), times = 10000); g2 &lt;- rep(rep(1:4, times = ns2), times = 10000)
+
+# k = simulation replicate
+k &lt;- rep(1:10000, each = 200)
+
+# this code create a data.frame with every combination of k and g
+simdat1 &lt;- data.frame(k, g = g1); simdat2 &lt;- data.frame(k, g = g2)
+simdat1$y &lt;- rnorm(n = ns1[simdat1$g], mean = ms[simdat1$g], sd = sds1[simdat1$g])
+simdat2$y &lt;- rnorm(n = ns2[simdat2$g], mean = ms[simdat2$g], sd = sds2[simdat2$g])</code></pre>
+</div>
+<div id="define-simulation-tests-function" class="section level2">
+<h2>Define simulation tests function</h2>
+<blockquote>
+<p>In the function below, I test the interaction contrast as if the 4 groups came from a 2 x 2 factorial design (e.g., Aa = 1, Ab = -1, Ba = -1, Bb = 1).</p>
+</blockquote>
+<pre class="r"><code>simtest &lt;- function(data) {
+  # save output
+  contout &lt;- with(data, oneway(dv = y, group = g, contrast = list(cont1 = c(1, -1, -1, 1)), alpha = 0.05))
+  
+  # save classic two-tailed p-value
+  p_classic &lt;- contout[contout$equal_var == &quot;Assumed&quot;, ]$p
+  p_welch &lt;- contout[contout$equal_var == &quot;Not Assumed&quot;, ]$p
+  
+  # output
+  cbind(p = c(p_classic, p_welch), welch = c(0, 1))
+}</code></pre>
+</div>
+<div id="generate-test-results-i.e.-p-values" class="section level2">
+<h2>Generate test results (i.e., p-values)</h2>
+<pre class="r"><code>simp1 &lt;- unique(simdat1$k) %&gt;% 
+  map_df(function(i) {
+    simdat1 %&gt;%
+      filter(k == i) %&gt;% 
+      simtest() %&gt;% 
+      as_tibble()
+  }) %&gt;% 
+  mutate(cond = &quot;Equal N &amp; Equal SD&quot;, sig = as.numeric(p &lt; .05))
+
+simp2 &lt;- unique(simdat2$k) %&gt;% 
+  map_df(function(i) {
+    simdat2 %&gt;%
+      filter(k == i) %&gt;% 
+      simtest() %&gt;% 
+      as_tibble()
+  }) %&gt;% 
+  mutate(cond = &quot;Unequal N &amp; Unequal SD&quot;, sig = as.numeric(p &lt; .05))</code></pre>
+</div>
+<div id="plot-error-rates" class="section level2">
+<h2>Plot error rates</h2>
+<blockquote>
+<p>p &lt; .05 should only occur 5% of the time</p>
+</blockquote>
+<pre class="r"><code>bind_rows(simp1, simp2) %&gt;% 
+  group_by(cond, welch) %&gt;% 
+  summarise(falsepos = mean(sig)) %&gt;% 
+  mutate(welch = welch %&gt;% recode(`0` = &quot;Classic ANOVA&quot;, `1` = &quot;Welch Correction&quot;)) %&gt;% 
+  ggplot(mapping = aes(x = cond, y = falsepos, fill = welch)) +
+  geom_bar(stat = &quot;identity&quot;, position = position_dodge(0.9)) +
+  geom_hline(yintercept = 0.05, color = &quot;red&quot;) +
+  scale_y_continuous(breaks = seq(0, 0.1, 0.01)) +
+  theme_bw() +
+  theme(legend.position = &quot;top&quot;)</code></pre>
+<p><img src="/post/2019-02-13-testing-between-subjects-contrasts-in-r/2019-02-13-testing-between-subjects-contrasts-in-r_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+</div>
+<div id="interpretation-1" class="section level2">
+<h2>Interpretation</h2>
+<blockquote>
+<p>Above, I generated 10,000 sets of 4 group sample values whose true means were not different, and I tested the interaction contrast on each set (i.e., 2 x 2 factorial ANOVA interaction contrast). Like I described above, when sample sizes and standard deviaitions were equal, both contrast test statistics give practically the same results, on average, but when sample sizes and standard deviaitions were different – in this case, one group had a larger sample size and a smaller true standard deviation – the classic test statistics resulted in false positives over 8% of the time; the corrected test statistics resulted in false positives only 5% of the time.</p>
+</blockquote>
+</div>
+</div>
+<div id="resources" class="section level1">
+<h1>Resources</h1>
+<blockquote>
+<ul>
+<li>Bonett, D. G. (2008). Confidence intervals for standardized linear contrasts of means. <em>Psychological Methods, 13</em>(2), 99-109.<br />
+</li>
+<li>Bonett, D. G. (2009). Meta-analytic interval estimation for standardized and unstandardized mean differences. <em>Psychological Methods, 14</em>(3), 225-238.<br />
+</li>
+<li>Maxwell, S. E., Delaney, H. D., &amp; Kelley, K. (2018). <em>Designing experiments and analyzing data: A model comparison perspective</em> (3rd ed.). Routledge.<br />
+</li>
+<li><a href="https://designingexperiments.com/">DESIGNING EXPERIMENTS AND ANALYZING DATA</a> includes computer code for analyses from their book, Shiny apps, and more.<br />
+</li>
+<li>Wondra, J.D., &amp; Gonzalez, R. (In prep). Use Welch’s t Test to Compare the Means of Independent Groups. Unpublished Manuscript.</li>
+</ul>
+</blockquote>
+</div>
+<div id="general-word-of-caution" class="section level1">
+<h1>General word of caution</h1>
+<blockquote>
+<p>Above, I listed resources prepared by experts on these and related topics. Although I generally do my best to write accurate posts, don’t assume my posts are 100% accurate or that they apply to your data or research questions. Trust statistics and methodology experts, not blog posts.</p>
+</blockquote>
+</div>

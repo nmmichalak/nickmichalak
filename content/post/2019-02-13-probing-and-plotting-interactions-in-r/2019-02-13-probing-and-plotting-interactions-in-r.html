@@ -1,0 +1,976 @@
+---
+title: Probing and Plotting Interactions in R
+author: 'Nik Michalak'
+date: '2019-02-13'
+slug: probing-and-plotting-interactions-in-r
+categories:
+  - regression
+  - plotting
+  - interactions
+tags:
+  - regression
+  - plotting
+  - interactions
+image:
+  caption: ''
+  focal_point: ''
+---
+
+
+
+<div id="what-is-moderation" class="section level2">
+<h2>What is moderation?</h2>
+<blockquote>
+<p>Moderation refers to how some variable modifies the direction or the strength of the association between two variables. In other words, a moderator variable qualifies the relation between two variables. A moderator is not a part of some proposed causal process; instead, it interacts with the relation between two variables in such a way that their relation is stronger, weaker, or opposite in direction—depending on values of the moderator. For example, as room temperature increases, people may report feeling thirstier. But that may depend on how physically fit people are. Maybe physically fit people don’t report feeling thirsty as room temperature increases, or maybe physically fit people—compared to less physically fit people—have a higher room temperature threshold at which they start feeling thirstier. In this example, the product of one predictor variable and the moderator—their interaction—quantifies the moderator’s effect. Statistically, the product term accounts for variability in thirst or water drinking independently of either predictor variable by itself.</p>
+</blockquote>
+</div>
+<div id="what-is-a-simple-slope" class="section level2">
+<h2>What is a simple slope?</h2>
+<blockquote>
+<p>In a 2-way interaction, a simple slope represents the relation between two variables (e.g., x and y) at a specific value of a third variable (e.g., a moderator variable). In this sense, a simple slope is a conditional relationship between two variables. For example, <em>if</em> participants are physically fit, <em>then</em> as room temperature increases, thirst also increases.</p>
+</blockquote>
+</div>
+<div id="model-and-conceptual-assumptions" class="section level2">
+<h2>Model and Conceptual Assumptions</h2>
+<blockquote>
+<ul>
+<li><strong>Correct functional form.</strong> Your model variables share linear relationships.</li>
+<li><strong>No omitted influences.</strong> This one is hard: Your model accounts for all relevant influences on the variables included. All models are wrong, but how wrong is yours?</li>
+<li><strong>Accurate measurement.</strong> Your measurements are valid and reliable. Note that unreliable measures can’t be valid, and reliable measures don’t necessairly measure just one construct or even your construct.</li>
+<li><strong>Well-behaved residuals.</strong> Residuals (i.e., prediction errors) aren’t correlated with predictor variables or eachother, and residuals have constant variance across values of your predictor variables.</li>
+</ul>
+</blockquote>
+</div>
+<div id="libraries" class="section level2">
+<h2>Libraries</h2>
+<pre class="r"><code>library(tidyverse)
+library(knitr)
+library(psych)
+library(effects)
+library(multcomp)
+
+# In the code belo,w I want select from the dplyr package from the tidyverse
+select &lt;- dplyr::select</code></pre>
+</div>
+<div id="data-example-1-categorical-x-continuous-interaction" class="section level2">
+<h2>Data: Example 1 (categorical x continuous interaction)</h2>
+<blockquote>
+<p>I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg01/data/mackinnon_2008_t3.1.csv"><strong>.csv</strong></a>] with those from Table 10.1 in Mackinnon (2008, p. 291) [<a href="https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg02/data/mackinnon_2008_t10.1.csv"><strong>.csv</strong></a>]</p>
+</blockquote>
+<pre class="r"><code>thirst_norm &lt;- &quot;https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg01/data/mackinnon_2008_t3.1.csv&quot; %&gt;% read_csv()
+thirst_fit &lt;- &quot;https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg02/data/mackinnon_2008_t10.1.csv&quot; %&gt;% read_csv()</code></pre>
+</div>
+<div id="code-new-ids-for-fit-data" class="section level2">
+<h2>Code new IDs for fit data</h2>
+<pre class="r"><code>thirst_fit &lt;- thirst_fit %&gt;% mutate(id = 51:100)</code></pre>
+</div>
+<div id="add-column-in-both-datasets-that-identifies-fitness-group" class="section level2">
+<h2>Add column in both datasets that identifies fitness group</h2>
+<blockquote>
+<p>Unfit = -0.5 and Fit = 0.5</p>
+</blockquote>
+<pre class="r"><code>thirst_norm &lt;- thirst_norm %&gt;% mutate(phys_fit = -0.5)
+thirst_fit &lt;- thirst_fit %&gt;% mutate(phys_fit = 0.5)</code></pre>
+</div>
+<div id="bind-unfit-and-fit-data-by-rows" class="section level2">
+<h2>Bind unfit and fit data by rows</h2>
+<blockquote>
+<p>Imagine stacking these datasets on top of eachother</p>
+</blockquote>
+<pre class="r"><code>thirst_data &lt;- bind_rows(thirst_norm, thirst_fit)</code></pre>
+</div>
+<div id="mean-center-predictors" class="section level2">
+<h2>Mean-center predictors</h2>
+<blockquote>
+<p>i.e., mean-center everything but the consume variable</p>
+</blockquote>
+<pre class="r"><code>thirst_data &lt;- thirst_data %&gt;% mutate(room_temp_c = room_temp - mean(room_temp),
+                                      thirst_c = thirst - mean(thirst))</code></pre>
+<div id="print-first-and-last-five-observations" class="section level3">
+<h3>Print first and last five observations</h3>
+<pre class="r"><code>thirst_data %&gt;% 
+  headTail() %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">id</th>
+<th align="left">room_temp</th>
+<th align="left">thirst</th>
+<th align="left">consume</th>
+<th align="left">phys_fit</th>
+<th align="left">room_temp_c</th>
+<th align="left">thirst_c</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">70</td>
+<td align="left">4</td>
+<td align="left">3</td>
+<td align="left">-0.5</td>
+<td align="left">-0.13</td>
+<td align="left">0.87</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="left">71</td>
+<td align="left">4</td>
+<td align="left">3</td>
+<td align="left">-0.5</td>
+<td align="left">0.87</td>
+<td align="left">0.87</td>
+</tr>
+<tr class="odd">
+<td align="left">3</td>
+<td align="left">69</td>
+<td align="left">1</td>
+<td align="left">3</td>
+<td align="left">-0.5</td>
+<td align="left">-1.13</td>
+<td align="left">-2.13</td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="left">70</td>
+<td align="left">1</td>
+<td align="left">3</td>
+<td align="left">-0.5</td>
+<td align="left">-0.13</td>
+<td align="left">-2.13</td>
+</tr>
+<tr class="odd">
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+</tr>
+<tr class="even">
+<td align="left">97</td>
+<td align="left">71</td>
+<td align="left">4</td>
+<td align="left">4</td>
+<td align="left">0.5</td>
+<td align="left">0.87</td>
+<td align="left">0.87</td>
+</tr>
+<tr class="odd">
+<td align="left">98</td>
+<td align="left">71</td>
+<td align="left">4</td>
+<td align="left">5</td>
+<td align="left">0.5</td>
+<td align="left">0.87</td>
+<td align="left">0.87</td>
+</tr>
+<tr class="even">
+<td align="left">99</td>
+<td align="left">70</td>
+<td align="left">3</td>
+<td align="left">3</td>
+<td align="left">0.5</td>
+<td align="left">-0.13</td>
+<td align="left">-0.13</td>
+</tr>
+<tr class="odd">
+<td align="left">100</td>
+<td align="left">71</td>
+<td align="left">4</td>
+<td align="left">3</td>
+<td align="left">0.5</td>
+<td align="left">0.87</td>
+<td align="left">0.87</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="visualize-relationships" class="section level2">
+<h2>Visualize relationships</h2>
+<blockquote>
+<p>It’s always a good idea to look at your data. Check some assumptions.</p>
+</blockquote>
+<pre class="r"><code>thirst_data %&gt;% 
+  select(room_temp, room_temp_c, thirst, thirst_c, consume, phys_fit) %&gt;% 
+  pairs.panels()</code></pre>
+<p><img src="/post/2019-02-13-probing-and-plotting-interactions-in-r/2019-02-13-probing-and-plotting-interactions-in-r_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div id="fit-linear-model" class="section level2">
+<h2>Fit linear model</h2>
+<pre class="r"><code>flm01 &lt;- lm(thirst ~ room_temp_c * phys_fit, data = thirst_data)</code></pre>
+</div>
+<div id="summarize-linear-model" class="section level2">
+<h2>Summarize linear model</h2>
+<pre class="r"><code>summary(flm01)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = thirst ~ room_temp_c * phys_fit, data = thirst_data)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.99905 -0.90020 -0.06908  0.66235  2.00095 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)            3.1406     0.1004  31.273  &lt; 2e-16 ***
+## room_temp_c            0.5498     0.1015   5.416  4.5e-07 ***
+## phys_fit               0.1950     0.2008   0.971   0.3341    
+## room_temp_c:phys_fit   0.4225     0.2030   2.081   0.0401 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1.003 on 96 degrees of freedom
+## Multiple R-squared:  0.2415, Adjusted R-squared:  0.2178 
+## F-statistic: 10.19 on 3 and 96 DF,  p-value: 6.918e-06</code></pre>
+</div>
+<div id="print-95-confidence-intervals" class="section level2">
+<h2>Print 95% confidence intervals</h2>
+<pre class="r"><code>confint(flm01)</code></pre>
+<pre><code>##                            2.5 %    97.5 %
+## (Intercept)           2.94122187 3.3399029
+## room_temp_c           0.34833220 0.7513491
+## phys_fit             -0.20369699 0.5936651
+## room_temp_c:phys_fit  0.01947918 0.8255130</code></pre>
+</div>
+<div id="plot-scatterplot-with-slope-estimates-for-each-fitness-group" class="section level2">
+<h2>Plot scatterplot with slope estimates for each fitness group</h2>
+<div id="save-table-of-predicted-values" class="section level3">
+<h3>Save table of predicted values</h3>
+<blockquote>
+<ul>
+<li><em>term:</em> Which interaction term are you interested in?</li>
+<li><em>mod:</em> What model are you using the make predictions?</li>
+<li><em>x.var:</em> Which variable would you want to see on your x-axis?</li>
+<li><em>xlevels:</em> Give this argument a list of vectors (i.e., strings of values) whose values you want to make predictions for. If you have two conditions, you probably want to make predictions for the values that represent both conditions. If you have a moderator variable, you probably want to make predictions across a range of relevant, meaningful values of your moderator. <strong>Importantly</strong>, there should be people in your dataset who have scores at (or very close to) those values. In other words, be careful not to make predictions outside your variables’ observed range of values (unless that’s your goal).</li>
+</ul>
+</blockquote>
+<pre class="r"><code>pred_table01 &lt;- effect(term = &quot;room_temp_c:phys_fit&quot;, mod = flm01, x.var = &quot;room_temp_c&quot;, xlevels = list(phys_fit = c(-0.5, 0.5), room_temp_c = seq(-3, 3, 1))) %&gt;%
+  as_tibble %&gt;% 
+  mutate(phys_fit_lbl = phys_fit %&gt;% recode(`-0.5` = &quot;Normal&quot;, `0.5` = &quot;Fit&quot;))
+
+# print table
+kable(pred_table01)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">room_temp_c</th>
+<th align="right">phys_fit</th>
+<th align="right">fit</th>
+<th align="right">se</th>
+<th align="right">lower</th>
+<th align="right">upper</th>
+<th align="left">phys_fit_lbl</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">-3</td>
+<td align="right">-0.5</td>
+<td align="right">2.0272925</td>
+<td align="right">0.4095873</td>
+<td align="right">1.2142681</td>
+<td align="right">2.840317</td>
+<td align="left">Normal</td>
+</tr>
+<tr class="even">
+<td align="right">-2</td>
+<td align="right">-0.5</td>
+<td align="right">2.3658851</td>
+<td align="right">0.2946487</td>
+<td align="right">1.7810120</td>
+<td align="right">2.950758</td>
+<td align="left">Normal</td>
+</tr>
+<tr class="odd">
+<td align="right">-1</td>
+<td align="right">-0.5</td>
+<td align="right">2.7044778</td>
+<td align="right">0.1939502</td>
+<td align="right">2.3194896</td>
+<td align="right">3.089466</td>
+<td align="left">Normal</td>
+</tr>
+<tr class="even">
+<td align="right">0</td>
+<td align="right">-0.5</td>
+<td align="right">3.0430704</td>
+<td align="right">0.1419796</td>
+<td align="right">2.7612431</td>
+<td align="right">3.324898</td>
+<td align="left">Normal</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">-0.5</td>
+<td align="right">3.3816630</td>
+<td align="right">0.1855867</td>
+<td align="right">3.0132763</td>
+<td align="right">3.750050</td>
+<td align="left">Normal</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">-0.5</td>
+<td align="right">3.7202556</td>
+<td align="right">0.2836712</td>
+<td align="right">3.1571727</td>
+<td align="right">4.283339</td>
+<td align="left">Normal</td>
+</tr>
+<tr class="odd">
+<td align="right">3</td>
+<td align="right">-0.5</td>
+<td align="right">4.0588482</td>
+<td align="right">0.3977926</td>
+<td align="right">3.2692361</td>
+<td align="right">4.848460</td>
+<td align="left">Normal</td>
+</tr>
+<tr class="even">
+<td align="right">-3</td>
+<td align="right">0.5</td>
+<td align="right">0.9547883</td>
+<td align="right">0.4906478</td>
+<td align="right">-0.0191399</td>
+<td align="right">1.928717</td>
+<td align="left">Fit</td>
+</tr>
+<tr class="odd">
+<td align="right">-2</td>
+<td align="right">0.5</td>
+<td align="right">1.7158770</td>
+<td align="right">0.3413438</td>
+<td align="right">1.0383150</td>
+<td align="right">2.393439</td>
+<td align="left">Fit</td>
+</tr>
+<tr class="even">
+<td align="right">-1</td>
+<td align="right">0.5</td>
+<td align="right">2.4769657</td>
+<td align="right">0.2073590</td>
+<td align="right">2.0653613</td>
+<td align="right">2.888570</td>
+<td align="left">Fit</td>
+</tr>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">0.5</td>
+<td align="right">3.2380544</td>
+<td align="right">0.1420630</td>
+<td align="right">2.9560616</td>
+<td align="right">3.520047</td>
+<td align="left">Fit</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">0.5</td>
+<td align="right">3.9991431</td>
+<td align="right">0.2192441</td>
+<td align="right">3.5639471</td>
+<td align="right">4.434339</td>
+<td align="left">Fit</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">0.5</td>
+<td align="right">4.7602319</td>
+<td align="right">0.3558876</td>
+<td align="right">4.0538006</td>
+<td align="right">5.466663</td>
+<td align="left">Fit</td>
+</tr>
+<tr class="even">
+<td align="right">3</td>
+<td align="right">0.5</td>
+<td align="right">5.5213206</td>
+<td align="right">0.5059109</td>
+<td align="right">4.5170953</td>
+<td align="right">6.525546</td>
+<td align="left">Fit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="save-character-variable-with-condition-labels" class="section level3">
+<h3>Save character variable with condition labels</h3>
+<pre class="r"><code>thirst_data &lt;- thirst_data %&gt;% 
+  mutate(phys_fit_lbl = phys_fit %&gt;% recode(`-0.5` = &quot;Normal&quot;, `0.5` = &quot;Fit&quot;))</code></pre>
+</div>
+<div id="ggplot2" class="section level3">
+<h3>ggplot2</h3>
+<blockquote>
+<p>Read this code line by line. The idea is that you’re first generating a scatterplot with your raw values and then you’re “adding (+)” layers which use the predicted values your tabled above. Put another way, <code>geom_line()</code> and <code>geom_ribbon()</code> are using data from the table of predicted values; <code>geom_point()</code> is using data from your dataset.</p>
+</blockquote>
+<pre class="r"><code>thirst_data %&gt;% 
+  ggplot(mapping = aes(x = room_temp_c, y = thirst)) +
+  geom_point(mapping = aes(color = phys_fit_lbl)) +
+  geom_line(data = pred_table01, mapping = aes(x = room_temp_c, y = fit, linetype = phys_fit_lbl)) +
+  geom_ribbon(data = pred_table01, mapping = aes(x = room_temp_c, y = fit, ymin = lower, ymax = upper, fill = phys_fit_lbl), alpha = 0.5) +
+  scale_x_continuous(breaks = pretty(thirst_data$room_temp_c)) +
+  scale_y_continuous(breaks = pretty(thirst_data$thirst)) +
+  scale_color_manual(values = c(&quot;blue&quot;, &quot;red&quot;)) +
+  scale_fill_manual(values = c(&quot;blue&quot;, &quot;red&quot;)) +
+  theme(legend.position = &quot;top&quot;)</code></pre>
+<pre><code>## Warning: Ignoring unknown aesthetics: y</code></pre>
+<p><img src="/post/2019-02-13-probing-and-plotting-interactions-in-r/2019-02-13-probing-and-plotting-interactions-in-r_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+</div>
+</div>
+<div id="test-simple-slopes" class="section level2">
+<h2>Test simple slopes</h2>
+</div>
+<div id="save-matrix-of-contrasts" class="section level2">
+<h2>Save matrix of contrasts</h2>
+<blockquote>
+<ul>
+<li>Each coefficient gets a contrast weight.<br />
+</li>
+<li>0 means don’t use it; cross it out.<br />
+</li>
+<li>intercept = 0, room_temp_c = 1, phys_fit = 0, room_temp_c:phys_fit = -0.5<br />
+</li>
+<li>In words, test the linear effect of room_temp_c when phys_fit = -0.5 (normal participants)</li>
+</ul>
+</blockquote>
+<pre class="r"><code>contmat01 &lt;- rbind(normal = c(0, 1, 0, -0.5),
+                   fit = c(0, 1, 0, 0.5))</code></pre>
+</div>
+<div id="save-general-linear-hypothesis-object-output-from-glht" class="section level2">
+<h2>Save general linear hypothesis object output from <code>glht()</code></h2>
+<blockquote>
+<p><code>glht()</code> takes your model and your contrast matrix you made above.</p>
+</blockquote>
+<pre class="r"><code>glht01 &lt;- glht(model = flm01, linfct = contmat01)</code></pre>
+</div>
+<div id="contrast-summary" class="section level2">
+<h2>Contrast summary</h2>
+<blockquote>
+<p>test = <code>adjusted(&quot;none&quot;)</code> means, “Don’t correct for multiple comparisons.”</p>
+</blockquote>
+<pre class="r"><code>summary(glht01, test = adjusted(&quot;none&quot;))</code></pre>
+<pre><code>## 
+##   Simultaneous Tests for General Linear Hypotheses
+## 
+## Fit: lm(formula = thirst ~ room_temp_c * phys_fit, data = thirst_data)
+## 
+## Linear Hypotheses:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## normal == 0   0.3386     0.1260   2.688  0.00848 ** 
+## fit == 0      0.7611     0.1592   4.780 6.31e-06 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## (Adjusted p values reported -- none method)</code></pre>
+</div>
+<div id="interpretation" class="section level2">
+<h2>Interpretation</h2>
+<blockquote>
+<p>Holding all other predictors at 0, every 1°F increase in room temperature was associated with a <em>b</em> = 0.55 unit increase in thirst, <em>t</em>(96) = 5.42, 95% CI[0.35, 0.75], <em>p</em> &lt; .001. Holding all other predictors at 0, there was no sufficient evidence that physically fit participants reported different mean thirst units, <em>b</em> = 0.20, than normal participants, <em>t</em>(96) = 0.97, 95% CI[-0.20, 0.59], <em>p</em> = .334. However, the association between room temperature and thirst was different between fitness groups, <em>b</em> = 0.42, <em>t</em>(96) = 2.08, 95% CI[0.02, 0.83], <em>p</em> = .040. Among normal participants, every 1°F increase in room temperature was associated with a <em>b</em> = 0.34 unit increase in thirst, <em>t</em>(96) = 2.69, <em>p</em> = .008; in contrast, among physically fit participants, every 1°F increase in room temperature was associated with a <em>b</em> = 0.76 unit increase in thirst, <em>t</em>(96) = 4.78, <em>p</em> &lt; .001.</p>
+</blockquote>
+</div>
+<div id="data-example-1-continuous-x-continuous-interaction" class="section level2">
+<h2>Data: Example 1 (continuous x continuous interaction)</h2>
+<blockquote>
+<p>Data come from the example in Chapter 7 from Cohen, Cohen, Aiken, &amp; West (2003, p. 276) [<a href="https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg04/data/C07E01DT.txt"><strong>.txt</strong></a>]</p>
+</blockquote>
+<pre class="r"><code>endurance &lt;- &quot;data/C07E01DT.txt&quot; %&gt;% read_table(col_names = c(&quot;id&quot;, &quot;xage&quot;, &quot;zexer&quot;, &quot;yendu&quot;))</code></pre>
+</div>
+<div id="mean-center-predictors-1" class="section level2">
+<h2>Mean-center predictors</h2>
+<blockquote>
+<p>i.e., mean-center everything but the yendu variable</p>
+</blockquote>
+<pre class="r"><code>endurance &lt;- endurance %&gt;% mutate(xage_c = xage - mean(xage),
+                                  zexer_c = zexer - mean(zexer))</code></pre>
+<div id="print-first-and-last-five-observations-1" class="section level3">
+<h3>Print first and last five observations</h3>
+<pre class="r"><code>endurance %&gt;% 
+  headTail() %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">id</th>
+<th align="left">xage</th>
+<th align="left">zexer</th>
+<th align="left">yendu</th>
+<th align="left">xage_c</th>
+<th align="left">zexer_c</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">60</td>
+<td align="left">10</td>
+<td align="left">18</td>
+<td align="left">10.82</td>
+<td align="left">-0.67</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="left">40</td>
+<td align="left">9</td>
+<td align="left">36</td>
+<td align="left">-9.18</td>
+<td align="left">-1.67</td>
+</tr>
+<tr class="odd">
+<td align="left">3</td>
+<td align="left">29</td>
+<td align="left">2</td>
+<td align="left">51</td>
+<td align="left">-20.18</td>
+<td align="left">-8.67</td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="left">47</td>
+<td align="left">10</td>
+<td align="left">18</td>
+<td align="left">-2.18</td>
+<td align="left">-0.67</td>
+</tr>
+<tr class="odd">
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+</tr>
+<tr class="even">
+<td align="left">247</td>
+<td align="left">45</td>
+<td align="left">9</td>
+<td align="left">37</td>
+<td align="left">-4.18</td>
+<td align="left">-1.67</td>
+</tr>
+<tr class="odd">
+<td align="left">248</td>
+<td align="left">60</td>
+<td align="left">7</td>
+<td align="left">0</td>
+<td align="left">10.82</td>
+<td align="left">-3.67</td>
+</tr>
+<tr class="even">
+<td align="left">249</td>
+<td align="left">57</td>
+<td align="left">11</td>
+<td align="left">18</td>
+<td align="left">7.82</td>
+<td align="left">0.33</td>
+</tr>
+<tr class="odd">
+<td align="left">250</td>
+<td align="left">56</td>
+<td align="left">12</td>
+<td align="left">24</td>
+<td align="left">6.82</td>
+<td align="left">1.33</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="visualize-relationships-1" class="section level2">
+<h2>Visualize relationships</h2>
+<blockquote>
+<p>It’s always a good idea to look at your data. Check some assumptions.</p>
+</blockquote>
+<pre class="r"><code>endurance %&gt;% 
+  select(xage, zexer, yendu, xage_c, zexer_c) %&gt;% 
+  pairs.panels()</code></pre>
+<p><img src="/post/2019-02-13-probing-and-plotting-interactions-in-r/2019-02-13-probing-and-plotting-interactions-in-r_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+</div>
+<div id="fit-linear-model-1" class="section level2">
+<h2>Fit linear model</h2>
+<pre class="r"><code>flm02 &lt;- lm(yendu ~ zexer_c * xage_c, data = endurance)</code></pre>
+</div>
+<div id="summarize-linear-model-1" class="section level2">
+<h2>Summarize linear model</h2>
+<pre class="r"><code>summary(flm02)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = yendu ~ zexer_c * xage_c, data = endurance)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -21.165  -6.939   0.269   6.300  21.299 
+## 
+## Coefficients:
+##                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)    25.88872    0.64662  40.037  &lt; 2e-16 ***
+## zexer_c         0.97272    0.13653   7.124 1.20e-11 ***
+## xage_c         -0.26169    0.06406  -4.085 6.01e-05 ***
+## zexer_c:xage_c  0.04724    0.01359   3.476 0.000604 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 9.7 on 241 degrees of freedom
+## Multiple R-squared:  0.2061, Adjusted R-squared:  0.1962 
+## F-statistic: 20.86 on 3 and 241 DF,  p-value: 4.764e-12</code></pre>
+</div>
+<div id="print-95-confidence-intervals-1" class="section level2">
+<h2>Print 95% confidence intervals</h2>
+<pre class="r"><code>confint(flm02)</code></pre>
+<pre><code>##                      2.5 %      97.5 %
+## (Intercept)    24.61497596 27.16246675
+## zexer_c         0.70376546  1.24166505
+## xage_c         -0.38788631 -0.13549322
+## zexer_c:xage_c  0.02046862  0.07402086</code></pre>
+</div>
+<div id="plot-scatterplot-with-slope-estimates-for-percentiles" class="section level2">
+<h2>Plot scatterplot with slope estimates for percentiles</h2>
+</div>
+<div id="save-quantiles-of-mean-centered-age" class="section level2">
+<h2>Save quantiles of mean-centered age</h2>
+<blockquote>
+<p>You’ll use these for plotting and simple slopes.</p>
+</blockquote>
+<pre class="r"><code>(xage_cqs &lt;- quantile(endurance$xage_c))</code></pre>
+<pre><code>##         0%        25%        50%        75%       100% 
+## -29.183673  -6.183673  -1.183673   6.816327  32.816327</code></pre>
+<div id="save-table-of-predicted-values-1" class="section level3">
+<h3>Save table of predicted values</h3>
+<blockquote>
+<ul>
+<li><code>xage_cqs[2:4]</code> means, “subset the 2nd, 3rd, and 4th value in xage_cqs”<br />
+</li>
+<li><em>term:</em> Which interaction term are you interested in?</li>
+<li><em>mod:</em> What model are you using to make predictions?</li>
+<li><em>x.var:</em> Which variable would you want to see on your x-axis?</li>
+<li><em>xlevels:</em> Give this argument a list of vectors (i.e., strings of values) whose values you want to make predictions for. If you have two conditions, you probably want to make predictions for the values that represent both conditions. If you have a moderator variable, you probably want to make predictions across a range of relevant, meaningful values of your moderator. <em>Importantly</em>, there should be people in your dataset who have scores at (or very close to) those values. In other words, be careful not make predictions outside your variables’ observed range of values (unless that’s your goal).</li>
+</ul>
+</blockquote>
+<pre class="r"><code>pred_table02 &lt;- effect(term = &quot;zexer_c:xage_c&quot;, mod = flm02, x.var = &quot;zexer_c&quot;, xlevels = list(zexer_c = pretty(endurance$zexer_c), xage_c = xage_cqs[2:4])) %&gt;%
+  as_tibble %&gt;% 
+  mutate(xage_c_lbl = xage_c %&gt;% factor(levels = xage_cqs[2:4], labels = c(&quot;25th Percentile&quot;, &quot;50th Percentile&quot;, &quot;75th Percentile&quot;)))
+
+# print table
+kable(pred_table02)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">zexer_c</th>
+<th align="right">xage_c</th>
+<th align="right">fit</th>
+<th align="right">se</th>
+<th align="right">lower</th>
+<th align="right">upper</th>
+<th align="left">xage_c_lbl</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">-15</td>
+<td align="right">-6.183674</td>
+<td align="right">17.298387</td>
+<td align="right">2.2198327</td>
+<td align="right">12.925636</td>
+<td align="right">21.67114</td>
+<td align="left">25th Percentile</td>
+</tr>
+<tr class="even">
+<td align="right">-10</td>
+<td align="right">-6.183674</td>
+<td align="right">20.701233</td>
+<td align="right">1.5254098</td>
+<td align="right">17.696395</td>
+<td align="right">23.70607</td>
+<td align="left">25th Percentile</td>
+</tr>
+<tr class="odd">
+<td align="right">-5</td>
+<td align="right">-6.183674</td>
+<td align="right">24.104079</td>
+<td align="right">0.9354140</td>
+<td align="right">22.261448</td>
+<td align="right">25.94671</td>
+<td align="left">25th Percentile</td>
+</tr>
+<tr class="even">
+<td align="right">0</td>
+<td align="right">-6.183674</td>
+<td align="right">27.506925</td>
+<td align="right">0.7563266</td>
+<td align="right">26.017071</td>
+<td align="right">28.99678</td>
+<td align="left">25th Percentile</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">-6.183674</td>
+<td align="right">30.909772</td>
+<td align="right">1.1907841</td>
+<td align="right">28.564098</td>
+<td align="right">33.25545</td>
+<td align="left">25th Percentile</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">-6.183674</td>
+<td align="right">34.312618</td>
+<td align="right">1.8473793</td>
+<td align="right">30.673546</td>
+<td align="right">37.95169</td>
+<td align="left">25th Percentile</td>
+</tr>
+<tr class="odd">
+<td align="right">15</td>
+<td align="right">-6.183674</td>
+<td align="right">37.715464</td>
+<td align="right">2.5605781</td>
+<td align="right">32.671493</td>
+<td align="right">42.75943</td>
+<td align="left">25th Percentile</td>
+</tr>
+<tr class="even">
+<td align="right">20</td>
+<td align="right">-6.183674</td>
+<td align="right">41.118310</td>
+<td align="right">3.2938149</td>
+<td align="right">34.629968</td>
+<td align="right">47.60665</td>
+<td align="left">25th Percentile</td>
+</tr>
+<tr class="odd">
+<td align="right">-15</td>
+<td align="right">-1.183674</td>
+<td align="right">12.446583</td>
+<td align="right">2.1146888</td>
+<td align="right">8.280950</td>
+<td align="right">16.61222</td>
+<td align="left">50th Percentile</td>
+</tr>
+<tr class="even">
+<td align="right">-10</td>
+<td align="right">-1.183674</td>
+<td align="right">17.030547</td>
+<td align="right">1.4844112</td>
+<td align="right">14.106471</td>
+<td align="right">19.95462</td>
+<td align="left">50th Percentile</td>
+</tr>
+<tr class="odd">
+<td align="right">-5</td>
+<td align="right">-1.183674</td>
+<td align="right">21.614512</td>
+<td align="right">0.9240868</td>
+<td align="right">19.794194</td>
+<td align="right">23.43483</td>
+<td align="left">50th Percentile</td>
+</tr>
+<tr class="even">
+<td align="right">0</td>
+<td align="right">-1.183674</td>
+<td align="right">26.198477</td>
+<td align="right">0.6506056</td>
+<td align="right">24.916877</td>
+<td align="right">27.48008</td>
+<td align="left">50th Percentile</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">-1.183674</td>
+<td align="right">30.782441</td>
+<td align="right">0.9547410</td>
+<td align="right">28.901739</td>
+<td align="right">32.66314</td>
+<td align="left">50th Percentile</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">-1.183674</td>
+<td align="right">35.366406</td>
+<td align="right">1.5227162</td>
+<td align="right">32.366874</td>
+<td align="right">38.36594</td>
+<td align="left">50th Percentile</td>
+</tr>
+<tr class="odd">
+<td align="right">15</td>
+<td align="right">-1.183674</td>
+<td align="right">39.950370</td>
+<td align="right">2.1551544</td>
+<td align="right">35.705026</td>
+<td align="right">44.19571</td>
+<td align="left">50th Percentile</td>
+</tr>
+<tr class="even">
+<td align="right">20</td>
+<td align="right">-1.183674</td>
+<td align="right">44.534335</td>
+<td align="right">2.8088446</td>
+<td align="right">39.001315</td>
+<td align="right">50.06735</td>
+<td align="left">50th Percentile</td>
+</tr>
+<tr class="odd">
+<td align="right">-15</td>
+<td align="right">6.816326</td>
+<td align="right">4.683696</td>
+<td align="right">2.9239000</td>
+<td align="right">-1.075966</td>
+<td align="right">10.44336</td>
+<td align="left">75th Percentile</td>
+</tr>
+<tr class="even">
+<td align="right">-10</td>
+<td align="right">6.816326</td>
+<td align="right">11.157450</td>
+<td align="right">2.0956730</td>
+<td align="right">7.029276</td>
+<td align="right">15.28562</td>
+<td align="left">75th Percentile</td>
+</tr>
+<tr class="odd">
+<td align="right">-5</td>
+<td align="right">6.816326</td>
+<td align="right">17.631204</td>
+<td align="right">1.3214234</td>
+<td align="right">15.028190</td>
+<td align="right">20.23422</td>
+<td align="left">75th Percentile</td>
+</tr>
+<tr class="even">
+<td align="right">0</td>
+<td align="right">6.816326</td>
+<td align="right">24.104958</td>
+<td align="right">0.7823900</td>
+<td align="right">22.563763</td>
+<td align="right">25.64615</td>
+<td align="left">75th Percentile</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="right">6.816326</td>
+<td align="right">30.578713</td>
+<td align="right">0.9948712</td>
+<td align="right">28.618959</td>
+<td align="right">32.53847</td>
+<td align="left">75th Percentile</td>
+</tr>
+<tr class="even">
+<td align="right">10</td>
+<td align="right">6.816326</td>
+<td align="right">37.052467</td>
+<td align="right">1.6967803</td>
+<td align="right">33.710054</td>
+<td align="right">40.39488</td>
+<td align="left">75th Percentile</td>
+</tr>
+<tr class="odd">
+<td align="right">15</td>
+<td align="right">6.816326</td>
+<td align="right">43.526221</td>
+<td align="right">2.5059964</td>
+<td align="right">38.589768</td>
+<td align="right">48.46267</td>
+<td align="left">75th Percentile</td>
+</tr>
+<tr class="even">
+<td align="right">20</td>
+<td align="right">6.816326</td>
+<td align="right">49.999975</td>
+<td align="right">3.3455392</td>
+<td align="right">43.409743</td>
+<td align="right">56.59021</td>
+<td align="left">75th Percentile</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="ggplot2-1" class="section level3">
+<h3>ggplot2</h3>
+<blockquote>
+<p>Read this code line by line. The idea is that you’re first generating a scatterplot with your raw values and then you’re “adding (+)” layers which use the predicted values your tabled above. Put another way, <code>geom_line()</code> and <code>geom_ribbon()</code> are using data from the table of predicted values; <code>geom_point()</code> is using data from your dataset. The colors here are probably overkill, but the idea is that darker red values mean those participants are older; in this way, color gives you a sense of the distribution of participant age without plotting another dimension.</p>
+</blockquote>
+<pre class="r"><code>endurance %&gt;% 
+  ggplot(mapping = aes(x = zexer_c, y = yendu)) +
+  geom_point(mapping = aes(color = xage_c)) +
+  geom_line(data = pred_table02, mapping = aes(x = zexer_c, y = fit, linetype = xage_c_lbl)) +
+  geom_ribbon(data = pred_table02, mapping = aes(x = zexer_c, y = fit, ymin = lower, ymax = upper, fill = xage_c_lbl), alpha = 0.5) +
+  scale_x_continuous(breaks = pretty(endurance$zexer_c)) +
+  scale_y_continuous(breaks = pretty(endurance$yendu)) +
+  scale_color_gradient(low = &quot;blue&quot;, high = &quot;red&quot;) +
+  scale_fill_manual(values = c(&quot;blue&quot;, &quot;purple&quot;, &quot;red&quot;)) +
+  theme(legend.position = &quot;top&quot;)</code></pre>
+<pre><code>## Warning: Ignoring unknown aesthetics: y</code></pre>
+<p><img src="/post/2019-02-13-probing-and-plotting-interactions-in-r/2019-02-13-probing-and-plotting-interactions-in-r_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+</div>
+</div>
+<div id="test-simple-slopes-1" class="section level2">
+<h2>Test simple slopes</h2>
+</div>
+<div id="save-matrix-of-contrasts-1" class="section level2">
+<h2>Save matrix of contrasts</h2>
+<blockquote>
+<ul>
+<li>Each coefficient gets a contrast weight.<br />
+</li>
+<li>0 means don’t use it; cross it out.<br />
+</li>
+<li>intercept = 0, zexer_c = 1, xage_c = 0, zexer_c:xage_c = 25th percentile of age<br />
+</li>
+<li>In words, test the linear effect of zexer_c when xage_c = 25th percentile of age (younger participants)</li>
+</ul>
+</blockquote>
+<pre class="r"><code>contmat02 &lt;- rbind(xage_c25 = c(0, 1, 0, xage_cqs[2]),
+                   xage_c50 = c(0, 1, 0, xage_cqs[3]),
+                   xage_c75 = c(0, 1, 0, xage_cqs[4]))</code></pre>
+</div>
+<div id="save-general-linear-hypothesis-object-output-from-glht-1" class="section level2">
+<h2>Save general linear hypothesis object output from <code>glht()</code></h2>
+<blockquote>
+<p><code>glht()</code> takes your model and your contrast matrix you made above.</p>
+</blockquote>
+<pre class="r"><code>glht02 &lt;- glht(model = flm02, linfct = contmat02)</code></pre>
+</div>
+<div id="contrast-summary-1" class="section level2">
+<h2>Contrast summary</h2>
+<blockquote>
+<p>test = <code>adjusted(&quot;none&quot;)</code> means, “Don’t correct for multiple comparisons.”</p>
+</blockquote>
+<pre class="r"><code>summary(glht02, test = adjusted(&quot;none&quot;))</code></pre>
+<pre><code>## 
+##   Simultaneous Tests for General Linear Hypotheses
+## 
+## Fit: lm(formula = yendu ~ zexer_c * xage_c, data = endurance)
+## 
+## Linear Hypotheses:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## xage_c25 == 0   0.6806     0.1516   4.490 1.11e-05 ***
+## xage_c50 == 0   0.9168     0.1356   6.763 1.02e-10 ***
+## xage_c75 == 0   1.2948     0.1739   7.446 1.70e-12 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## (Adjusted p values reported -- none method)</code></pre>
+</div>
+<div id="interpretation-1" class="section level2">
+<h2>Interpretation</h2>
+<blockquote>
+<p>Holding all other predictors at 0, every 1 year increase in vigorous exercise (mean-centered) was associated with a <em>b</em> = 0.97 minute increase in jogging on a treadmill (i.e., endurance), <em>t</em>(241) = 7.12, 95% CI[0.70, 1.24], <em>p</em> &lt; .001. Holding all other predictors at 0, every 1 year increase in age (mean-centered) was associated with a <em>b</em> = -0.26 minute decrease in jogging on a treadmill, <em>t</em>(241) = 4.09, 95% CI[-0.39,, -0.14], <em>p</em> = .334. However, the association between years of vigorous exercise and minutes jogging on a treadmill was different at different ages, <em>b</em> = 0.45, <em>t</em>(241) = 3.48, 95% CI[0.02, 0.07], <em>p</em> &lt; .001. Among people at the 25th percentile of age in the sample, every 1 year increase in vigorous exercise (mean-centered) was associated with a <em>b</em> = 0.68 minute increase in jogging on a treadmill, <em>t</em>(241) = 4.49, <em>p</em> &lt; .001; in contrast, among people at the 75th percentile of age in the sample, every 1 year increase in vigorous exercise (mean-centered) was associated with a <em>b</em> = 1.29 minute increase in jogging on a treadmill, <em>t</em>(241) = 7.45, <em>p</em> &lt; .001.</p>
+</blockquote>
+</div>
+<div id="resources" class="section level2">
+<h2>Resources</h2>
+<blockquote>
+<ul>
+<li>Cohen, J., Cohen, P., West, S. G., &amp; Aiken, L. S. (2003). <em>Applied multiple regression/correlation analysis for the behavioral sciences</em>. New York, NY: Routledge.</li>
+<li>MacKinnon, D. P. (2008). <em>Introduction to statistical mediation analysis.</em> New York, NY: Lawrence Erlbaum Associates.</li>
+<li>Revelle, W. (2017) How to use the psych package for mediation/moderation/regression analysis. [<a href="http://personality-project.org/r/psych/HowTo/mediation.pdf"><strong>.pdf</strong></a>]</li>
+</ul>
+</blockquote>
+</div>
+<div id="general-word-of-caution" class="section level2">
+<h2>General word of caution</h2>
+<blockquote>
+<p>Above, I listed resources prepared by experts on these and related topics. Although I generally do my best to write accurate posts, don’t assume my posts are 100% accurate or that they apply to your data or research questions. Trust statistics and methodology experts, not blog posts.</p>
+</blockquote>
+</div>

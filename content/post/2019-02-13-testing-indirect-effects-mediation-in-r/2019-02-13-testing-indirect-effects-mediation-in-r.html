@@ -1,0 +1,454 @@
+---
+title: Testing indirect effects/mediation in R
+author: ''
+date: '2019-02-13'
+slug: testing-indirect-effects-mediation-in-r
+categories:
+  - mediation
+  - indirect effect
+  - general linear model
+tags:
+  - mediation
+  - indirect effects
+  - general linear model
+image:
+  caption: ''
+  focal_point: ''
+---
+
+
+
+<div id="what-is-mediation" class="section level2">
+<h2>What is mediation?</h2>
+<blockquote>
+<p>There are many ways to define mediation and mediators. Here’s one way: Mediation is the process by which one variable transmits an effect onto another through one or more mediating variables. For example, as room temperature increases, people get thirstier, and then they drink more water. In this case, thirst transmits the effect of room temperature on water drinking.</p>
+</blockquote>
+</div>
+<div id="what-is-an-indirect-effect" class="section level2">
+<h2>What is an indirect effect?</h2>
+<blockquote>
+<p>The indirect effect quantifies a mediation effect, if such an effect exists. Referring to the thirst example above, in statistical terms, the indirect effect quantifies the extent to which room temperature is associated with water drinking indirectly through thirstiness. If you’re familiar with interpreting regression coefficients and the idea of controlling for other variables, then you might find it intuitive to think of the indirect effect as the decrease in the relationship between room temperature and water drinking after you’ve partialed out the association between room temperature and thirtiness. In other words, how much does the coefficient for room temperature decrease when you control for thirstiness?</p>
+</blockquote>
+</div>
+<div id="model-and-conceptual-assumptions" class="section level2">
+<h2>Model and Conceptual Assumptions</h2>
+<blockquote>
+<ul>
+<li><strong>Correct functional form.</strong> Your model variables share linear relationships and don’t interact with eachother.</li>
+<li><strong>No omitted influences.</strong> This one is hard: Your model accounts for all relevant influences on the variables included. All models are wrong, but how wrong is yours?</li>
+<li><strong>Accurate measurement.</strong> Your measurements are valid and reliable. Note that unreliable measures can’t be valid, and reliable measures don’t necessairly measure just one construct or even your construct.</li>
+<li><strong>Well-behaved residuals.</strong> Residuals (i.e., prediction errors) aren’t correlated with predictor variables or eachother, and residuals have constant variance across values of your predictor variables. Also, residual error terms aren’t correlated across regression equations. This could happen if, for example, some omitted variable causes both thirst and water drinking.</li>
+</ul>
+</blockquote>
+</div>
+<div id="libraries" class="section level2">
+<h2>Libraries</h2>
+<pre class="r"><code>library(tidyverse)
+library(knitr)
+library(lavaan)
+library(psych)
+library(MBESS)</code></pre>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<blockquote>
+<p>I took the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg01/data/mackinnon_2008_t3.1.csv"><strong>.csv</strong></a>]</p>
+</blockquote>
+<pre class="r"><code>thirst_dat &lt;- &quot;data/mackinnon_2008_t10.1.csv&quot; %&gt;% read_csv()</code></pre>
+<div id="print-first-and-last-five-observations" class="section level3">
+<h3>Print first and last five observations</h3>
+<pre class="r"><code>thirst_dat %&gt;% 
+  headTail() %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">id</th>
+<th align="left">room_temp</th>
+<th align="left">thirst</th>
+<th align="left">consume</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">69</td>
+<td align="left">2</td>
+<td align="left">3</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="left">70</td>
+<td align="left">2</td>
+<td align="left">4</td>
+</tr>
+<tr class="odd">
+<td align="left">3</td>
+<td align="left">69</td>
+<td align="left">1</td>
+<td align="left">2</td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="left">70</td>
+<td align="left">3</td>
+<td align="left">2</td>
+</tr>
+<tr class="odd">
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+<td align="left">…</td>
+</tr>
+<tr class="even">
+<td align="left">47</td>
+<td align="left">71</td>
+<td align="left">4</td>
+<td align="left">4</td>
+</tr>
+<tr class="odd">
+<td align="left">48</td>
+<td align="left">71</td>
+<td align="left">4</td>
+<td align="left">5</td>
+</tr>
+<tr class="even">
+<td align="left">49</td>
+<td align="left">70</td>
+<td align="left">3</td>
+<td align="left">3</td>
+</tr>
+<tr class="odd">
+<td align="left">50</td>
+<td align="left">71</td>
+<td align="left">4</td>
+<td align="left">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="visualize-relationships" class="section level2">
+<h2>Visualize relationships</h2>
+<blockquote>
+<p>It’s always a good idea to look at your data. Check some assumptions.</p>
+</blockquote>
+<pre class="r"><code>thirst_dat %&gt;% 
+  select(room_temp, thirst, consume) %&gt;% 
+  pairs.panels()</code></pre>
+<p><img src="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="conceptual-diagram" class="section level2">
+<h2>Conceptual Diagram</h2>
+<div class="figure">
+<img src="/static/post/nrg01/nrg01_files/figure_01.jpg" alt="Figure 1. Room temperature is associated with water drinking indirectly through thirstiness" />
+<p class="caption">Figure 1. Room temperature is associated with water drinking indirectly through thirstiness</p>
+</div>
+</div>
+<div id="write-model-to-test-indirect-effect-using-sem-from-lavaan" class="section level2">
+<h2>Write model to test indirect effect using <code>sem()</code> from lavaan</h2>
+<blockquote>
+<ul>
+<li><code>~</code> = Regress onto …</li>
+<li>Within the regression models, I label coefficients with the astrix.</li>
+<li><code>:=</code> = Define a new parameter. Note when you define new parameter with <code>:=</code>, you can use the astrix to multiply values</li>
+<li>For more details about lavaan syntax, see the tutorials tab at the lavaan website (linked in Resources below)</li>
+</ul>
+</blockquote>
+<pre class="r"><code>mod1 &lt;- &quot;# a path
+         thirst ~ a * room_temp
+
+         # b path
+         consume ~ b * thirst
+
+         # c prime path 
+         consume ~ cp * room_temp
+
+         # indirect and total effects
+         ab := a * b
+         total := cp + ab&quot;</code></pre>
+</div>
+<div id="set-random-seed-so-results-can-be-reproduced" class="section level2">
+<h2>Set random seed so results can be reproduced</h2>
+<pre class="r"><code>set.seed(1234)</code></pre>
+</div>
+<div id="fit-model" class="section level2">
+<h2>Fit model</h2>
+<blockquote>
+<p>You must specify bootstrapping in the <code>sem()</code> function</p>
+</blockquote>
+<pre class="r"><code>fsem1 &lt;- sem(mod1, data = thirst_dat, se = &quot;bootstrap&quot;, bootstrap = 10000)</code></pre>
+</div>
+<div id="summarize-model" class="section level2">
+<h2>Summarize model</h2>
+<blockquote>
+<p>standardized = TRUE adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
+</blockquote>
+<pre class="r"><code>summary(fsem1, standardized = TRUE)</code></pre>
+<pre><code>## lavaan 0.6-3 ended normally after 12 iterations
+## 
+##   Optimization method                           NLMINB
+##   Number of free parameters                          5
+## 
+##   Number of observations                            50
+## 
+##   Estimator                                         ML
+##   Model Fit Test Statistic                       0.000
+##   Degrees of freedom                                 0
+## 
+## Parameter Estimates:
+## 
+##   Standard Errors                            Bootstrap
+##   Number of requested bootstrap draws            10000
+##   Number of successful bootstrap draws           10000
+## 
+## Regressions:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##   thirst ~                                                              
+##     room_temp  (a)    0.761    0.148    5.146    0.000    0.761    0.557
+##   consume ~                                                             
+##     thirst     (b)    0.348    0.135    2.566    0.010    0.348    0.377
+##     room_temp (cp)    0.036    0.189    0.190    0.850    0.036    0.029
+## 
+## Variances:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .thirst            1.020    0.157    6.493    0.000    1.020    0.689
+##    .consume           1.065    0.208    5.130    0.000    1.065    0.845
+## 
+## Defined Parameters:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##     ab                0.264    0.123    2.142    0.032    0.264    0.210
+##     total             0.300    0.176    1.708    0.088    0.300    0.238</code></pre>
+</div>
+<div id="print-all-model-parameters" class="section level2">
+<h2>Print all model parameters</h2>
+<blockquote>
+<p>In the boot.ci.type argument, I ask for bia-corrected and accelerated confidence intervals.</p>
+</blockquote>
+<pre class="r"><code>parameterestimates(fsem1, boot.ci.type = &quot;bca.simple&quot;, standardized = TRUE) %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">lhs</th>
+<th align="left">op</th>
+<th align="left">rhs</th>
+<th align="left">label</th>
+<th align="right">est</th>
+<th align="right">se</th>
+<th align="right">z</th>
+<th align="right">pvalue</th>
+<th align="right">ci.lower</th>
+<th align="right">ci.upper</th>
+<th align="right">std.lv</th>
+<th align="right">std.all</th>
+<th align="right">std.nox</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">thirst</td>
+<td align="left">~</td>
+<td align="left">room_temp</td>
+<td align="left">a</td>
+<td align="right">0.7610887</td>
+<td align="right">0.1478894</td>
+<td align="right">5.1463379</td>
+<td align="right">0.0000003</td>
+<td align="right">0.4615390</td>
+<td align="right">1.0516483</td>
+<td align="right">0.7610887</td>
+<td align="right">0.5573208</td>
+<td align="right">0.6256111</td>
+</tr>
+<tr class="even">
+<td align="left">consume</td>
+<td align="left">~</td>
+<td align="left">thirst</td>
+<td align="left">b</td>
+<td align="right">0.3475013</td>
+<td align="right">0.1354310</td>
+<td align="right">2.5658923</td>
+<td align="right">0.0102911</td>
+<td align="right">0.0649463</td>
+<td align="right">0.5977806</td>
+<td align="right">0.3475013</td>
+<td align="right">0.3766787</td>
+<td align="right">0.3766787</td>
+</tr>
+<tr class="odd">
+<td align="left">consume</td>
+<td align="left">~</td>
+<td align="left">room_temp</td>
+<td align="left">cp</td>
+<td align="right">0.0359239</td>
+<td align="right">0.1894877</td>
+<td align="right">0.1895842</td>
+<td align="right">0.8496350</td>
+<td align="right">-0.3163420</td>
+<td align="right">0.4346033</td>
+<td align="right">0.0359239</td>
+<td align="right">0.0285146</td>
+<td align="right">0.0320086</td>
+</tr>
+<tr class="even">
+<td align="left">thirst</td>
+<td align="left">~~</td>
+<td align="left">thirst</td>
+<td align="left"></td>
+<td align="right">1.0203024</td>
+<td align="right">0.1571380</td>
+<td align="right">6.4930346</td>
+<td align="right">0.0000000</td>
+<td align="right">0.7538658</td>
+<td align="right">1.3725827</td>
+<td align="right">1.0203024</td>
+<td align="right">0.6893935</td>
+<td align="right">0.6893935</td>
+</tr>
+<tr class="odd">
+<td align="left">consume</td>
+<td align="left">~~</td>
+<td align="left">consume</td>
+<td align="left"></td>
+<td align="right">1.0647750</td>
+<td align="right">0.2075633</td>
+<td align="right">5.1298806</td>
+<td align="right">0.0000003</td>
+<td align="right">0.7421154</td>
+<td align="right">1.6034917</td>
+<td align="right">1.0647750</td>
+<td align="right">0.8453279</td>
+<td align="right">0.8453279</td>
+</tr>
+<tr class="even">
+<td align="left">room_temp</td>
+<td align="left">~~</td>
+<td align="left">room_temp</td>
+<td align="left"></td>
+<td align="right">0.7936000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.7936000</td>
+<td align="right">0.7936000</td>
+<td align="right">0.7936000</td>
+<td align="right">1.0000000</td>
+<td align="right">0.7936000</td>
+</tr>
+<tr class="odd">
+<td align="left">ab</td>
+<td align="left">:=</td>
+<td align="left">a*b</td>
+<td align="left">ab</td>
+<td align="right">0.2644793</td>
+<td align="right">0.1234479</td>
+<td align="right">2.1424361</td>
+<td align="right">0.0321584</td>
+<td align="right">0.0644499</td>
+<td align="right">0.5583698</td>
+<td align="right">0.2644793</td>
+<td align="right">0.2099309</td>
+<td align="right">0.2356543</td>
+</tr>
+<tr class="even">
+<td align="left">total</td>
+<td align="left">:=</td>
+<td align="left">cp+ab</td>
+<td align="left">total</td>
+<td align="right">0.3004032</td>
+<td align="right">0.1758694</td>
+<td align="right">1.7081042</td>
+<td align="right">0.0876170</td>
+<td align="right">0.0007138</td>
+<td align="right">0.7019997</td>
+<td align="right">0.3004032</td>
+<td align="right">0.2384455</td>
+<td align="right">0.2676630</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="interpretation" class="section level2">
+<h2>Interpretation</h2>
+<blockquote>
+<p>Every 1&amp;degF increase in room temperature was associated with an <em>a</em> = 0.339 (<em>S.E.</em> = 0.101) increase in thirstiness units. Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking <em>b</em> = 0.451 (<em>S.E.</em> = 0.149) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness. Specifically, for every <em>a</em> = 0.339 unit increase in the association between room temperature and thirstiness, there was an <em>ab</em> = 0.153 (<em>S.E.</em> = 0.064) increase in deciliters of water people drank. Importatnly, a bias-corrected bootstrapped confidence interval with 10,000 samples was above zero, 95% CI [0.06, 0.32]. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.208 (<em>S.E.</em> = 0.130).</p>
+</blockquote>
+</div>
+<div id="test-same-model-using-mediation-from-mbess" class="section level2">
+<h2>Test same model using <code>mediation()</code> from MBESS</h2>
+<blockquote>
+<p>The syntax for <code>mediation()</code> doesn’t have as steep a learning curve as lavaan, but lavaan (and SEM in general) has a gazillion-fold more flexability in specifying more involved models.</p>
+</blockquote>
+<pre class="r"><code>with(thirst_dat, mediation(x = room_temp, mediator = thirst, dv = consume, bootstrap = TRUE, which.boot = &quot;BCa&quot;, B = 10000))</code></pre>
+<pre><code>## [1] &quot;Bootstrap resampling has begun. This process may take a considerable amount of time if the number of replications is large, which is optimal for the bootstrap procedure.&quot;</code></pre>
+<pre><code>##                                          Estimate CI.Lower_BCa
+## Indirect.Effect                        0.26447934  0.067266940
+## Indirect.Effect.Partially.Standardized 0.23328589  0.049494759
+## Index.of.Mediation                     0.20993085  0.051674603
+## R2_4.5                                 0.05629571 -0.026310687
+## R2_4.6                                 0.03221379  0.001860142
+## R2_4.7                                 0.20827151  0.043495582
+## Ratio.of.Indirect.to.Total.Effect      0.88041445  0.095311306
+## Ratio.of.Indirect.to.Direct.Effect     7.36221455  3.153580178
+## Success.of.Surrogate.Endpoint          0.39470199 -0.033430066
+## Residual.Based_Gamma                   0.11312492  0.019489023
+## Residual.Based.Standardized_gamma      0.10885100  0.018547109
+## SOS                                    0.99014119  0.917763141
+##                                        CI.Upper_BCa
+## Indirect.Effect                           0.5650835
+## Indirect.Effect.Partially.Standardized    0.4675337
+## Index.of.Mediation                        0.4328584
+## R2_4.5                                    0.2023460
+## R2_4.6                                    0.1141848
+## R2_4.7                                    0.4346039
+## Ratio.of.Indirect.to.Total.Effect         7.2734388
+## Ratio.of.Indirect.to.Direct.Effect     7784.3084246
+## Success.of.Surrogate.Endpoint             0.9278002
+## Residual.Based_Gamma                      0.2163837
+## Residual.Based.Standardized_gamma         0.2098652
+## SOS                                       1.0000000</code></pre>
+<div id="plot-the-mediation-effect" class="section level3">
+<h3>Plot the mediation effect</h3>
+<pre class="r"><code>with(thirst_dat, mediation.effect.plot(x = room_temp, mediator = thirst, dv = consume, ylab = &quot;Water Drank (dl)&quot;, xlab = &quot;Thirstiness (1/5 = Not at all thirty/Very thirsty)&quot;))</code></pre>
+<p><img src="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<blockquote>
+<p>The plot above depicts the relationship between the proposed mediator (thirstiness) and outcome variable (water drank, in dl) at different levels of the proposed antecedent (room temperature, in &amp;degF). The plot doesn’t label this, but if check out the right triangle formed in between the vertical lines marking the <em>a</em> coefficient, you’ll see the indirect effect, which is the height of this triangle.</p>
+</blockquote>
+</div>
+</div>
+<div id="test-the-same-model-using-mediate-from-psych" class="section level2">
+<h2>Test the same model using <code>mediate()</code> from psych</h2>
+<pre class="r"><code>mediate(consume ~ room_temp + thirst, data = thirst_dat, n.iter = 10000) %&gt;% print(short = FALSE)</code></pre>
+<p><img src="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<pre><code>## 
+## Mediation/Moderation Analysis 
+## Call: mediate(y = consume ~ room_temp + thirst, data = thirst_dat, 
+##     n.iter = 10000)
+## 
+## The DV (Y) was  consume . The IV (X) was  room_temp thirst . The mediating variable(s) =  .
+##  DV =  consume 
+##           slope   se    t     p
+## room_temp  0.04 0.20 0.18 0.860
+## thirst     0.35 0.15 2.33 0.024
+## 
+## With R2 =  0.15
+## R = 0.39 R2 = 0.15   F = 4.3 on 2 and 47 DF   p-value:  0.0193</code></pre>
+</div>
+<div id="resources" class="section level2">
+<h2>Resources</h2>
+<blockquote>
+<ul>
+<li>MacKinnon, D. P. (2008). <em>Introduction to statistical mediation analysis.</em> New York, NY: Lawrence Erlbaum Associates.</li>
+<li>Revelle, W. (2017) How to use the psych package for mediation/moderation/regression analysis. [<a href="http://personality-project.org/r/psych/HowTo/mediation.pdf"><strong>.pdf</strong></a>]</li>
+<li>Rosseel, Y. (2012). Lavaan: An R package for structural equation modeling and more. Version 0.5–12 (BETA). <em>Journal of statistical software, 48</em>(2), 1-36. [<a href="http://lavaan.ugent.be/"><strong>website</strong></a>]</li>
+<li>Rucker, D. D., Preacher, K. J., Tormala, Z. L., &amp; Petty, R. E. (2011). Mediation analysis in social psychology: Current practices and new recommendations. <em>Social and Personality Psychology Compass, 5</em>(6), 359-371. [<a href="http://quantpsy.org/pubs/rucker_preacher_tormala_petty_2011.pdf"><strong>.pdf</strong></a>]</li>
+</ul>
+</blockquote>
+</div>
+<div id="general-word-of-caution" class="section level2">
+<h2>General word of caution</h2>
+<blockquote>
+<p>Above, I listed resources prepared by experts on these and related topics. Although I generally do my best to write accurate posts, don’t assume my posts are 100% accurate or that they apply to your data or research questions. Trust statistics and methodology experts, not blog posts.</p>
+</blockquote>
+</div>
