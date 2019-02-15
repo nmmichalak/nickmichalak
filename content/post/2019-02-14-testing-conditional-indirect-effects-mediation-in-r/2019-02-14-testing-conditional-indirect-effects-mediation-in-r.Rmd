@@ -53,6 +53,11 @@ image:
 
 ```{r, message = FALSE, warning = FALSE}
 
+# install.packages("tidyverse")
+# install.packages("knitr")
+# install.packages("lavaan")
+# install.packages("psych")
+
 library(tidyverse)
 library(knitr)
 library(lavaan)
