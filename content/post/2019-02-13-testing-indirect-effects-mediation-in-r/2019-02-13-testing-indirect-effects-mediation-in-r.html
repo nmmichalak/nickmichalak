@@ -7,10 +7,14 @@ categories:
   - mediation
   - indirect effect
   - general linear model
+  - tutorial
+  - demonstration
 tags:
   - mediation
   - indirect effects
   - general linear model
+  - tutorial
+  - demonstration
 image:
   caption: ''
   focal_point: ''
@@ -58,9 +62,9 @@ library(MBESS)</code></pre>
 <div id="data" class="section level2">
 <h2>Data</h2>
 <blockquote>
-<p>I took the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/mackinnon_2008_t10.1.csv"><strong>.csv</strong></a>]</p>
+<p>I took the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/mackinnon_2008_t10.1.csv"><strong>.csv</strong></a>]</p>
 </blockquote>
-<pre class="r"><code>thirst_dat &lt;- &quot;data/mackinnon_2008_t10.1.csv&quot; %&gt;% read_csv()</code></pre>
+<pre class="r"><code>thirst_dat &lt;- read_csv(&quot;data/mackinnon_2008_t10.1.csv&quot;)</code></pre>
 <div id="print-first-and-last-five-observations" class="section level3">
 <h3>Print first and last five observations</h3>
 <pre class="r"><code>thirst_dat %&gt;% 
@@ -147,7 +151,7 @@ library(MBESS)</code></pre>
 <div id="conceptual-diagram" class="section level2">
 <h2>Conceptual Diagram</h2>
 <div class="figure">
-<img src="post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure_01.jpg" alt="Figure 1. Room temperature is associated with water drinking indirectly through thirstiness" />
+<img src="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure_01.jpg" alt="Figure 1. Room temperature is associated with water drinking indirectly through thirstiness" />
 <p class="caption">Figure 1. Room temperature is associated with water drinking indirectly through thirstiness</p>
 </div>
 </div>
@@ -425,7 +429,8 @@ library(MBESS)</code></pre>
 </div>
 <div id="test-the-same-model-using-mediate-from-psych" class="section level2">
 <h2>Test the same model using <code>mediate()</code> from psych</h2>
-<pre class="r"><code>mediate(consume ~ room_temp + thirst, data = thirst_dat, n.iter = 10000) %&gt;% print(short = FALSE)</code></pre>
+<pre class="r"><code>mediate(consume ~ room_temp + thirst, data = thirst_dat, n.iter = 10000) %&gt;% 
+  print(short = FALSE)</code></pre>
 <p><img src="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <pre><code>## 
 ## Mediation/Moderation Analysis 

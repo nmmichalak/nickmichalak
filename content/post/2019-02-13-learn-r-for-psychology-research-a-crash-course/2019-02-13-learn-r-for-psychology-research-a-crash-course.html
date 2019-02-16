@@ -50,7 +50,7 @@ image:
 <div id="understand-all-the-panels-in-r-studio" class="section level2">
 <h2>Understand all the panels in R Studio</h2>
 <div class="figure">
-<img src="/post/nrg03/nrg03_files/r_studio_panels_tutorial.png" alt="Four panels in R Studio" />
+<img src="/post/2019-02-13-learn-r-for-psychology-research-a-crash-course/2019-02-13-learn-r-for-psychology-research-a-crash-course_files/r_studio_panels_tutorial.png" alt="Four panels in R Studio" />
 <p class="caption">Four panels in R Studio</p>
 </div>
 </div>
@@ -298,8 +298,8 @@ manip_sd &lt;- 1</code></pre>
 </blockquote>
 <pre class="r"><code># for example
 rnorm(n = 10, mean = 0, sd = 1)</code></pre>
-<pre><code>##  [1]  1.22975808 -0.80090583 -0.12657839  0.00583719  1.28287411
-##  [6]  0.41304374 -0.32481337  2.52677378 -2.60773854 -2.36668115</code></pre>
+<pre><code>##  [1]  0.49894471 -0.32804955  0.50537413 -0.11556736 -0.08508432
+##  [6]  0.08209753 -0.19807435 -0.67604751 -1.40819698  0.65839239</code></pre>
 </div>
 <div id="randomly-sample-from-our-populations-we-made-up-above" class="section level3">
 <h3>Randomly sample from our populations we made up above</h3>
@@ -313,26 +313,26 @@ manipulation_values &lt;- rnorm(n = sample_size, mean = manip_mean, sd = manip_s
 
 # print dep_var by just excecuting/running the name of the object
 dep_var</code></pre>
-<pre><code>##   [1]  3.11343374  2.70239032  3.27206025  2.04807062  3.12818728
-##   [6]  2.03646233 -0.07445315  2.42938273  3.25741861  1.65970086
-##  [11]  2.83994552  4.15438021  2.43364270  2.44929016  2.68537017
-##  [16]  2.85773561  3.48203429  2.50472070  1.17533920  3.22977958
-##  [21]  2.19324336  3.53195077  2.56629099  1.48036923  1.52244885
-##  [26]  2.12123147  1.86744102  3.94219935  2.34374924  1.83496101
-##  [31]  2.98185681  4.16643793  3.31541468  3.24292729  3.53241765
-##  [36]  1.40433722  2.73230484  2.09994095  4.56386798  0.16421168
-##  [41]  2.04081255  2.58373369  1.32575196  2.82569486  2.62700550
-##  [46]  2.41165494  1.68760441  3.02635377  1.77408697  3.42822082
-##  [51]  5.06450968  5.49771726  6.00645371  5.74019838  5.16688480
-##  [56]  4.42578837  7.46591801  6.29865479  5.52786425  5.51006793
-##  [61]  6.26580942  5.76707684  3.28366743  4.44795957  4.41734383
-##  [66]  6.24289882  4.49681129  5.63468757  6.48571179  6.13091933
-##  [71]  6.73148045  7.56139014  5.23436316  6.49334896  6.04467130
-##  [76]  5.81416626  5.94145047  6.80030684  5.38162571  5.77688263
-##  [81]  2.32778104  4.09026335  5.05359684  6.88268797  5.74058698
-##  [86]  6.35498281  6.28637882  6.11150258  6.15591553  7.68830240
-##  [91]  5.19539205  6.52897914  5.85618184  5.77232389  5.08331091
-##  [96]  5.56185214  5.14707810  5.45309089  6.70712496  5.86140962</code></pre>
+<pre><code>##   [1]  3.80435908  1.98433834  3.58911265  2.25427353  2.26939479
+##   [6]  3.00571297  1.79599758  3.78066987  2.57893735  0.41113928
+##  [11]  1.45297236 -0.26800475  0.94876854  2.72645231  2.11293954
+##  [16]  0.93341662  2.32122047  2.13377155  2.47441804  4.10472885
+##  [21]  2.87566838  1.61589446  1.40305547  1.17898161  3.45501450
+##  [26]  1.63901146  3.27007143  2.88237529 -0.01839347  1.34987475
+##  [31]  2.81149228  2.43357785  2.00504670  0.92384205  2.12499045
+##  [36]  2.81331542  4.16386024  3.37649612  3.00652454  3.56641968
+##  [41]  2.79969451  1.69841398  3.34037340  1.58360830  3.27350578
+##  [46]  2.21078116  2.28055121  1.24831449  4.25549097  2.28968369
+##  [51]  5.53075605  5.88079557  3.98853615  5.40940592  5.67097034
+##  [56]  6.57733121  4.95465727  4.74030459  7.07676495  5.84818695
+##  [61]  5.58482038  6.63561264  4.22953125  5.26021676  4.18271199
+##  [66]  6.28222681  5.09162940  4.15811312  4.22998668  6.46896233
+##  [71]  6.39382167  4.30209211  5.17371080  6.37887623  6.65385566
+##  [76]  4.99211078  5.80340366  6.05295369  4.41951254  4.76894952
+##  [81]  5.97968673  5.18637234  6.27683921  4.14482297  4.88000977
+##  [86]  3.52223543  5.10475171  5.12186433  3.99062501  5.86301456
+##  [91]  6.55805845  5.03726371  5.37350470  5.01889901  7.13802500
+##  [96]  5.18802629  6.02507734  6.59428100  5.23363327  4.44856252</code></pre>
 </div>
 </div>
 <div id="create-a-potentially-confounding-variable-or-a-control-variable" class="section level2">
@@ -344,23 +344,26 @@ dep_var</code></pre>
 
 # print confound by just excecuting/running the name of the object
 confound</code></pre>
-<pre><code>##   [1]  1.6674172  0.5444700  2.7341896  2.3548872  2.7653739  2.3042753
-##   [7] -1.3031116  1.4510611  1.3130464  0.4292474  1.6568188  0.8289252
-##  [13]  1.6694421  0.8856851  1.2780001  1.6228546  0.5370230  1.9344166
-##  [19]  1.1389877  2.6711010  0.2837529  1.8535234  0.3079308  0.4890066
-##  [25]  1.4599500  0.6867500  1.0758362  2.9790153  2.3152691  2.3453009
-##  [31]  1.4010318  1.7703958  3.5789746  1.5753543  1.7923362  0.5982436
-##  [37] -0.1161661  0.3045105  1.5360832  0.3202940  0.1304587  0.9923417
-##  [43] -1.1250443  3.0224609  0.8220104 -0.6246592  1.8279398  0.9155469
-##  [49] -0.1705893  2.2675376  2.2191241  3.0264128  3.5751197  2.3281386
-##  [55]  2.9870315  2.8267999  2.6826884  2.9227356  1.9056190  4.6941904
-##  [61]  1.2299809  2.1123243  1.4359313  3.3341660  3.0540516  1.5906733
-##  [67]  2.6087397  2.6439044  2.1272674  2.1336293  2.7836310  3.1137593
-##  [73]  2.4734883  3.7230328  3.0065902  2.8952650  3.4198458  4.8823213
-##  [79]  2.6875603  4.4405021  1.5161090  2.9470732  2.2658927  4.2466916
-##  [85]  2.1183863  2.9823524  3.1525273  3.4656945  2.9266468  4.4892311
-##  [91]  0.9378735  2.9330968  1.6859332  2.0698217  3.4736354  3.0069883
-##  [97]  1.4600469  1.0415418  3.3890604  3.3634399</code></pre>
+<pre><code>##   [1]  0.51411880  0.40047444  2.35260247  2.39802673  0.61456036
+##   [6]  1.53744814 -0.24856945  2.84688078  1.78000979  0.65793447
+##  [11]  0.46038034 -0.55693190  0.15719474  0.55373294  0.65975774
+##  [16]  0.10169319  1.74698979  0.12030403  1.32009371  2.27981471
+##  [21]  0.34613849  0.43965108  0.66271575  1.20432223 -0.25043490
+##  [26]  0.26868572  0.61011480  1.65228582  1.37326363  0.43832942
+##  [31]  1.62745456 -0.59358047  1.10697713 -1.36755391  1.59130779
+##  [36]  2.91935947  1.99479358  1.07678653  1.00595597  1.62642447
+##  [41]  1.28899263  1.82400453  2.51240635 -0.35753691  0.43771414
+##  [46]  1.30727552  1.08060064  0.06576004  2.80538226 -0.55497383
+##  [51]  0.38169063  3.59617145  2.70618669  1.71982121  3.04889900
+##  [56]  5.09499928  3.57930502  2.09590896  2.88080717  2.33411106
+##  [61]  4.62382234  1.43874759  2.38724141  1.30176362  1.67788292
+##  [66]  4.04790755  2.18167509  2.31908101  1.62504006  2.59734364
+##  [71]  2.61518822  2.41878340  1.18822924  4.56433660  3.71618299
+##  [76]  2.35777545  3.53622419  1.77834806  1.84902914  2.79422726
+##  [81]  3.42986400  2.99422568  3.01973675  2.36812929  2.99174776
+##  [86]  2.44949626  2.39993654  2.42561094  2.07900733  4.28085347
+##  [91]  3.14719580  2.29168943  2.17551577  3.81201421  4.96003880
+##  [96]  2.51509873  3.16018881  5.21212618  3.35937272  2.22616663</code></pre>
 </div>
 <div id="subject-gender" class="section level2">
 <h2>Subject gender</h2>
@@ -397,11 +400,11 @@ gender</code></pre>
 
 # print gender by just excecuting/running the name of the object
 age</code></pre>
-<pre><code>##   [1] 23 23 23 20 22 21 20 20 21 23 20 23 24 20 24 24 24 24 20 19 18 20 25
-##  [24] 19 21 20 21 21 25 24 24 19 22 18 18 24 20 24 22 18 22 21 20 23 18 20
-##  [47] 20 24 25 20 23 23 24 19 21 18 22 19 19 25 18 20 19 25 20 21 22 19 18
-##  [70] 21 22 19 21 18 18 20 22 20 18 18 23 21 20 18 21 22 22 21 19 21 21 21
-##  [93] 18 25 24 19 20 24 22 22</code></pre>
+<pre><code>##   [1] 22 23 18 20 22 23 20 22 18 21 21 20 18 21 18 20 19 25 25 24 21 25 23
+##  [24] 18 23 18 19 25 19 23 24 19 20 21 18 18 24 19 24 18 24 22 21 18 24 21
+##  [47] 18 25 20 18 22 20 18 25 23 23 22 23 24 19 21 25 22 21 23 18 20 23 24
+##  [70] 21 22 18 18 19 22 25 22 24 19 25 23 25 18 23 22 23 21 25 18 25 20 20
+##  [93] 18 20 22 19 23 25 18 19</code></pre>
 </div>
 <div id="data.frame-and-tibble" class="section level2">
 <h2><code>data.frame()</code> and <code>tibble()</code></h2>
@@ -427,16 +430,16 @@ example_data</code></pre>
 <pre><code>## # A tibble: 100 x 6
 ##    subj_num condition dep_var confound gender   age
 ##       &lt;dbl&gt; &lt;fct&gt;       &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;  &lt;dbl&gt;
-##  1        1 control    3.11      1.67  Woman     23
-##  2        2 control    2.70      0.544 Man       23
-##  3        3 control    3.27      2.73  Woman     23
-##  4        4 control    2.05      2.35  Man       20
-##  5        5 control    3.13      2.77  Woman     22
-##  6        6 control    2.04      2.30  Man       21
-##  7        7 control   -0.0745   -1.30  Woman     20
-##  8        8 control    2.43      1.45  Man       20
-##  9        9 control    3.26      1.31  Woman     21
-## 10       10 control    1.66      0.429 Man       23
+##  1        1 control     3.80     0.514 Woman     22
+##  2        2 control     1.98     0.400 Man       23
+##  3        3 control     3.59     2.35  Woman     18
+##  4        4 control     2.25     2.40  Man       20
+##  5        5 control     2.27     0.615 Woman     22
+##  6        6 control     3.01     1.54  Man       23
+##  7        7 control     1.80    -0.249 Woman     20
+##  8        8 control     3.78     2.85  Man       22
+##  9        9 control     2.58     1.78  Woman     18
+## 10       10 control     0.411    0.658 Man       21
 ## # … with 90 more rows</code></pre>
 </div>
 </div>
@@ -460,16 +463,16 @@ example_data</code></pre>
 <pre><code>## # A tibble: 100 x 8
 ##    subj_num condition dep_var confound gender   age dep_var_z confound_z
 ##       &lt;dbl&gt; &lt;fct&gt;       &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;  &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
-##  1        1 control    3.11      1.67  Woman     23    -0.542     -0.280
-##  2        2 control    2.70      0.544 Man       23    -0.763     -1.19 
-##  3        3 control    3.27      2.73  Woman     23    -0.457      0.581
-##  4        4 control    2.05      2.35  Man       20    -1.11       0.275
-##  5        5 control    3.13      2.77  Woman     22    -0.534      0.606
-##  6        6 control    2.04      2.30  Man       21    -1.12       0.234
-##  7        7 control   -0.0745   -1.30  Woman     20    -2.25      -2.68 
-##  8        8 control    2.43      1.45  Man       20    -0.909     -0.454
-##  9        9 control    3.26      1.31  Woman     21    -0.465     -0.566
-## 10       10 control    1.66      0.429 Man       23    -1.32      -1.28 
+##  1        1 control     3.80     0.514 Woman     22   -0.0289    -0.995 
+##  2        2 control     1.98     0.400 Man       23   -1.03      -1.08  
+##  3        3 control     3.59     2.35  Woman     18   -0.147      0.348 
+##  4        4 control     2.25     2.40  Man       20   -0.879      0.381 
+##  5        5 control     2.27     0.615 Woman     22   -0.871     -0.921 
+##  6        6 control     3.01     1.54  Man       23   -0.467     -0.247 
+##  7        7 control     1.80    -0.249 Woman     20   -1.13      -1.55  
+##  8        8 control     3.78     2.85  Man       22   -0.0419     0.709 
+##  9        9 control     2.58     1.78  Woman     18   -0.701     -0.0701
+## 10       10 control     0.411    0.658 Man       21   -1.89      -0.890 
 ## # … with 90 more rows</code></pre>
 </div>
 <div id="select-specific-columns" class="section level2">
@@ -485,16 +488,16 @@ example_data</code></pre>
 <pre><code>## # A tibble: 100 x 3
 ##    subj_num condition dep_var
 ##       &lt;dbl&gt; &lt;fct&gt;       &lt;dbl&gt;
-##  1        1 control    3.11  
-##  2        2 control    2.70  
-##  3        3 control    3.27  
-##  4        4 control    2.05  
-##  5        5 control    3.13  
-##  6        6 control    2.04  
-##  7        7 control   -0.0745
-##  8        8 control    2.43  
-##  9        9 control    3.26  
-## 10       10 control    1.66  
+##  1        1 control     3.80 
+##  2        2 control     1.98 
+##  3        3 control     3.59 
+##  4        4 control     2.25 
+##  5        5 control     2.27 
+##  6        6 control     3.01 
+##  7        7 control     1.80 
+##  8        8 control     3.78 
+##  9        9 control     2.58 
+## 10       10 control     0.411
 ## # … with 90 more rows</code></pre>
 </div>
 <div id="filter-specific-rows" class="section level2">
@@ -511,16 +514,16 @@ example_data</code></pre>
 <pre><code>## # A tibble: 50 x 8
 ##    subj_num condition dep_var confound gender   age dep_var_z confound_z
 ##       &lt;dbl&gt; &lt;fct&gt;       &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;  &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
-##  1        1 control    3.11      1.67  Woman     23    -0.542     -0.280
-##  2        2 control    2.70      0.544 Man       23    -0.763     -1.19 
-##  3        3 control    3.27      2.73  Woman     23    -0.457      0.581
-##  4        4 control    2.05      2.35  Man       20    -1.11       0.275
-##  5        5 control    3.13      2.77  Woman     22    -0.534      0.606
-##  6        6 control    2.04      2.30  Man       21    -1.12       0.234
-##  7        7 control   -0.0745   -1.30  Woman     20    -2.25      -2.68 
-##  8        8 control    2.43      1.45  Man       20    -0.909     -0.454
-##  9        9 control    3.26      1.31  Woman     21    -0.465     -0.566
-## 10       10 control    1.66      0.429 Man       23    -1.32      -1.28 
+##  1        1 control     3.80     0.514 Woman     22   -0.0289    -0.995 
+##  2        2 control     1.98     0.400 Man       23   -1.03      -1.08  
+##  3        3 control     3.59     2.35  Woman     18   -0.147      0.348 
+##  4        4 control     2.25     2.40  Man       20   -0.879      0.381 
+##  5        5 control     2.27     0.615 Woman     22   -0.871     -0.921 
+##  6        6 control     3.01     1.54  Man       23   -0.467     -0.247 
+##  7        7 control     1.80    -0.249 Woman     20   -1.13      -1.55  
+##  8        8 control     3.78     2.85  Man       22   -0.0419     0.709 
+##  9        9 control     2.58     1.78  Woman     18   -0.701     -0.0701
+## 10       10 control     0.411    0.658 Man       21   -1.89      -0.890 
 ## # … with 40 more rows</code></pre>
 </div>
 <div id="make-your-own-table-of-summary-data" class="section level2">
@@ -540,10 +543,10 @@ example_data</code></pre>
 ## # Groups:   gender [?]
 ##   gender condition     Mean    SD     n
 ##   &lt;fct&gt;  &lt;fct&gt;        &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;
-## 1 Man    control       1.38 0.956    25
-## 2 Man    manipulation  3.09 0.956    25
-## 3 Woman  control       1.14 1.15     25
-## 4 Woman  manipulation  2.44 0.761    25</code></pre>
+## 1 Man    control      0.812 1.13     25
+## 2 Man    manipulation 2.84  1.09     25
+## 3 Woman  control      1.10  0.816    25
+## 4 Woman  manipulation 2.75  1.01     25</code></pre>
 </div>
 </div>
 <div id="plotting-your-data-with-ggplot2" class="section level1">
@@ -646,15 +649,15 @@ example_data</code></pre>
   select(dep_var, dep_var_z, confound, confound_z) %&gt;% 
   describe()</code></pre>
 <pre><code>##            vars   n mean   sd median trimmed  mad   min  max range  skew
-## dep_var       1 100 4.12 1.86   4.12    4.13 2.44 -0.07 7.69  7.76 -0.04
-## dep_var_z     2 100 0.00 1.00   0.00    0.01 1.31 -2.25 1.91  4.17 -0.04
-## confound      3 100 2.01 1.24   2.12    2.04 1.26 -1.30 4.88  6.19 -0.18
-## confound_z    4 100 0.00 1.00   0.08    0.02 1.02 -2.68 2.31  4.99 -0.18
+## dep_var       1 100 3.86 1.82   4.05    3.89 2.24 -0.27 7.14  7.41 -0.14
+## dep_var_z     2 100 0.00 1.00   0.10    0.02 1.23 -2.26 1.80  4.06 -0.14
+## confound      3 100 1.88 1.37   1.84    1.84 1.43 -1.37 5.21  6.58  0.17
+## confound_z    4 100 0.00 1.00  -0.03   -0.03 1.04 -2.37 2.44  4.81  0.17
 ##            kurtosis   se
-## dep_var       -1.15 0.19
-## dep_var_z     -1.15 0.10
-## confound      -0.14 0.12
-## confound_z    -0.14 0.10</code></pre>
+## dep_var        -1.0 0.18
+## dep_var_z      -1.0 0.10
+## confound       -0.3 0.14
+## confound_z     -0.3 0.10</code></pre>
 </div>
 <div id="by-condition" class="section level2">
 <h2>By condition</h2>
@@ -668,27 +671,27 @@ example_data</code></pre>
 ##  Descriptive statistics by group 
 ## condition: control
 ##            vars  n  mean   sd median trimmed  mad   min  max range  skew
-## dep_var       1 50  2.53 0.93   2.58    2.56 0.90 -0.07 4.56  4.64 -0.39
-## dep_var_z     2 50 -0.85 0.50  -0.83   -0.84 0.48 -2.25 0.24  2.49 -0.39
-## confound      3 50  1.26 1.06   1.36    1.28 1.16 -1.30 3.58  4.88 -0.18
-## confound_z    4 50 -0.61 0.85  -0.53   -0.59 0.94 -2.68 1.26  3.94 -0.18
+## dep_var       1 50  2.33 1.06   2.29    2.35 1.05 -0.27 4.26  4.52 -0.27
+## dep_var_z     2 50 -0.84 0.58  -0.86   -0.82 0.58 -2.26 0.22  2.48 -0.27
+## confound      3 50  0.96 0.99   0.83    0.94 1.05 -1.37 2.92  4.29  0.08
+## confound_z    4 50 -0.67 0.72  -0.76   -0.68 0.77 -2.37 0.76  3.13  0.08
 ##            kurtosis   se
-## dep_var        0.42 0.13
-## dep_var_z      0.42 0.07
-## confound      -0.24 0.15
-## confound_z    -0.24 0.12
+## dep_var       -0.40 0.15
+## dep_var_z     -0.40 0.08
+## confound      -0.58 0.14
+## confound_z    -0.58 0.10
 ## -------------------------------------------------------- 
 ## condition: manipulation
-##            vars  n mean   sd median trimmed  mad   min  max range  skew
-## dep_var       1 50 5.71 0.99   5.77    5.76 0.79  2.33 7.69  5.36 -0.80
-## dep_var_z     2 50 0.85 0.53   0.89    0.88 0.42 -0.96 1.91  2.88 -0.80
-## confound      3 50 2.77 0.91   2.91    2.74 0.83  0.94 4.88  3.94  0.16
-## confound_z    4 50 0.61 0.74   0.72    0.58 0.67 -0.87 2.31  3.18  0.16
+##            vars  n mean   sd median trimmed  mad   min  max range skew
+## dep_var       1 50 5.39 0.90   5.25    5.39 1.12  3.52 7.14  3.62 0.01
+## dep_var_z     2 50 0.84 0.49   0.76    0.84 0.61 -0.18 1.80  1.98 0.01
+## confound      3 50 2.80 1.04   2.56    2.73 0.80  0.38 5.21  4.83 0.44
+## confound_z    4 50 0.67 0.76   0.50    0.63 0.59 -1.09 2.44  3.53 0.44
 ##            kurtosis   se
-## dep_var        1.65 0.14
-## dep_var_z      1.65 0.08
-## confound      -0.24 0.13
-## confound_z    -0.24 0.10</code></pre>
+## dep_var       -0.97 0.13
+## dep_var_z     -0.97 0.07
+## confound      -0.07 0.15
+## confound_z    -0.07 0.11</code></pre>
 </div>
 </div>
 <div id="read-in-your-own-data" class="section level1">
@@ -710,7 +713,7 @@ example_data</code></pre>
 <pre class="r"><code># path to where file lives on your computer
 coffee_filepath &lt;- &quot;data/coffee.sav&quot;
 
-coffee_data &lt;- coffee_filepath %&gt;% read_sav()
+coffee_data &lt;- read_sav(coffee_filepath)
 
 # print coffee_data by just excecuting/running the name of the object
 coffee_data</code></pre>
@@ -739,7 +742,7 @@ coffee_data</code></pre>
 <pre class="r"><code># path to where file lives on your computer
 coffee_filepath &lt;- &quot;data/coffee.csv&quot;
 
-coffee_data &lt;- coffee_filepath %&gt;% read_csv()</code></pre>
+coffee_data &lt;- read_csv(coffee_filepath)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   image = col_double(),
@@ -757,7 +760,7 @@ coffee_data &lt;- coffee_filepath %&gt;% read_csv()</code></pre>
 <pre class="r"><code># path to where file lives on your computer
 coffee_filepath &lt;- &quot;data/coffee.txt&quot;
 
-coffee_data &lt;- coffee_filepath %&gt;% read_delim(delim = &quot; &quot;)</code></pre>
+coffee_data &lt;- read_delim(coffee_filepath, delim = &quot; &quot;)</code></pre>
 <pre><code>## Parsed with column specification:
 ## cols(
 ##   image = col_double(),
@@ -775,13 +778,13 @@ coffee_data &lt;- coffee_filepath %&gt;% read_delim(delim = &quot; &quot;)</code
 ##  Welch Two Sample t-test
 ## 
 ## data:  dep_var by condition
-## t = -16.467, df = 97.607, p-value &lt; 2.2e-16
+## t = -15.588, df = 95.663, p-value &lt; 2.2e-16
 ## alternative hypothesis: true difference in means is not equal to 0
 ## 95 percent confidence interval:
-##  -3.558595 -2.793083
+##  -3.453165 -2.673003
 ## sample estimates:
 ##      mean in group control mean in group manipulation 
-##                   2.534468                   5.710307</code></pre>
+##                   2.325443                   5.388527</code></pre>
 </div>
 <div id="pairs.panels-helppairs.panels" class="section level2">
 <h2><code>pairs.panels()</code>, help(pairs.panels)</h2>
@@ -805,42 +808,42 @@ lm_fit</code></pre>
 ## 
 ## Coefficients:
 ##           (Intercept)  conditionmanipulation               confound  
-##                1.9915                 2.5284                 0.4303</code></pre>
+##                1.8611                 2.1710                 0.4853</code></pre>
 </div>
 <div id="summary-helpsummary" class="section level2">
 <h2><code>summary()</code>, help(summary)</h2>
-<pre class="r"><code>lm_fit %&gt;% summary()</code></pre>
+<pre class="r"><code>summary(lm_fit)</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = dep_var ~ condition + confound, data = example_data)
 ## 
 ## Residuals:
 ##      Min       1Q   Median       3Q      Max 
-## -2.84443 -0.44747  0.09474  0.52482  1.91147 
+## -2.54595 -0.60775 -0.04598  0.59644  1.90531 
 ## 
 ## Coefficients:
 ##                       Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)            1.99148    0.16662  11.952  &lt; 2e-16 ***
-## conditionmanipulation  2.52840    0.21960  11.514  &lt; 2e-16 ***
-## confound               0.43027    0.08901   4.834 5.02e-06 ***
+## (Intercept)             1.8611     0.1457  12.778  &lt; 2e-16 ***
+## conditionmanipulation   2.1710     0.2316   9.376 2.99e-15 ***
+## confound                0.4853     0.0850   5.709 1.24e-07 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## Residual standard error: 0.8701 on 97 degrees of freedom
-## Multiple R-squared:  0.7861, Adjusted R-squared:  0.7816 
-## F-statistic: 178.2 on 2 and 97 DF,  p-value: &lt; 2.2e-16</code></pre>
+## Residual standard error: 0.8544 on 97 degrees of freedom
+## Multiple R-squared:  0.7849, Adjusted R-squared:  0.7804 
+## F-statistic:   177 on 2 and 97 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 <div id="anova-helpanova" class="section level2">
 <h2><code>Anova()</code>, help(Anova)</h2>
-<pre class="r"><code>lm_fit %&gt;% Anova(type = &quot;III&quot;)</code></pre>
+<pre class="r"><code>Anova(lm_fit, type = &quot;III&quot;)</code></pre>
 <pre><code>## Anova Table (Type III tests)
 ## 
 ## Response: dep_var
 ##              Sum Sq Df F value    Pr(&gt;F)    
-## (Intercept) 108.166  1 142.862 &lt; 2.2e-16 ***
-## condition   100.368  1 132.562 &lt; 2.2e-16 ***
-## confound     17.691  1  23.366  5.02e-06 ***
-## Residuals    73.442 97                      
+## (Intercept) 119.195  1 163.280 &lt; 2.2e-16 ***
+## condition    64.172  1  87.906 2.988e-15 ***
+## confound     23.796  1  32.598 1.237e-07 ***
+## Residuals    70.810 97                      
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
 </div>

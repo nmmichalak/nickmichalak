@@ -29,7 +29,7 @@ image:
 
 
 <blockquote>
-<p>This post builds on a previous post on <a href="https://nickmichalak.netlify.com/post/2019-02-13-testing-indirect-effects-mediation-in-r/testing-indirect-effects-mediation-in-r/"><strong>Testing Indirect Effects/Mediation in R</strong></a>].</p>
+<p>This post builds on a previous post on <a href="https://nickmichalak.netlify.com/post/2019-02-13-testing-indirect-effects-mediation-in-r/testing-indirect-effects-mediation-in-r/"><strong>Testing Indirect Effects/Mediation in R</strong></a>.</p>
 </blockquote>
 <div id="what-is-mediation" class="section level2">
 <h2>What is mediation?</h2>
@@ -87,22 +87,22 @@ library(psych)</code></pre>
 <div id="data" class="section level2">
 <h2>Data</h2>
 <blockquote>
-<p>I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t3.1.csv"><strong>.csv</strong></a>] with those from Table 10.1 in Mackinnon (2008, p. 291) [<a href="post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t10.1.csv"><strong>.csv</strong></a>]</p>
+<p>I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t3.1.csv"><strong>.csv</strong></a>] with those from Table 10.1 in Mackinnon (2008, p. 291) [<a href="/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t10.1.csv"><strong>.csv</strong></a>]</p>
 </blockquote>
-<pre class="r"><code>thirst_norm &lt;- &quot;data/mackinnon_2008_t3.1.csv&quot; %&gt;% read_csv()
-thirst_fit &lt;- &quot;data/mackinnon_2008_t10.1.csv&quot; %&gt;% read_csv()</code></pre>
+<pre class="r"><code>thirst_norm &lt;- read_csv(&quot;data/mackinnon_2008_t3.1.csv&quot;)
+thirst_fit &lt;- read_csv(&quot;data/mackinnon_2008_t10.1.csv&quot;)</code></pre>
 </div>
 <div id="code-new-ids-for-fit-data" class="section level2">
 <h2>Code new IDs for fit data</h2>
-<pre class="r"><code>thirst_fit &lt;- thirst_fit %&gt;% mutate(id = 51:100)</code></pre>
+<pre class="r"><code>thirst_fit$id &lt;- 51:100</code></pre>
 </div>
 <div id="add-column-in-both-datasets-that-identifies-fitness-group" class="section level2">
 <h2>Add column in both datasets that identifies fitness group</h2>
 <blockquote>
 <p>Unfit = -0.5 and Fit = 0.5</p>
 </blockquote>
-<pre class="r"><code>thirst_norm &lt;- thirst_norm %&gt;% mutate(phys_fit = -0.5)
-thirst_fit &lt;- thirst_fit %&gt;% mutate(phys_fit = 0.5)</code></pre>
+<pre class="r"><code>thirst_norm$phys_fit &lt;- -0.5
+thirst_fit$phys_fit &lt;- 0.5</code></pre>
 </div>
 <div id="bind-unfit-and-fit-data-by-rows" class="section level2">
 <h2>Bind unfit and fit data by rows</h2>
@@ -116,13 +116,15 @@ thirst_fit &lt;- thirst_fit %&gt;% mutate(phys_fit = 0.5)</code></pre>
 <blockquote>
 <p>i.e., mean-center everything but the consume variable</p>
 </blockquote>
-<pre class="r"><code>thirst_data &lt;- thirst_data %&gt;% mutate(room_temp_c = room_temp - mean(room_temp),
-                                      thirst_c = thirst - mean(thirst))</code></pre>
+<pre class="r"><code>thirst_data &lt;- thirst_data %&gt;% 
+  mutate(room_temp_c = room_temp - mean(room_temp),
+         thirst_c = thirst - mean(thirst))</code></pre>
 </div>
 <div id="compute-interaction-terms" class="section level2">
 <h2>Compute interaction terms</h2>
-<pre class="r"><code>thirst_data &lt;- thirst_data %&gt;% mutate(tmp_fit = room_temp_c * phys_fit,
-                                      thrst_fit = thirst_c * phys_fit)</code></pre>
+<pre class="r"><code>thirst_data &lt;- thirst_data %&gt;% 
+  mutate(tmp_fit = room_temp_c * phys_fit,
+         thrst_fit = thirst_c * phys_fit)</code></pre>
 <div id="print-first-and-last-five-observations" class="section level3">
 <h3>Print first and last five observations</h3>
 <pre class="r"><code>thirst_data %&gt;% 
@@ -247,7 +249,8 @@ thirst_fit &lt;- thirst_fit %&gt;% mutate(phys_fit = 0.5)</code></pre>
 </div>
 <div id="save-to-data-folder" class="section level3">
 <h3>Save to data folder</h3>
-<pre class="r"><code>thirst_data %&gt;% write_csv(path = &quot;data/thirst_data.csv&quot;)</code></pre>
+<pre class="r"><code>thirst_data %&gt;% 
+  write_csv(path = &quot;data/thirst_data.csv&quot;)</code></pre>
 </div>
 </div>
 <div id="visualize-relationships" class="section level2">
@@ -263,7 +266,7 @@ thirst_fit &lt;- thirst_fit %&gt;% mutate(phys_fit = 0.5)</code></pre>
 <div id="conceptual-diagram" class="section level2">
 <h2>Conceptual Diagram</h2>
 <div class="figure">
-<img src="post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure_01.jpeg" alt="Figure 1. Focus on which association fitness group could moderate. Here, the association between room temperature and thirstiness depends on fitness group." />
+<img src="/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure_01.jpeg" alt="Figure 1. Focus on which association fitness group could moderate. Here, the association between room temperature and thirstiness depends on fitness group." />
 <p class="caption">Figure 1. Focus on which association fitness group could moderate. Here, the association between room temperature and thirstiness depends on fitness group.</p>
 </div>
 </div>
@@ -692,7 +695,7 @@ thirst_fit &lt;- thirst_fit %&gt;% mutate(phys_fit = 0.5)</code></pre>
 <div id="conceptual-diagram-1" class="section level2">
 <h2>Conceptual Diagram</h2>
 <div class="figure">
-<img src="post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure_02.jpeg" alt="Figure 2. Focus on which association fitness group could moderate. Here, the association between thirstiness and water drinking depends on fitness group." />
+<img src="/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure_02.jpeg" alt="Figure 2. Focus on which association fitness group could moderate. Here, the association between thirstiness and water drinking depends on fitness group." />
 <p class="caption">Figure 2. Focus on which association fitness group could moderate. Here, the association between thirstiness and water drinking depends on fitness group.</p>
 </div>
 </div>
@@ -1077,7 +1080,7 @@ thirst_fit &lt;- thirst_fit %&gt;% mutate(phys_fit = 0.5)</code></pre>
 <div id="interpretation-1" class="section level2">
 <h2>Interpretation</h2>
 <blockquote>
-<p>Every 1°F increase in room temperature was associated with an <em>a1</em> = 0.497 (<em>S.E.</em> = 0.086) increase in thirstiness units. Adjusting for all other predictors, every 1-unit increase in thirstiness was associated with drinking <em>b1</em> = 0.388 (<em>S.E.</em> = 0.100) more deciliters of water. Also, adjusting for all other predictors, there was no sufficient evidence that physically fit people drank less water than normal people, <em>b2</em> = -0.259 (<em>S.E.</em> = 0.200). There was also no sufficient evidence that the relation between thirstiness and water drinking depended on physical fitness group, <em>b3</em> = -0.174 (<em>S.E.</em> = 0.181). Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, <em>a1b3</em> = -0.086 (<em>S.E.</em> = 0.090); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.262, 0.090]. Among normal people, for every <em>a1</em> = 0.497 unit increase in the association between room temperature and thirstiness, there was an <em>a1b1 + a1b3</em> = 0.236 (<em>S.E.</em> = 0.080) increase in deciliters of water people drank. Among physically fit people, for every <em>a1</em> = 0.497 unit increase in the association between room temperature and thirstiness, there was an <em>a1b1 + a1b3</em> = 0.149 (<em>S.E.</em> = 0.069) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.150 (<em>S.E.</em> = 0.109).</p>
+<p>Every 1 ℉ increase in room temperature was associated with an <em>a1</em> = 0.497 (<em>S.E.</em> = 0.086) increase in thirstiness units. Adjusting for all other predictors, every 1-unit increase in thirstiness was associated with drinking <em>b1</em> = 0.388 (<em>S.E.</em> = 0.100) more deciliters of water. Also, adjusting for all other predictors, there was no sufficient evidence that physically fit people drank less water than normal people, <em>b2</em> = -0.259 (<em>S.E.</em> = 0.200). There was also no sufficient evidence that the relation between thirstiness and water drinking depended on physical fitness group, <em>b3</em> = -0.174 (<em>S.E.</em> = 0.181). Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, <em>a1b3</em> = -0.086 (<em>S.E.</em> = 0.090); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.262, 0.090]. Among normal people, for every <em>a1</em> = 0.497 unit increase in the association between room temperature and thirstiness, there was an <em>a1b1 + a1b3</em> = 0.236 (<em>S.E.</em> = 0.080) increase in deciliters of water people drank. Among physically fit people, for every <em>a1</em> = 0.497 unit increase in the association between room temperature and thirstiness, there was an <em>a1b1 + a1b3</em> = 0.149 (<em>S.E.</em> = 0.069) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.150 (<em>S.E.</em> = 0.109).</p>
 </blockquote>
 </div>
 <div id="resources" class="section level2">
