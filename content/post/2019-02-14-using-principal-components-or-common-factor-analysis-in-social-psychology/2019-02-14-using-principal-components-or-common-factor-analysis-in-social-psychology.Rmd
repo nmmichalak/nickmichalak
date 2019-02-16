@@ -22,10 +22,6 @@ tags:
 image:
   caption: ''
   focal_point: ''
-output: 
-  html_document: 
-    fig_height: 7.5
-    fig_width: 10.5
 ---
 
 Note. I'm not done with this post but it's fun to build a new website and see your posts appear so pretty online ... so here it is!
@@ -65,7 +61,7 @@ UScitiesD %>%
 
 ### distance matrix represented with colors
 
-```{r}
+```{r, fig.width = 10.5, fig.height = 7.5}
 
 UScitiesD %>% 
   as.matrix() %>% 
@@ -164,7 +160,7 @@ saq <- read_spss(file = "data/SAQ.sav")
 
 ### Correlation matrix
 
-```{r}
+```{r, fig.width = 15.75, fig.height = 11.25}
 
 saq %>% 
   cor(use = "pairwise.complete.obs") %>% 
