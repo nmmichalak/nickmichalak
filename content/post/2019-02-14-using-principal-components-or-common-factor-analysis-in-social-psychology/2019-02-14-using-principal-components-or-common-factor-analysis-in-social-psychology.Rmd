@@ -22,6 +22,10 @@ tags:
 image:
   caption: ''
   focal_point: ''
+output: 
+  html_document: 
+    fig_height: 7.5
+    fig_width: 10.5
 ---
 
 # INCOMPLETE POST
