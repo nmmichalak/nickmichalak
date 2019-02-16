@@ -23,6 +23,7 @@ image:
 
 
 
+<p>Note I’m not done with this post yet. Don’t trust my content here too much and lower expectations about how much I explain here!</p>
 <div id="within-subjects-design" class="section level1">
 <h1>Within-Subjects Design</h1>
 <blockquote>
@@ -119,17 +120,19 @@ covmat %&gt;%
 <div id="multivariate-approach" class="section level1">
 <h1>Multivariate approach</h1>
 <blockquote>
-<p>placeholder</p>
+<p>every test uses a unique error term<br />
+calculate sum of squares, use those to estimate variance components and test statistics</p>
 </blockquote>
 </div>
 <div id="linear-mixed-models-approach" class="section level1">
 <h1>Linear Mixed Models Approach</h1>
 <blockquote>
-<p>placeholder</p>
+<p>more flexible version of both univariate and multivariate approaches<br />
+estimate variances components directly, e.g. with maximum likelihood<br />
+can use all participant data even if some is missing</p>
 </blockquote>
-</div>
-<div id="save-custom-oneway-function" class="section level1">
-<h1>Save custom oneway function</h1>
+<div id="define-custom-oneway-function-similar-to-ibm-spsss-oneway-command" class="section level2">
+<h2>Define custom oneway function (similar to <a href="https://www.ibm.com/support/knowledgecenter/en/SSLVMB_24.0.0/spss/base/syn_oneway.html">IBM SPSS’s ONEWAY command</a>)</h2>
 <pre class="r"><code>oneway &lt;- function(dv, group, contrast, alpha = .05) {
   # -- arguments --
   # dv: vector of measurements (i.e., dependent variable)
@@ -169,10 +172,10 @@ covmat %&gt;%
   df_classic &lt;- rep(0, num_contrast)
   
   # makes rows of contrasts if contrast dimensions aren&#39;t NULL
-  if(is.null(dim(contrast))) contrast &lt;- t(as.matrix(contrast))
+  if (is.null(dim(contrast))) contrast &lt;- t(as.matrix(contrast))
   
   # calculating degrees of freedom for welch and classic
-  for(i in 1:num_contrast) {
+  for (i in 1:num_contrast) {
     df_classic[i] &lt;- sum(ns) - length(ns)
     df_welch[i] &lt;- sum(contrast[i, ]^2 * vars / ns)^2 / sum((contrast[i, ]^2 * vars / ns)^2 / (ns - 1))
   }
@@ -198,6 +201,7 @@ covmat %&gt;%
              lwr = c(lwr_classic, lwr_welch),
              upr = c(upr_classic, upr_welch))
 }</code></pre>
+</div>
 </div>
 <div id="heres-a-simple-demonstration-using-two-responses-from-the-same-participants" class="section level1">
 <h1>Here’s a simple demonstration using two responses from the same participants</h1>
@@ -408,21 +412,30 @@ t.test(with(sleep, extra[group == 1] * -1 + extra[group == 2] * 1))</code></pre>
 sleep$drug &lt;- with(sleep, ifelse(group == 1, -0.5, 0.5))
 
 # fit model
-lmer1 &lt;- lmer(extra ~ drug + (1 | ID), data = sleep, REML = TRUE)
-
-# diagnostics
-plot(lmer1)</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
-<pre class="r"><code>qqmath(ranef(lmer1, condVar = TRUE))</code></pre>
+lmer.fit1 &lt;- lmer(extra ~ drug + (1 | ID), data = sleep, REML = TRUE)</code></pre>
+<div id="diagnostic-plots" class="section level4">
+<h4>Diagnostic plots</h4>
+<pre class="r"><code># residuals vs. fitted values
+plot(lmer.fit1, type = c(&quot;p&quot;, &quot;smooth&quot;))</code></pre>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<pre class="r"><code># q-q plot of random effects
+qqmath(ranef(lmer.fit1, condVar = TRUE))</code></pre>
 <pre><code>## $ID</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-9-2.png" width="672" /></p>
-<pre class="r"><code>qqmath(lmer1)</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-9-3.png" width="672" /></p>
-<pre class="r"><code>dotplot(ranef(lmer1, condVar = TRUE))</code></pre>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-10-2.png" width="672" /></p>
+<pre class="r"><code># q-q plot of fixed effects
+qqmath(lmer.fit1)</code></pre>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-10-3.png" width="672" /></p>
+<pre class="r"><code># random effects estimates
+dotplot(ranef(lmer.fit1, condVar = TRUE))</code></pre>
 <pre><code>## $ID</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-9-4.png" width="672" /></p>
-<pre class="r"><code># results
-summary(lmer1)</code></pre>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-10-4.png" width="672" /></p>
+</div>
+<div id="results" class="section level4">
+<h4>Results</h4>
+<blockquote>
+<p>e.g., variance components, fixed effect coefficients, residual summary, fit indices</p>
+</blockquote>
+<pre class="r"><code>summary(lmer.fit1)</code></pre>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: extra ~ drug + (1 | ID)
@@ -453,6 +466,7 @@ summary(lmer1)</code></pre>
 </div>
 </div>
 </div>
+</div>
 <div id="heres-a-more-complex-situation-with-an-additional-between-subjects-factor" class="section level1">
 <h1>Here’s a more complex situation with an additional between-subjects factor</h1>
 <div id="generate-data" class="section level2">
@@ -461,10 +475,10 @@ summary(lmer1)</code></pre>
 set.seed(8888)
 
 # id
-id &lt;- 1:50
+id &lt;- factor(1:50)
 
 # two treatment conditions, each size = 25
-treatment &lt;- rep(1:2, each = 25)
+treatment &lt;- factor(rep(1:2, each = 25))
 
 # labels in a separate column
 treatment_lbl &lt;- ifelse(treatment == 1, &quot;control&quot;, &quot;treatment&quot;)
@@ -481,361 +495,361 @@ kable(mydata)</code></pre>
 <table>
 <thead>
 <tr class="header">
-<th align="right">id</th>
+<th align="left">id</th>
 <th align="left">treatment_lbl</th>
-<th align="right">treatment</th>
+<th align="left">treatment</th>
 <th align="right">response1</th>
 <th align="right">response2</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">4.195752</td>
 <td align="right">4.1745159</td>
 </tr>
 <tr class="even">
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">4.976012</td>
 <td align="right">1.7597310</td>
 </tr>
 <tr class="odd">
-<td align="right">3</td>
+<td align="left">3</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">3.963119</td>
 <td align="right">4.6346111</td>
 </tr>
 <tr class="even">
-<td align="right">4</td>
+<td align="left">4</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">3.975639</td>
 <td align="right">3.3488885</td>
 </tr>
 <tr class="odd">
-<td align="right">5</td>
+<td align="left">5</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">4.022112</td>
 <td align="right">4.2694685</td>
 </tr>
 <tr class="even">
-<td align="right">6</td>
+<td align="left">6</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">3.291423</td>
 <td align="right">1.8133618</td>
 </tr>
 <tr class="odd">
-<td align="right">7</td>
+<td align="left">7</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">3.074208</td>
 <td align="right">3.2192163</td>
 </tr>
 <tr class="even">
-<td align="right">8</td>
+<td align="left">8</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">5.453050</td>
 <td align="right">3.8107214</td>
 </tr>
 <tr class="odd">
-<td align="right">9</td>
+<td align="left">9</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">3.843103</td>
 <td align="right">1.3888784</td>
 </tr>
 <tr class="even">
-<td align="right">10</td>
+<td align="left">10</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">3.562954</td>
 <td align="right">2.4298635</td>
 </tr>
 <tr class="odd">
-<td align="right">11</td>
+<td align="left">11</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">3.482628</td>
 <td align="right">4.3645302</td>
 </tr>
 <tr class="even">
-<td align="right">12</td>
+<td align="left">12</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">3.608857</td>
 <td align="right">3.4381481</td>
 </tr>
 <tr class="odd">
-<td align="right">13</td>
+<td align="left">13</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">3.360039</td>
 <td align="right">0.2610100</td>
 </tr>
 <tr class="even">
-<td align="right">14</td>
+<td align="left">14</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">4.099164</td>
 <td align="right">5.8771612</td>
 </tr>
 <tr class="odd">
-<td align="right">15</td>
+<td align="left">15</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">4.088679</td>
 <td align="right">2.9806595</td>
 </tr>
 <tr class="even">
-<td align="right">16</td>
+<td align="left">16</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">5.063440</td>
 <td align="right">2.4306743</td>
 </tr>
 <tr class="odd">
-<td align="right">17</td>
+<td align="left">17</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">4.361441</td>
 <td align="right">2.4265752</td>
 </tr>
 <tr class="even">
-<td align="right">18</td>
+<td align="left">18</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">3.022724</td>
 <td align="right">0.3446552</td>
 </tr>
 <tr class="odd">
-<td align="right">19</td>
+<td align="left">19</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">4.879871</td>
 <td align="right">3.0962526</td>
 </tr>
 <tr class="even">
-<td align="right">20</td>
+<td align="left">20</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">4.260023</td>
 <td align="right">2.5881955</td>
 </tr>
 <tr class="odd">
-<td align="right">21</td>
+<td align="left">21</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">3.201820</td>
 <td align="right">2.0445063</td>
 </tr>
 <tr class="even">
-<td align="right">22</td>
+<td align="left">22</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">5.360563</td>
 <td align="right">3.6988670</td>
 </tr>
 <tr class="odd">
-<td align="right">23</td>
+<td align="left">23</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">3.087335</td>
 <td align="right">2.3934641</td>
 </tr>
 <tr class="even">
-<td align="right">24</td>
+<td align="left">24</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">4.780342</td>
 <td align="right">3.9045912</td>
 </tr>
 <tr class="odd">
-<td align="right">25</td>
+<td align="left">25</td>
 <td align="left">control</td>
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">5.244337</td>
 <td align="right">3.8680810</td>
 </tr>
 <tr class="even">
-<td align="right">26</td>
+<td align="left">26</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">4.427888</td>
 <td align="right">4.4144632</td>
 </tr>
 <tr class="odd">
-<td align="right">27</td>
+<td align="left">27</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">3.382405</td>
 <td align="right">4.4673716</td>
 </tr>
 <tr class="even">
-<td align="right">28</td>
+<td align="left">28</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">4.974487</td>
 <td align="right">2.7394246</td>
 </tr>
 <tr class="odd">
-<td align="right">29</td>
+<td align="left">29</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">3.258423</td>
 <td align="right">3.7922637</td>
 </tr>
 <tr class="even">
-<td align="right">30</td>
+<td align="left">30</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">4.931010</td>
 <td align="right">4.3812514</td>
 </tr>
 <tr class="odd">
-<td align="right">31</td>
+<td align="left">31</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">5.809873</td>
 <td align="right">4.7746719</td>
 </tr>
 <tr class="even">
-<td align="right">32</td>
+<td align="left">32</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">4.712183</td>
 <td align="right">5.0906109</td>
 </tr>
 <tr class="odd">
-<td align="right">33</td>
+<td align="left">33</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">5.443887</td>
 <td align="right">5.3443579</td>
 </tr>
 <tr class="even">
-<td align="right">34</td>
+<td align="left">34</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">4.851525</td>
 <td align="right">2.5236780</td>
 </tr>
 <tr class="odd">
-<td align="right">35</td>
+<td align="left">35</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">6.003865</td>
 <td align="right">3.1215988</td>
 </tr>
 <tr class="even">
-<td align="right">36</td>
+<td align="left">36</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">6.023490</td>
 <td align="right">5.8752659</td>
 </tr>
 <tr class="odd">
-<td align="right">37</td>
+<td align="left">37</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">6.516993</td>
 <td align="right">7.1395760</td>
 </tr>
 <tr class="even">
-<td align="right">38</td>
+<td align="left">38</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">6.122140</td>
 <td align="right">5.2266728</td>
 </tr>
 <tr class="odd">
-<td align="right">39</td>
+<td align="left">39</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">5.639430</td>
 <td align="right">4.5648023</td>
 </tr>
 <tr class="even">
-<td align="right">40</td>
+<td align="left">40</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">6.431992</td>
 <td align="right">5.2331465</td>
 </tr>
 <tr class="odd">
-<td align="right">41</td>
+<td align="left">41</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">3.166982</td>
 <td align="right">5.1602065</td>
 </tr>
 <tr class="even">
-<td align="right">42</td>
+<td align="left">42</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">5.618815</td>
 <td align="right">5.5389033</td>
 </tr>
 <tr class="odd">
-<td align="right">43</td>
+<td align="left">43</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">4.846700</td>
 <td align="right">4.6647061</td>
 </tr>
 <tr class="even">
-<td align="right">44</td>
+<td align="left">44</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">3.910692</td>
 <td align="right">5.3452577</td>
 </tr>
 <tr class="odd">
-<td align="right">45</td>
+<td align="left">45</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">5.993828</td>
 <td align="right">4.8716862</td>
 </tr>
 <tr class="even">
-<td align="right">46</td>
+<td align="left">46</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">3.465042</td>
 <td align="right">2.9443906</td>
 </tr>
 <tr class="odd">
-<td align="right">47</td>
+<td align="left">47</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">5.742368</td>
 <td align="right">4.3487534</td>
 </tr>
 <tr class="even">
-<td align="right">48</td>
+<td align="left">48</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">3.460245</td>
 <td align="right">4.3271617</td>
 </tr>
 <tr class="odd">
-<td align="right">49</td>
+<td align="left">49</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">3.854740</td>
 <td align="right">4.8651375</td>
 </tr>
 <tr class="even">
-<td align="right">50</td>
+<td align="left">50</td>
 <td align="left">treatment</td>
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">4.719107</td>
 <td align="right">6.0689389</td>
 </tr>
@@ -856,7 +870,7 @@ lmydata &lt;- gather(mydata, key = sequence_lbl, value = response, response1:res
   geom_boxplot(outlier.color = NA, width = 0.25, position = position_dodge(width = 0.90)) +
   geom_point(position = position_jitterdodge(dodge.width = 0.90, jitter.width = 0.10), alpha = 0.40) +
   theme_bw()</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 </div>
 <div id="test-effects-using-different-approaches" class="section level2">
 <h2>Test effects using different approaches</h2>
@@ -980,27 +994,39 @@ oneway(dv = as.numeric(as.matrix(mydata[, c(&quot;response1&quot;, &quot;respons
 </div>
 <div id="test-treatment-by-sequence-effect-via-linear-mixed-effects-model" class="section level3">
 <h3>Test treatment by sequence effect via linear mixed effects model</h3>
-<pre class="r"><code># fit model
-lmer2 &lt;- lmer(response ~ treatment * sequence + (1 + sequence | id), data = lmydata, REML = TRUE, control = lmerControl(check.nobs.vs.nlev = &quot;ignore&quot;, check.nobs.vs.nRE = &quot;ignore&quot;))</code></pre>
+<div id="fit-a-linear-mixed-effects-model-1" class="section level4">
+<h4>Fit a linear mixed effects model</h4>
+<pre class="r"><code>lmer.fit2 &lt;- lmer(response ~ treatment * sequence + (1 + sequence | id), data = lmydata, REML = TRUE, control = lmerControl(check.nobs.vs.nlev = &quot;ignore&quot;, check.nobs.vs.nRE = &quot;ignore&quot;))</code></pre>
 <pre><code>## Warning in checkConv(attr(opt, &quot;derivs&quot;), opt$par, ctrl =
 ## control$checkConv, : unable to evaluate scaled gradient</code></pre>
 <pre><code>## Warning in checkConv(attr(opt, &quot;derivs&quot;), opt$par, ctrl =
 ## control$checkConv, : Model failed to converge: degenerate Hessian with 1
 ## negative eigenvalues</code></pre>
 <pre><code>## Warning: Model failed to converge with 1 negative eigenvalue: -1.9e-03</code></pre>
-<pre class="r"><code># diagnostics
-plot(lmer2)</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
-<pre class="r"><code>qqmath(ranef(lmer2, condVar = TRUE))</code></pre>
-<pre><code>## $id</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-15-2.png" width="672" /></p>
-<pre class="r"><code>qqmath(lmer2)</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-15-3.png" width="672" /></p>
-<pre class="r"><code>dotplot(ranef(lmer2, condVar = TRUE))</code></pre>
-<pre><code>## $id</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-15-4.png" width="672" /></p>
-<pre class="r"><code># results
-summary(lmer2)</code></pre>
+</div>
+<div id="diagnostic-plots-1" class="section level4">
+<h4>Diagnostic plots</h4>
+<pre class="r"><code># residuals vs. fitted values
+plot(lmer.fit1, type = c(&quot;p&quot;, &quot;smooth&quot;))</code></pre>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<pre class="r"><code># q-q plot of random effects
+qqmath(ranef(lmer.fit1, condVar = TRUE))</code></pre>
+<pre><code>## $ID</code></pre>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-18-2.png" width="672" /></p>
+<pre class="r"><code># q-q plot of fixed effects
+qqmath(lmer.fit1)</code></pre>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-18-3.png" width="672" /></p>
+<pre class="r"><code># random effects estimates
+dotplot(ranef(lmer.fit1, condVar = TRUE))</code></pre>
+<pre><code>## $ID</code></pre>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-18-4.png" width="672" /></p>
+</div>
+<div id="results-1" class="section level4">
+<h4>Results</h4>
+<blockquote>
+<p>e.g., variance components, fixed effect coefficients, residual summary, fit indices</p>
+</blockquote>
+<pre class="r"><code>summary(lmer.fit2)</code></pre>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
 ## Formula: response ~ treatment * sequence + (1 + sequence | id)
@@ -1038,6 +1064,7 @@ summary(lmer2)</code></pre>
 ## convergence code: 0
 ## unable to evaluate scaled gradient
 ## Model failed to converge: degenerate  Hessian with 1 negative eigenvalues</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1053,10 +1080,10 @@ summary(lmer2)</code></pre>
 <h3>Add angle4</h3>
 <pre class="r"><code># there is a slight difference between the textbook data and the data available in the package -- I fix that here
 C14T8 &lt;- C14T8 %&gt;%
-  mutate(subj = 1:20,
+  mutate(subj = factor(1:20),
          Angle4 = c(510, 480, 630, 660, 660, 450, 600, 660, 660, 540, 570, 720, 540, 660, 570, 780, 690, 570, 750, 690),
-         age = recode(Group, `1` = -0.5, `2` = 0.5),
-         age_lbl = recode(Group, `1` = &quot;young&quot;, `2` = &quot;old&quot;)) %&gt;% 
+         age = recode(Group, &quot;1&quot; = -0.5, &quot;2&quot; = 0.5),
+         age_lbl = recode(Group, &quot;1&quot; = &quot;young&quot;, &quot;2&quot; = &quot;old&quot;)) %&gt;% 
   select(subj, Group, age, age_lbl, Angle0, Angle4, Angle8)
 
 # print
@@ -1064,7 +1091,7 @@ kable(C14T8)</code></pre>
 <table>
 <thead>
 <tr class="header">
-<th align="right">subj</th>
+<th align="left">subj</th>
 <th align="right">Group</th>
 <th align="right">age</th>
 <th align="left">age_lbl</th>
@@ -1075,7 +1102,7 @@ kable(C14T8)</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">1</td>
+<td align="left">1</td>
 <td align="right">1</td>
 <td align="right">-0.5</td>
 <td align="left">young</td>
@@ -1084,7 +1111,7 @@ kable(C14T8)</code></pre>
 <td align="right">630</td>
 </tr>
 <tr class="even">
-<td align="right">2</td>
+<td align="left">2</td>
 <td align="right">1</td>
 <td align="right">-0.5</td>
 <td align="left">young</td>
@@ -1093,7 +1120,7 @@ kable(C14T8)</code></pre>
 <td align="right">540</td>
 </tr>
 <tr class="odd">
-<td align="right">3</td>
+<td align="left">3</td>
 <td align="right">1</td>
 <td align="right">-0.5</td>
 <td align="left">young</td>
@@ -1102,7 +1129,7 @@ kable(C14T8)</code></pre>
 <td align="right">660</td>
 </tr>
 <tr class="even">
-<td align="right">4</td>
+<td align="left">4</td>
 <td align="right">1</td>
 <td align="right">-0.5</td>
 <td align="left">young</td>
@@ -1111,7 +1138,7 @@ kable(C14T8)</code></pre>
 <td align="right">720</td>
 </tr>
 <tr class="odd">
-<td align="right">5</td>
+<td align="left">5</td>
 <td align="right">1</td>
 <td align="right">-0.5</td>
 <td align="left">young</td>
@@ -1120,7 +1147,7 @@ kable(C14T8)</code></pre>
 <td align="right">630</td>
 </tr>
 <tr class="even">
-<td align="right">6</td>
+<td align="left">6</td>
 <td align="right">1</td>
 <td align="right">-0.5</td>
 <td align="left">young</td>
@@ -1129,7 +1156,7 @@ kable(C14T8)</code></pre>
 <td align="right">450</td>
 </tr>
 <tr class="odd">
-<td align="right">7</td>
+<td align="left">7</td>
 <td align="right">1</td>
 <td align="right">-0.5</td>
 <td align="left">young</td>
@@ -1138,7 +1165,7 @@ kable(C14T8)</code></pre>
 <td align="right">720</td>
 </tr>
 <tr class="even">
-<td align="right">8</td>
+<td align="left">8</td>
 <td align="right">1</td>
 <td align="right">-0.5</td>
 <td align="left">young</td>
@@ -1147,7 +1174,7 @@ kable(C14T8)</code></pre>
 <td align="right">780</td>
 </tr>
 <tr class="odd">
-<td align="right">9</td>
+<td align="left">9</td>
 <td align="right">1</td>
 <td align="right">-0.5</td>
 <td align="left">young</td>
@@ -1156,7 +1183,7 @@ kable(C14T8)</code></pre>
 <td align="right">660</td>
 </tr>
 <tr class="even">
-<td align="right">10</td>
+<td align="left">10</td>
 <td align="right">1</td>
 <td align="right">-0.5</td>
 <td align="left">young</td>
@@ -1165,7 +1192,7 @@ kable(C14T8)</code></pre>
 <td align="right">660</td>
 </tr>
 <tr class="odd">
-<td align="right">11</td>
+<td align="left">11</td>
 <td align="right">2</td>
 <td align="right">0.5</td>
 <td align="left">old</td>
@@ -1174,7 +1201,7 @@ kable(C14T8)</code></pre>
 <td align="right">690</td>
 </tr>
 <tr class="even">
-<td align="right">12</td>
+<td align="left">12</td>
 <td align="right">2</td>
 <td align="right">0.5</td>
 <td align="left">old</td>
@@ -1183,7 +1210,7 @@ kable(C14T8)</code></pre>
 <td align="right">810</td>
 </tr>
 <tr class="odd">
-<td align="right">13</td>
+<td align="left">13</td>
 <td align="right">2</td>
 <td align="right">0.5</td>
 <td align="left">old</td>
@@ -1192,7 +1219,7 @@ kable(C14T8)</code></pre>
 <td align="right">690</td>
 </tr>
 <tr class="even">
-<td align="right">14</td>
+<td align="left">14</td>
 <td align="right">2</td>
 <td align="right">0.5</td>
 <td align="left">old</td>
@@ -1201,7 +1228,7 @@ kable(C14T8)</code></pre>
 <td align="right">780</td>
 </tr>
 <tr class="odd">
-<td align="right">15</td>
+<td align="left">15</td>
 <td align="right">2</td>
 <td align="right">0.5</td>
 <td align="left">old</td>
@@ -1210,7 +1237,7 @@ kable(C14T8)</code></pre>
 <td align="right">780</td>
 </tr>
 <tr class="even">
-<td align="right">16</td>
+<td align="left">16</td>
 <td align="right">2</td>
 <td align="right">0.5</td>
 <td align="left">old</td>
@@ -1219,7 +1246,7 @@ kable(C14T8)</code></pre>
 <td align="right">870</td>
 </tr>
 <tr class="odd">
-<td align="right">17</td>
+<td align="left">17</td>
 <td align="right">2</td>
 <td align="right">0.5</td>
 <td align="left">old</td>
@@ -1228,7 +1255,7 @@ kable(C14T8)</code></pre>
 <td align="right">870</td>
 </tr>
 <tr class="even">
-<td align="right">18</td>
+<td align="left">18</td>
 <td align="right">2</td>
 <td align="right">0.5</td>
 <td align="left">old</td>
@@ -1237,7 +1264,7 @@ kable(C14T8)</code></pre>
 <td align="right">720</td>
 </tr>
 <tr class="odd">
-<td align="right">19</td>
+<td align="left">19</td>
 <td align="right">2</td>
 <td align="right">0.5</td>
 <td align="left">old</td>
@@ -1246,7 +1273,7 @@ kable(C14T8)</code></pre>
 <td align="right">900</td>
 </tr>
 <tr class="even">
-<td align="right">20</td>
+<td align="left">20</td>
 <td align="right">2</td>
 <td align="right">0.5</td>
 <td align="left">old</td>
@@ -1262,9 +1289,9 @@ kable(C14T8)</code></pre>
 <pre class="r"><code>lC14T8 &lt;- C14T8 %&gt;%
   gather(key = angle, value = rt, Angle0, Angle4, Angle8) %&gt;%
   mutate(angle_num = str_sub(angle, start = nchar(angle), end = nchar(angle)) %&gt;% as.numeric(),
-         angle_lbl = recode(angle_num, `0` = &quot;0 degrees&quot;, `4` = &quot;4 degrees&quot;, `8` = &quot;8 degrees&quot;),
-         angle_linear = recode(angle_num, `0` = -0.5, `4` = 0, `8` = 0.5),
-         angle_quadratic = recode(angle_num, `0` = 0.5, `4` = -1, `8` = 0.5))</code></pre>
+         angle_lbl = recode(angle_num, &quot;0&quot; = &quot;0 degrees&quot;, &quot;4&quot; = &quot;4 degrees&quot;, &quot;8&quot; = &quot;8 degrees&quot;),
+         angle_linear = recode(angle_num, &quot;0&quot; = -0.5, &quot;4&quot; = 0, &quot;8&quot; = 0.5),
+         angle_quadratic = recode(angle_num, &quot;0&quot; = 0.5, &quot;4&quot; = -1, &quot;8&quot; = 0.5))</code></pre>
 </div>
 <div id="visualize-relationships-2" class="section level3">
 <h3>Visualize relationships</h3>
@@ -1276,16 +1303,17 @@ kable(C14T8)</code></pre>
   geom_boxplot(outlier.color = NA, width = 0.25, position = position_dodge(width = 0.90)) +
   geom_point(position = position_jitterdodge(dodge.width = 0.90, jitter.width = 0.10), alpha = 0.40) +
   theme_bw()</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
 </div>
 </div>
 <div id="test-effects-using-different-approaches-1" class="section level2">
 <h2>Test effects using different approaches</h2>
 <div id="test-age-effect-between-subjects-via-multivariate-approach" class="section level3">
 <h3>Test age effect (between-subjects) via multivariate approach</h3>
-<pre class="r"><code># c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1)
-# this means multiply 1 by -1, 2 by 0, and 3 by 1, and add up those products
-oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot;, &quot;Angle8&quot;)]) %*% (c(1, 1, 1) / 3)), group = C14T8$Group, contrast = list(age = c(-1, 1)))</code></pre>
+<blockquote>
+<p>c(1, 2, 3) %*% c(-1, 0, 1) means take the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1), and this means multiply 1 by -1, 2 by 0, and 3 by 1, and then add up those products</p>
+</blockquote>
+<pre class="r"><code>oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot;, &quot;Angle8&quot;)]) %*% (c(1, 1, 1) / 3)), group = C14T8$Group, contrast = list(age = c(-1, 1)))</code></pre>
 <pre><code>##   contrast   equal_var est       se        t       df          p      lwr
 ## 1      age     Assumed  94 34.84888 2.697361 18.00000 0.01473401 20.78522
 ## 2      age Not Assumed  94 34.84888 2.697361 17.78843 0.01483957 20.72275
@@ -1295,9 +1323,10 @@ oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot
 </div>
 <div id="test-angle-linear-effect-within-subjects" class="section level3">
 <h3>Test angle linear effect (within-subjects)</h3>
-<pre class="r"><code># c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1)
-# this means multiply 1 by -1, 2 by 0, and 3 by 1, and add up those products
-oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot;, &quot;Angle8&quot;)]) %*% c(-1, 0, 1)), group = C14T8$Group, contrast = list(age = c(1, 1) / 2))</code></pre>
+<blockquote>
+<p>c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1), and this this means multiply 1 by -1, 2 by 0, and 3 by 1, and then add up those products</p>
+</blockquote>
+<pre class="r"><code>oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot;, &quot;Angle8&quot;)]) %*% c(-1, 0, 1)), group = C14T8$Group, contrast = list(age = c(1, 1) / 2))</code></pre>
 <pre><code>##   contrast   equal_var   est       se       t       df            p
 ## 1      age     Assumed 208.5 13.64734 15.2777 18.00000 9.479528e-12
 ## 2      age Not Assumed 208.5 13.64734 15.2777 17.66239 1.277400e-11
@@ -1307,9 +1336,10 @@ oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot
 </div>
 <div id="test-angle-quadratic-effect-within-subjects" class="section level3">
 <h3>Test angle quadratic effect (within-subjects)</h3>
-<pre class="r"><code># c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1)
-# this means multiply 1 by -1, 2 by 0, and 3 by 1, and add up those products
-oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot;, &quot;Angle8&quot;)]) %*% c(1, -2, 1) / 3), group = C14T8$Group, contrast = list(age = c(1, 1) / 2))</code></pre>
+<blockquote>
+<p>c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1), and this this means multiply 1 by -1, 2 by 0, and 3 by 1, and then add up those products</p>
+</blockquote>
+<pre class="r"><code>oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot;, &quot;Angle8&quot;)]) %*% c(1, -2, 1) / 3), group = C14T8$Group, contrast = list(age = c(1, 1) / 2))</code></pre>
 <pre><code>##   contrast   equal_var  est       se         t       df         p
 ## 1      age     Assumed -3.5 6.220486 -0.562657 18.00000 0.5806094
 ## 2      age Not Assumed -3.5 6.220486 -0.562657 17.01589 0.5810066
@@ -1319,9 +1349,10 @@ oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot
 </div>
 <div id="test-angle-linear-effect-x-age-effect-mixed" class="section level3">
 <h3>Test angle linear effect x age effect (mixed)</h3>
-<pre class="r"><code># c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1)
-# this means multiply 1 by -1, 2 by 0, and 3 by 1, and add up those products
-oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot;, &quot;Angle8&quot;)]) %*% c(-1, 0, 1)), group = C14T8$Group, contrast = list(age = c(-1, 1)))</code></pre>
+<blockquote>
+<p>c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1), and this this means multiply 1 by -1, 2 by 0, and 3 by 1, and then add up those products</p>
+</blockquote>
+<pre class="r"><code>oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot;, &quot;Angle8&quot;)]) %*% c(-1, 0, 1)), group = C14T8$Group, contrast = list(age = c(-1, 1)))</code></pre>
 <pre><code>##   contrast   equal_var est       se       t       df           p      lwr
 ## 1      age     Assumed  81 27.29469 2.96761 18.00000 0.008245640 23.65599
 ## 2      age Not Assumed  81 27.29469 2.96761 17.66239 0.008369684 23.57732
@@ -1331,9 +1362,10 @@ oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot
 </div>
 <div id="test-angle-quadratic-effect-x-age-effect-mixed" class="section level3">
 <h3>Test angle quadratic effect x age effect (mixed)</h3>
-<pre class="r"><code># c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1)
-# this means multiply 1 by -1, 2 by 0, and 3 by 1, and add up those products
-oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot;, &quot;Angle8&quot;)]) %*% c(1, -2, 1) / 3), group = C14T8$Group, contrast = list(age = c(-1, 1)))</code></pre>
+<blockquote>
+<p>c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1), and this this means multiply 1 by -1, 2 by 0, and 3 by 1, and then add up those products</p>
+</blockquote>
+<pre class="r"><code>oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot;, &quot;Angle8&quot;)]) %*% c(1, -2, 1) / 3), group = C14T8$Group, contrast = list(age = c(-1, 1)))</code></pre>
 <pre><code>##   contrast   equal_var est       se        t       df          p       lwr
 ## 1      age     Assumed  25 12.44097 2.009489 18.00000 0.05972078 -1.137512
 ## 2      age Not Assumed  25 12.44097 2.009489 17.01589 0.06061833 -1.246289
@@ -1343,59 +1375,75 @@ oneway(dv = as.numeric(as.matrix(C14T8[, c(&quot;Angle0&quot;, &quot;Angle4&quot
 </div>
 <div id="test-angle-by-age-effects-via-linear-mixed-effects-model" class="section level3">
 <h3>Test angle by age effects via linear mixed effects model</h3>
-<pre class="r"><code># fit model
-lmer3 &lt;- lmer(rt ~ (angle_linear + angle_quadratic) * age + (1 + angle_linear + angle_quadratic | subj), data = lC14T8, REML = TRUE, control = lmerControl(check.nobs.vs.nRE = &quot;ignore&quot;, check.nobs.vs.nlev = &quot;ignore&quot;))
-
-# diagnostics
-plot(lmer3)</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
-<pre class="r"><code>qqmath(ranef(lmer3, condVar = TRUE))</code></pre>
+<div id="fit-a-linear-mixed-effects-model-2" class="section level4">
+<h4>Fit a linear mixed effects model</h4>
+<pre class="r"><code>lmer.fit3 &lt;- lmer(rt ~ (angle_linear + angle_quadratic) * age + (1 + angle_linear + angle_quadratic | subj), data = lC14T8, REML = TRUE, control = lmerControl(check.nobs.vs.nRE = &quot;ignore&quot;, check.nobs.vs.nlev = &quot;ignore&quot;))</code></pre>
+</div>
+<div id="diagnostic-plots-2" class="section level4">
+<h4>Diagnostic plots</h4>
+<pre class="r"><code># residuals vs. fitted values
+plot(lmer.fit3, type = c(&quot;p&quot;, &quot;smooth&quot;))</code></pre>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-30-1.png" width="672" /></p>
+<pre class="r"><code># q-q plot of random effects
+qqmath(ranef(lmer.fit3, condVar = TRUE))</code></pre>
 <pre><code>## $subj</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-25-2.png" width="672" /></p>
-<pre class="r"><code>qqmath(lmer3)</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-25-3.png" width="672" /></p>
-<pre class="r"><code>dotplot(ranef(lmer3, condVar = TRUE))</code></pre>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-30-2.png" width="672" /></p>
+<pre class="r"><code># q-q plot of fixed effects
+qqmath(lmer.fit3)</code></pre>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-30-3.png" width="672" /></p>
+<pre class="r"><code># random effects estimates
+dotplot(ranef(lmer.fit3, condVar = TRUE))</code></pre>
 <pre><code>## $subj</code></pre>
-<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-25-4.png" width="672" /></p>
-<pre class="r"><code># results
-summary(lmer2)</code></pre>
+<p><img src="/post/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach/2019-02-13-analyzing-data-from-within-subjects-designs-multivariate-approach-vs-linear-mixed-models-approach_files/figure-html/unnamed-chunk-30-4.png" width="672" /></p>
+</div>
+<div id="results-2" class="section level4">
+<h4>Results</h4>
+<blockquote>
+<p>e.g., variance components, fixed effect coefficients, residual summary, fit indices</p>
+</blockquote>
+<pre class="r"><code>summary(lmer.fit3)</code></pre>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [
 ## lmerModLmerTest]
-## Formula: response ~ treatment * sequence + (1 + sequence | id)
-##    Data: lmydata
+## Formula: 
+## rt ~ (angle_linear + angle_quadratic) * age + (1 + angle_linear +  
+##     angle_quadratic | subj)
+##    Data: lC14T8
 ## Control: 
-## lmerControl(check.nobs.vs.nlev = &quot;ignore&quot;, check.nobs.vs.nRE = &quot;ignore&quot;)
+## lmerControl(check.nobs.vs.nRE = &quot;ignore&quot;, check.nobs.vs.nlev = &quot;ignore&quot;)
 ## 
-## REML criterion at convergence: 290.1
+## REML criterion at convergence: 607.5
 ## 
 ## Scaled residuals: 
 ##      Min       1Q   Median       3Q      Max 
-## -1.71150 -0.45806 -0.00089  0.43872  1.58043 
+## -1.30665 -0.55417 -0.03389  0.61377  1.38200 
 ## 
 ## Random effects:
-##  Groups   Name        Variance Std.Dev. Corr
-##  id       (Intercept) 0.5068   0.7119       
-##           sequence    0.5947   0.7711   0.52
-##  Residual             0.4903   0.7002       
-## Number of obs: 100, groups:  id, 50
+##  Groups   Name            Variance Std.Dev. Corr       
+##  subj     (Intercept)     5696.69  75.476              
+##           angle_linear    1475.59  38.413    0.09      
+##           angle_quadratic   24.03   4.902   -0.35 -0.89
+##  Residual                 1124.79  33.538              
+## Number of obs: 60, groups:  subj, 20
 ## 
 ## Fixed effects:
-##                    Estimate Std. Error      df t value Pr(&gt;|t|)    
-## (Intercept)          4.1696     0.1226 47.9928  34.001  &lt; 2e-16 ***
-## treatment            1.2661     0.2453 47.9928   5.162 4.63e-06 ***
-## sequence            -0.6835     0.1775 48.0030  -3.851 0.000348 ***
-## treatment:sequence   0.8483     0.3550 48.0030   2.390 0.020839 *  
+##                     Estimate Std. Error     df t value Pr(&gt;|t|)    
+## (Intercept)           616.00      17.42  18.00  35.354  &lt; 2e-16 ***
+## angle_linear          208.50      13.65  18.00  15.277 9.48e-12 ***
+## angle_quadratic        -3.50       6.22  18.00  -0.563  0.58061    
+## age                    94.00      34.85  18.00   2.697  0.01473 *  
+## angle_linear:age       81.00      27.30  18.00   2.968  0.00825 ** 
+## angle_quadratic:age    25.00      12.44  18.00   2.009  0.05972 .  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
 ## Correlation of Fixed Effects:
-##             (Intr) trtmnt sequnc
-## treatment   0.000               
-## sequence    0.261  0.000        
-## trtmnt:sqnc 0.000  0.261  0.000 
-## convergence code: 0
-## unable to evaluate scaled gradient
-## Model failed to converge: degenerate  Hessian with 1 negative eigenvalues</code></pre>
+##             (Intr) angl_l angl_q age    angl_l:
+## angle_liner  0.055                             
+## angle_qdrtc -0.060 -0.099                      
+## age          0.000  0.000  0.000               
+## angle_lnr:g  0.000  0.000  0.000  0.055        
+## angl_qdrtc:  0.000  0.000  0.000 -0.060 -0.099</code></pre>
+</div>
 </div>
 </div>
 </div>

@@ -21,6 +21,8 @@ image:
   focal_point: ''
 ---
 
+Note I'm not done with this post yet. Don't trust my content here too much and lower expectations about how much I explain here!
+
 # Within-Subjects Design
 > In a within-subjects design, subjects give responses across multiple conditions or across time. In other words, measures are repeated across levels of some condition or across time points. For example, subjects can report how happy they feel when they see a sequence of positive pictures and another sequence of negative pictures. In this case, we'd observe each subjects' happiness in both positive and negative conditions. As another example, we could measure subjects' job satisifcation every month for 3 months. Here we'd observe job satisfaction for each subject across time. In both cases, subject scores across conditions or time very likely correlate with eachother -- they are dependent.
 
@@ -99,12 +101,15 @@ covmat %>%
 ```
 
 # Multivariate approach
-> placeholder
+> every test uses a unique error term  
+> calculate sum of squares, use those to estimate variance components and test statistics
 
 # Linear Mixed Models Approach
-> placeholder
+> more flexible version of both univariate and multivariate approaches  
+> estimate variances components directly, e.g. with maximum likelihood   
+> can use all participant data even if some is missing
 
-# Save custom oneway function
+## Define custom oneway function (similar to [IBM SPSS's ONEWAY command](https://www.ibm.com/support/knowledgecenter/en/SSLVMB_24.0.0/spss/base/syn_oneway.html))
 
 ```{r}
 
@@ -147,10 +152,10 @@ oneway <- function(dv, group, contrast, alpha = .05) {
   df_classic <- rep(0, num_contrast)
   
   # makes rows of contrasts if contrast dimensions aren't NULL
-  if(is.null(dim(contrast))) contrast <- t(as.matrix(contrast))
+  if (is.null(dim(contrast))) contrast <- t(as.matrix(contrast))
   
   # calculating degrees of freedom for welch and classic
-  for(i in 1:num_contrast) {
+  for (i in 1:num_contrast) {
     df_classic[i] <- sum(ns) - length(ns)
     df_welch[i] <- sum(contrast[i, ]^2 * vars / ns)^2 / sum((contrast[i, ]^2 * vars / ns)^2 / (ns - 1))
   }
@@ -237,16 +242,34 @@ t.test(with(sleep, extra[group == 1] * -1 + extra[group == 2] * 1))
 sleep$drug <- with(sleep, ifelse(group == 1, -0.5, 0.5))
 
 # fit model
-lmer1 <- lmer(extra ~ drug + (1 | ID), data = sleep, REML = TRUE)
+lmer.fit1 <- lmer(extra ~ drug + (1 | ID), data = sleep, REML = TRUE)
 
-# diagnostics
-plot(lmer1)
-qqmath(ranef(lmer1, condVar = TRUE))
-qqmath(lmer1)
-dotplot(ranef(lmer1, condVar = TRUE))
+```
 
-# results
-summary(lmer1)
+#### Diagnostic plots
+
+```{r}
+
+# residuals vs. fitted values
+plot(lmer.fit1, type = c("p", "smooth"))
+
+# q-q plot of random effects
+qqmath(ranef(lmer.fit1, condVar = TRUE))
+
+# q-q plot of fixed effects
+qqmath(lmer.fit1)
+
+# random effects estimates
+dotplot(ranef(lmer.fit1, condVar = TRUE))
+
+```
+
+#### Results
+> e.g., variance components, fixed effect coefficients, residual summary, fit indices
+
+```{r}
+
+summary(lmer.fit1)
 
 ```
 
@@ -260,10 +283,10 @@ summary(lmer1)
 set.seed(8888)
 
 # id
-id <- 1:50
+id <- factor(1:50)
 
 # two treatment conditions, each size = 25
-treatment <- rep(1:2, each = 25)
+treatment <- factor(rep(1:2, each = 25))
 
 # labels in a separate column
 treatment_lbl <- ifelse(treatment == 1, "control", "treatment")
@@ -357,19 +380,38 @@ oneway(dv = as.numeric(as.matrix(mydata[, c("response1", "response2")]) %*% c(-1
 
 ### Test treatment by sequence effect via linear mixed effects model
 
+#### Fit a linear mixed effects model
+
 ```{r}
 
-# fit model
-lmer2 <- lmer(response ~ treatment * sequence + (1 + sequence | id), data = lmydata, REML = TRUE, control = lmerControl(check.nobs.vs.nlev = "ignore", check.nobs.vs.nRE = "ignore"))
+lmer.fit2 <- lmer(response ~ treatment * sequence + (1 + sequence | id), data = lmydata, REML = TRUE, control = lmerControl(check.nobs.vs.nlev = "ignore", check.nobs.vs.nRE = "ignore"))
 
-# diagnostics
-plot(lmer2)
-qqmath(ranef(lmer2, condVar = TRUE))
-qqmath(lmer2)
-dotplot(ranef(lmer2, condVar = TRUE))
+```
 
-# results
-summary(lmer2)
+#### Diagnostic plots
+
+```{r}
+
+# residuals vs. fitted values
+plot(lmer.fit1, type = c("p", "smooth"))
+
+# q-q plot of random effects
+qqmath(ranef(lmer.fit1, condVar = TRUE))
+
+# q-q plot of fixed effects
+qqmath(lmer.fit1)
+
+# random effects estimates
+dotplot(ranef(lmer.fit1, condVar = TRUE))
+
+```
+
+#### Results
+> e.g., variance components, fixed effect coefficients, residual summary, fit indices
+
+```{r}
+
+summary(lmer.fit2)
 
 ```
 
@@ -390,10 +432,10 @@ data("C14T8")
 
 # there is a slight difference between the textbook data and the data available in the package -- I fix that here
 C14T8 <- C14T8 %>%
-  mutate(subj = 1:20,
+  mutate(subj = factor(1:20),
          Angle4 = c(510, 480, 630, 660, 660, 450, 600, 660, 660, 540, 570, 720, 540, 660, 570, 780, 690, 570, 750, 690),
-         age = recode(Group, `1` = -0.5, `2` = 0.5),
-         age_lbl = recode(Group, `1` = "young", `2` = "old")) %>% 
+         age = recode(Group, "1" = -0.5, "2" = 0.5),
+         age_lbl = recode(Group, "1" = "young", "2" = "old")) %>% 
   select(subj, Group, age, age_lbl, Angle0, Angle4, Angle8)
 
 # print
@@ -408,9 +450,9 @@ kable(C14T8)
 lC14T8 <- C14T8 %>%
   gather(key = angle, value = rt, Angle0, Angle4, Angle8) %>%
   mutate(angle_num = str_sub(angle, start = nchar(angle), end = nchar(angle)) %>% as.numeric(),
-         angle_lbl = recode(angle_num, `0` = "0 degrees", `4` = "4 degrees", `8` = "8 degrees"),
-         angle_linear = recode(angle_num, `0` = -0.5, `4` = 0, `8` = 0.5),
-         angle_quadratic = recode(angle_num, `0` = 0.5, `4` = -1, `8` = 0.5))
+         angle_lbl = recode(angle_num, "0" = "0 degrees", "4" = "4 degrees", "8" = "8 degrees"),
+         angle_linear = recode(angle_num, "0" = -0.5, "4" = 0, "8" = 0.5),
+         angle_quadratic = recode(angle_num, "0" = 0.5, "4" = -1, "8" = 0.5))
 
 ```
 
@@ -430,70 +472,84 @@ ggplot(lC14T8, mapping = aes(x = angle_lbl, y = rt, color = age_lbl)) +
 ## Test effects using different approaches
 
 ### Test age effect (between-subjects) via multivariate approach
+> c(1, 2, 3) %*% c(-1, 0, 1) means take the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1), and this means multiply 1 by -1, 2 by 0, and 3 by 1, and then add up those products
 
 ```{r}
 
-# c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1)
-# this means multiply 1 by -1, 2 by 0, and 3 by 1, and add up those products
 oneway(dv = as.numeric(as.matrix(C14T8[, c("Angle0", "Angle4", "Angle8")]) %*% (c(1, 1, 1) / 3)), group = C14T8$Group, contrast = list(age = c(-1, 1)))
 
 ```
 
 ### Test angle linear effect (within-subjects)
+> c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1), and this this means multiply 1 by -1, 2 by 0, and 3 by 1, and then add up those products
 
 ```{r}
 
-# c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1)
-# this means multiply 1 by -1, 2 by 0, and 3 by 1, and add up those products
 oneway(dv = as.numeric(as.matrix(C14T8[, c("Angle0", "Angle4", "Angle8")]) %*% c(-1, 0, 1)), group = C14T8$Group, contrast = list(age = c(1, 1) / 2))
 
 ```
 
 ### Test angle quadratic effect (within-subjects)
+> c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1), and this this means multiply 1 by -1, 2 by 0, and 3 by 1, and then add up those products
 
 ```{r}
 
-# c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1)
-# this means multiply 1 by -1, 2 by 0, and 3 by 1, and add up those products
 oneway(dv = as.numeric(as.matrix(C14T8[, c("Angle0", "Angle4", "Angle8")]) %*% c(1, -2, 1) / 3), group = C14T8$Group, contrast = list(age = c(1, 1) / 2))
 
 ```
 
 ### Test angle linear effect x age effect (mixed)
+> c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1), and this this means multiply 1 by -1, 2 by 0, and 3 by 1, and then add up those products
 
 ```{r}
 
-# c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1)
-# this means multiply 1 by -1, 2 by 0, and 3 by 1, and add up those products
 oneway(dv = as.numeric(as.matrix(C14T8[, c("Angle0", "Angle4", "Angle8")]) %*% c(-1, 0, 1)), group = C14T8$Group, contrast = list(age = c(-1, 1)))
 
 ```
 
 ### Test angle quadratic effect x age effect (mixed)
+> c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1), and this this means multiply 1 by -1, 2 by 0, and 3 by 1, and then add up those products
 
 ```{r}
 
-# c(1, 2, 3) %*% c(-1, 0, 1) means tke the dot product of the matrix c(1, 2, 3) and the matrix c(-1, 0, 1)
-# this means multiply 1 by -1, 2 by 0, and 3 by 1, and add up those products
 oneway(dv = as.numeric(as.matrix(C14T8[, c("Angle0", "Angle4", "Angle8")]) %*% c(1, -2, 1) / 3), group = C14T8$Group, contrast = list(age = c(-1, 1)))
 
 ```
 
 ### Test angle by age effects via linear mixed effects model
 
+#### Fit a linear mixed effects model
+
 ```{r}
 
-# fit model
-lmer3 <- lmer(rt ~ (angle_linear + angle_quadratic) * age + (1 + angle_linear + angle_quadratic | subj), data = lC14T8, REML = TRUE, control = lmerControl(check.nobs.vs.nRE = "ignore", check.nobs.vs.nlev = "ignore"))
+lmer.fit3 <- lmer(rt ~ (angle_linear + angle_quadratic) * age + (1 + angle_linear + angle_quadratic | subj), data = lC14T8, REML = TRUE, control = lmerControl(check.nobs.vs.nRE = "ignore", check.nobs.vs.nlev = "ignore"))
 
-# diagnostics
-plot(lmer3)
-qqmath(ranef(lmer3, condVar = TRUE))
-qqmath(lmer3)
-dotplot(ranef(lmer3, condVar = TRUE))
+```
 
-# results
-summary(lmer2)
+#### Diagnostic plots
+
+```{r}
+
+# residuals vs. fitted values
+plot(lmer.fit3, type = c("p", "smooth"))
+
+# q-q plot of random effects
+qqmath(ranef(lmer.fit3, condVar = TRUE))
+
+# q-q plot of fixed effects
+qqmath(lmer.fit3)
+
+# random effects estimates
+dotplot(ranef(lmer.fit3, condVar = TRUE))
+
+```
+
+#### Results
+> e.g., variance components, fixed effect coefficients, residual summary, fit indices
+
+```{r}
+
+summary(lmer.fit3)
 
 ```
 
