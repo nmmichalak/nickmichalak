@@ -28,8 +28,6 @@ output:
     fig_width: 10.5
 ---
 
-# INCOMPLETE POST
-
 # Measuring variables we can't observe
 
 # Multidimensional Scaling
@@ -126,6 +124,7 @@ isoMDS.data %>%
 ## Description
 
 ### Read SPSS Anxiety Questionnaire data
+> You can download these data [[**SAQ.sav**](https://github.com/nmmichalak/academic-kickstart/raw/master/static/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/data/SAQ.sav)]
 
 ```{r, warning = FALSE, message = FALSE}
 

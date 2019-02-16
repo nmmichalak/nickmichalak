@@ -66,7 +66,7 @@ library(psych)
 ```
 
 ## Data
-> I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [[**.csv**](/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t3.1.csv)] with those from Table 10.1 in Mackinnon (2008, p. 291) [[**.csv**](/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t10.1.csv)]
+> I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [[**mackinnon_2008_t3.1.csv**](https://github.com/nmmichalak/academic-kickstart/blob/master/static/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t3.1.csv)] with those from Table 10.1 in Mackinnon (2008, p. 291) [[**mackinnon_2008_t10.1.csv.csv**](https://github.com/nmmichalak/academic-kickstart/blob/master/static/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t10.1.csv)]
 
 ```{r, message = FALSE, warning = FALSE}
 

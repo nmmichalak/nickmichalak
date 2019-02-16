@@ -44,20 +44,19 @@ select <- dplyr::select
 ```
 
 ## Data: Example 1 (categorical x continuous interaction)
-> I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [[**.csv**](https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg01/data/mackinnon_2008_t3.1.csv)] with those from Table 10.1 in Mackinnon (2008, p. 291) [[**.csv**](https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg02/data/mackinnon_2008_t10.1.csv)]
+> I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [[**mackinnon_2008_t3.1.csv**](https://github.com/nmmichalak/academic-kickstart/blob/master/static/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t3.1.csv)] with those from Table 10.1 in Mackinnon (2008, p. 291) [[**mackinnon_2008_t10.1.csv**](https://github.com/nmmichalak/academic-kickstart/blob/master/static/post/2019-02-13-testing-indirect-effects-mediation-in-r/data/mackinnon_2008_t10.1.csv)]
 
 ```{r, message = FALSE, warning = FALSE}
 
-thirst_norm <- "https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg01/data/mackinnon_2008_t3.1.csv" %>% read_csv()
-thirst_fit <- "https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg02/data/mackinnon_2008_t10.1.csv" %>% read_csv()
-
+thirst_norm <- read_csv("https://github.com/nmmichalak/academic-kickstart/raw/master/static/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t3.1.csv")
+thirst_fit <- read_csv("https://github.com/nmmichalak/academic-kickstart/raw/master/static/post/2019-02-13-testing-indirect-effects-mediation-in-r/data/mackinnon_2008_t10.1.csv")
 ```
 
 ## Code new IDs for fit data
 
 ```{r}
 
-thirst_fit <- thirst_fit %>% mutate(id = 51:100)
+thirst_fit$id <- 51:100
 
 ```
 
@@ -66,8 +65,8 @@ thirst_fit <- thirst_fit %>% mutate(id = 51:100)
 
 ```{r}
 
-thirst_norm <- thirst_norm %>% mutate(phys_fit = -0.5)
-thirst_fit <- thirst_fit %>% mutate(phys_fit = 0.5)
+thirst_norm$phys_fit <- -0.5
+thirst_fit$phys_fit <- 0.5
 
 ```
 
@@ -159,7 +158,7 @@ kable(pred_table01)
 ```{r}
 
 thirst_data <- thirst_data %>% 
-  mutate(phys_fit_lbl = phys_fit %>% recode(`-0.5` = "Normal", `0.5` = "Fit"))
+  mutate(phys_fit_lbl = phys_fit %>% recode("-0.5" = "Normal", "0.5" = "Fit"))
 
 ```
 
@@ -218,7 +217,7 @@ summary(glht01, test = adjusted("none"))
 > Holding all other predictors at 0, every 1&deg;F increase in room temperature was associated with a *b* = 0.55 unit increase in thirst, *t*(96) = 5.42, 95% CI[0.35, 0.75], *p* < .001. Holding all other predictors at 0, there was no sufficient evidence that physically fit participants reported different mean thirst units, *b* = 0.20, than normal participants, *t*(96) = 0.97, 95% CI[-0.20, 0.59], *p* = .334. However, the association between room temperature and thirst was different between fitness groups, *b* = 0.42, *t*(96) = 2.08, 95% CI[0.02, 0.83], *p* = .040. Among normal participants, every 1&deg;F increase in room temperature was associated with a *b* = 0.34 unit increase in thirst, *t*(96) = 2.69, *p* = .008; in contrast, among physically fit participants, every 1&deg;F increase in room temperature was associated with a *b* = 0.76 unit increase in thirst, *t*(96) = 4.78, *p* < .001.
 
 ## Data: Example 1 (continuous x continuous interaction)
-> Data come from the example in Chapter 7 from Cohen, Cohen, Aiken, & West (2003, p. 276) [[**.txt**](https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg04/data/C07E01DT.txt)]
+> Data come from the example in Chapter 7 from Cohen, Cohen, Aiken, & West (2003, p. 276) [[**C07E01DT.txt**](https://github.com/nmmichalak/academic-kickstart/raw/master/static/post/2019-02-13-probing-and-plotting-interactions-in-r/2019-02-13-probing-and-plotting-interactions-in-r_files/data/C07E01DT.txt)]
 
 ```{r, message = FALSE, warning = FALSE}
 

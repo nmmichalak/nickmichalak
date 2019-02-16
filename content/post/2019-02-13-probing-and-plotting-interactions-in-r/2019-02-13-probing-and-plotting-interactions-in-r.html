@@ -55,22 +55,22 @@ select &lt;- dplyr::select</code></pre>
 <div id="data-example-1-categorical-x-continuous-interaction" class="section level2">
 <h2>Data: Example 1 (categorical x continuous interaction)</h2>
 <blockquote>
-<p>I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg01/data/mackinnon_2008_t3.1.csv"><strong>.csv</strong></a>] with those from Table 10.1 in Mackinnon (2008, p. 291) [<a href="https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg02/data/mackinnon_2008_t10.1.csv"><strong>.csv</strong></a>]</p>
+<p>I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="https://github.com/nmmichalak/academic-kickstart/blob/master/static/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t3.1.csv"><strong>mackinnon_2008_t3.1.csv</strong></a>] with those from Table 10.1 in Mackinnon (2008, p. 291) [<a href="https://github.com/nmmichalak/academic-kickstart/blob/master/static/post/2019-02-13-testing-indirect-effects-mediation-in-r/data/mackinnon_2008_t10.1.csv"><strong>mackinnon_2008_t10.1.csv</strong></a>]</p>
 </blockquote>
-<pre class="r"><code>thirst_norm &lt;- &quot;https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg01/data/mackinnon_2008_t3.1.csv&quot; %&gt;% read_csv()
-thirst_fit &lt;- &quot;https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg02/data/mackinnon_2008_t10.1.csv&quot; %&gt;% read_csv()</code></pre>
+<pre class="r"><code>thirst_norm &lt;- read_csv(&quot;https://github.com/nmmichalak/academic-kickstart/raw/master/static/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t3.1.csv&quot;)
+thirst_fit &lt;- read_csv(&quot;https://github.com/nmmichalak/academic-kickstart/raw/master/static/post/2019-02-13-testing-indirect-effects-mediation-in-r/data/mackinnon_2008_t10.1.csv&quot;)</code></pre>
 </div>
 <div id="code-new-ids-for-fit-data" class="section level2">
 <h2>Code new IDs for fit data</h2>
-<pre class="r"><code>thirst_fit &lt;- thirst_fit %&gt;% mutate(id = 51:100)</code></pre>
+<pre class="r"><code>thirst_fit$id &lt;- 51:100</code></pre>
 </div>
 <div id="add-column-in-both-datasets-that-identifies-fitness-group" class="section level2">
 <h2>Add column in both datasets that identifies fitness group</h2>
 <blockquote>
 <p>Unfit = -0.5 and Fit = 0.5</p>
 </blockquote>
-<pre class="r"><code>thirst_norm &lt;- thirst_norm %&gt;% mutate(phys_fit = -0.5)
-thirst_fit &lt;- thirst_fit %&gt;% mutate(phys_fit = 0.5)</code></pre>
+<pre class="r"><code>thirst_norm$phys_fit &lt;- -0.5
+thirst_fit$phys_fit &lt;- 0.5</code></pre>
 </div>
 <div id="bind-unfit-and-fit-data-by-rows" class="section level2">
 <h2>Bind unfit and fit data by rows</h2>
@@ -399,7 +399,7 @@ kable(pred_table01)</code></pre>
 <div id="save-character-variable-with-condition-labels" class="section level3">
 <h3>Save character variable with condition labels</h3>
 <pre class="r"><code>thirst_data &lt;- thirst_data %&gt;% 
-  mutate(phys_fit_lbl = phys_fit %&gt;% recode(`-0.5` = &quot;Normal&quot;, `0.5` = &quot;Fit&quot;))</code></pre>
+  mutate(phys_fit_lbl = phys_fit %&gt;% recode(&quot;-0.5&quot; = &quot;Normal&quot;, &quot;0.5&quot; = &quot;Fit&quot;))</code></pre>
 </div>
 <div id="ggplot2" class="section level3">
 <h3>ggplot2</h3>
@@ -474,7 +474,7 @@ kable(pred_table01)</code></pre>
 <div id="data-example-1-continuous-x-continuous-interaction" class="section level2">
 <h2>Data: Example 1 (continuous x continuous interaction)</h2>
 <blockquote>
-<p>Data come from the example in Chapter 7 from Cohen, Cohen, Aiken, &amp; West (2003, p. 276) [<a href="https://raw.githubusercontent.com/nmmichalak/nicholas_michalak/master/blog_entries/2018/nrg04/data/C07E01DT.txt"><strong>.txt</strong></a>]</p>
+<p>Data come from the example in Chapter 7 from Cohen, Cohen, Aiken, &amp; West (2003, p. 276) [<a href="https://github.com/nmmichalak/academic-kickstart/raw/master/static/post/2019-02-13-probing-and-plotting-interactions-in-r/2019-02-13-probing-and-plotting-interactions-in-r_files/data/C07E01DT.txt"><strong>C07E01DT.txt</strong></a>]</p>
 </blockquote>
 <pre class="r"><code>endurance &lt;- &quot;data/C07E01DT.txt&quot; %&gt;% read_table(col_names = c(&quot;id&quot;, &quot;xage&quot;, &quot;zexer&quot;, &quot;yendu&quot;))</code></pre>
 </div>
