@@ -33,7 +33,7 @@ image:
 > * Uninstalling R Studio [[**.html**](https://support.rstudio.com/hc/en-us/articles/200554736-How-To-Uninstall-RStudio-Desktop)]
 
 ## Understand all the panels in R Studio
-![Four panels in R Studio](/post/nrg03/nrg03_files/r_studio_panels_tutorial.png)
+![Four panels in R Studio](/post/2019-02-13-learn-r-for-psychology-research-a-crash-course/2019-02-13-learn-r-for-psychology-research-a-crash-course_files/r_studio_panels_tutorial.png)
 
 ## Packages: They're like apps you download for R
 > "Packages are collections of R functions, data, and compiled code in a well-defined format. The directory where packages are stored is called the library. R comes with a standard set of packages. Others are available for download and installation. Once installed, they have to be loaded into the session to be used." [[**.html**](https://www.statmethods.net/interface/packages.html)]
@@ -428,7 +428,6 @@ example_data %>%
   stat_summary(geom = "bar", fun.data = mean_cl_normal) +
   stat_summary(geom = "errorbar", fun.data = mean_cl_normal, width = 0.1)
   
-
 ```
 
 ## Scatterplots
@@ -482,7 +481,7 @@ example_data %>%
 # path to where file lives on your computer
 coffee_filepath <- "data/coffee.sav"
 
-coffee_data <- coffee_filepath %>% read_sav()
+coffee_data <- read_sav(coffee_filepath)
 
 # print coffee_data by just excecuting/running the name of the object
 coffee_data
@@ -497,7 +496,7 @@ coffee_data
 # path to where file lives on your computer
 coffee_filepath <- "data/coffee.csv"
 
-coffee_data <- coffee_filepath %>% read_csv()
+coffee_data <- read_csv(coffee_filepath)
 
 ```
 
@@ -509,7 +508,7 @@ coffee_data <- coffee_filepath %>% read_csv()
 # path to where file lives on your computer
 coffee_filepath <- "data/coffee.txt"
 
-coffee_data <- coffee_filepath %>% read_delim(delim = " ")
+coffee_data <- read_delim(coffee_filepath, delim = " ")
 
 ```
 
@@ -549,7 +548,7 @@ lm_fit
 
 ```{r}
 
-lm_fit %>% summary()
+summary(lm_fit)
 
 ```
 
@@ -557,7 +556,7 @@ lm_fit %>% summary()
 
 ```{r}
 
-lm_fit %>% Anova(type = "III")
+Anova(lm_fit, type = "III")
 
 ```
 
