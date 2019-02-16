@@ -30,9 +30,7 @@ output:
 
 
 
-<div id="measuring-variables-we-cant-observe" class="section level1">
-<h1>Measuring variables we can’t observe</h1>
-</div>
+<p>Note. I’m not done with this post but it’s fun to build a new website and see your posts appear so pretty online … so here it is!</p>
 <div id="multidimensional-scaling" class="section level1">
 <h1>Multidimensional Scaling</h1>
 <div id="install-packages-andor-load-libraries" class="section level2">
@@ -40,13 +38,13 @@ output:
 <pre class="r"><code># install.packages(&quot;tidyverse&quot;)
 # install.packages(&quot;knitr&quot;)
 # install.packages(&quot;haven&quot;)
-# install.packages(&quot;MASS&quot;)
+# install.packages(&quot;maps&quot;)
 # install.packages(&quot;psych&quot;)
 
 library(tidyverse)
 library(knitr)
 library(haven)
-library(MASS)
+library(maps)
 library(psych)</code></pre>
 </div>
 <div id="data" class="section level2">
@@ -216,44 +214,60 @@ UScitiesD gives “straight line” distances between 10 cities in the US.</p>
   rownames_to_column() %&gt;%
   rename(city1 = rowname) %&gt;% 
   gather(key = city2, value = distance, -city1) %&gt;% 
-  ggplot(mapping = aes(x = city1, y = city2, fill = distance)) +
+  ggplot(mapping = aes(x = city1, y = city2, fill = distance, label = distance)) +
   geom_tile() +
-  scale_fill_gradient(low = &quot;blue&quot;, high = &quot;red&quot;)</code></pre>
+  geom_text() +
+  scale_fill_gradient2() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 </div>
 <div id="non-metric-multidimensional-scaling-2-dimensions-like-a-map" class="section level3">
 <h3>non-Metric Multidimensional Scaling (2-dimensions, like a map)</h3>
-<pre class="r"><code>isoMDS.fit1 &lt;- isoMDS(UScitiesD, k = 2, maxit = 50)</code></pre>
-<pre><code>## initial  value 0.049975 
-## iter   5 value 0.049265
-## iter  10 value 0.048377
-## iter  15 value 0.047490
-## iter  20 value 0.046603
-## iter  25 value 0.045715
-## iter  30 value 0.044828
-## iter  35 value 0.043941
-## iter  40 value 0.043053
-## iter  45 value 0.042166
-## iter  50 value 0.041278
-## final  value 0.041278 
-## stopped after 50 iterations</code></pre>
+<pre class="r"><code>cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
+</div>
+<div id="plot-eigenvalues-sorted-by-size-i.e.-screeplot" class="section level3">
+<h3>plot eigenvalues sorted by size (i.e., screeplot)</h3>
+<blockquote>
+<p>look for the “elbow”</p>
+</blockquote>
+<pre class="r"><code>tibble(index = 1:length(cmdscale.fit1$eig),
+       eigenvalue = cmdscale.fit1$eig) %&gt;% 
+  ggplot(mapping = aes(x = index, y = eigenvalue)) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(labels = scales::comma)</code></pre>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 </div>
 <div id="store-points-from-fitted-configuration" class="section level3">
 <h3>store points from fitted configuration</h3>
-<pre class="r"><code>isoMDS.data &lt;- as_tibble(isoMDS.fit1$points) %&gt;% 
-  mutate(city = rownames(isoMDS.fit1$points))</code></pre>
+<pre class="r"><code>cmdscale.data &lt;- as_tibble(cmdscale.fit1$points) %&gt;% 
+  mutate(city = rownames(cmdscale.fit1$points))</code></pre>
 <pre><code>## Warning: `as_tibble.matrix()` requires a matrix with column names or a `.name_repair` argument. Using compatibility `.name_repair`.
 ## This warning is displayed once per session.</code></pre>
 <div id="plot" class="section level4">
 <h4>plot</h4>
-<pre class="r"><code>isoMDS.data %&gt;% 
+<pre class="r"><code>cmdscale.data %&gt;% 
   ggplot(mapping = aes(x = V2, y = V1, label = city)) +
   geom_point() +
   geom_label(nudge_y = 100)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+<div id="compare" class="section level4">
+<h4>compare</h4>
+<pre class="r"><code>map_data(&quot;state&quot;) %&gt;% 
+  ggplot(mapping = aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill = &quot;white&quot;, colour = &quot;black&quot;) +
+  coord_quickmap()</code></pre>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 </div>
 </div>
 </div>
+</div>
+<div id="measuring-variables-we-cant-observe" class="section level1">
+<h1>Measuring variables we can’t observe</h1>
+<blockquote>
+
+</blockquote>
 </div>
 <div id="partitioning-variance" class="section level1">
 <h1>Partitioning variance</h1>
@@ -286,8 +300,19 @@ UScitiesD gives “straight line” distances between 10 cities in the US.</p>
 </div>
 <div id="correlation-matrix" class="section level3">
 <h3>Correlation matrix</h3>
-<pre class="r"><code>cor.plot(saq, numbers = TRUE, scale = FALSE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<pre class="r"><code>saq %&gt;% 
+  cor(use = &quot;pairwise.complete.obs&quot;) %&gt;% 
+  round(2) %&gt;% 
+  as.data.frame() %&gt;% 
+  rownames_to_column() %&gt;%
+  rename(item1 = rowname) %&gt;% 
+  gather(key = item2, value = r, -item1) %&gt;% 
+  ggplot(mapping = aes(x = item1, y = item2, fill = r, label = r)) +
+  geom_tile() +
+  geom_text() +
+  scale_fill_gradient2() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))</code></pre>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 </div>
 <div id="histograms" class="section level3">
 <h3>Histograms</h3>
@@ -298,12 +323,12 @@ UScitiesD gives “straight line” distances between 10 cities in the US.</p>
   facet_wrap(facets = ~ variable)</code></pre>
 <pre><code>## Warning: attributes are not identical across measure variables;
 ## they will be dropped</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 </div>
 <div id="parallel-analysis" class="section level3">
 <h3>Parallel Analysis</h3>
 <pre class="r"><code>fa.parallel(saq, fm = &quot;minres&quot;, fa = &quot;both&quot;)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <pre><code>## Parallel analysis suggests that the number of factors =  6  and the number of components =  4</code></pre>
 </div>
 </div>
@@ -356,7 +381,7 @@ UScitiesD gives “straight line” distances between 10 cities in the US.</p>
 <pre class="r"><code># plot
 principal(saq, rotate = &quot;varimax&quot;) %&gt;% 
   fa.diagram(sort = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 </div>
 <div id="components" class="section level2">
 <h2>4 components</h2>
@@ -407,7 +432,7 @@ principal(saq, rotate = &quot;varimax&quot;) %&gt;%
 <pre class="r"><code># plot
 principal(saq, nfactors = 4, rotate = &quot;varimax&quot;) %&gt;% 
   fa.diagram(sort = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 </div>
 </div>
 <div id="common-factor-analysis" class="section level1">
@@ -472,7 +497,7 @@ principal(saq, nfactors = 4, rotate = &quot;varimax&quot;) %&gt;%
 <pre class="r"><code># plot
 fa(saq, fm = &quot;minres&quot;, rotate = &quot;oblimin&quot;) %&gt;% 
   fa.diagram(sort = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 </div>
 <div id="factors" class="section level2">
 <h2>6 factors</h2>
@@ -551,7 +576,7 @@ fa(saq, fm = &quot;minres&quot;, rotate = &quot;oblimin&quot;) %&gt;%
 <pre class="r"><code># plot
 fa(saq, nfactors = 6, fm = &quot;minres&quot;, rotate = &quot;oblimin&quot;) %&gt;% 
   fa.diagram(sort = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 </div>
 </div>
 <div id="general-word-of-caution" class="section level1">
