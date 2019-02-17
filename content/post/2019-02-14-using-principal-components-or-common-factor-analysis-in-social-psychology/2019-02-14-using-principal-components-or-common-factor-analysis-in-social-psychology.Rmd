@@ -28,14 +28,21 @@ Note. I'm not done with this post but it's fun to build a new website and see yo
 
 # Multidimensional Scaling
 > Multidimensional scaling is an exploratory technique that uses distances or disimilarities between objects to create a multidimensional representation of those objects in metric space. In other words, multidimensional scaling uses data about the distance (e.g., miles between cities) or disimilarity (e.g., how (dis)similar are apples and tomatoes?) among a set of objects to "search" for some metric space that represents those objects and their relations to each other. Metric space is a fancy term for a set of objects and some metric that satisfy a list of axioms.  
-> Here is one way to represent the distance axioms:  
-> 1. $$d_{ij} > d_{ii} = 0,  for  i  \neq j.$$  
-> 2. $$d_{ij} = d_ji.$$  
-> 3. $$d_{ij} \leq d_{ik} + d_{kj}.$$  
-> Here is one way to represent the similarity axioms:  
-> 1. $$s_{ii} > s_{ij}.$$  
-> 2. $$s_{ij} = s_ji.$$  
-> 3. a large  $$s_{ij}  implies  d_{ik} \approx d_{kj}.$$
+
+> Here is one way to represent the distance (d) axioms:
+
+1. $$d_{ij} > d_{ii} = 0 \text{,  for } i \neq j.$$
+2. $$d_{ij} = d_{ji}.$$
+3. $$d_{ij} \leq d_{ik} + d_{kj}.$$  
+
+> Here is one way to represent the similarity (s) axioms:  
+
+1. $$s_{ii} > s_{ij}.$$
+2. $$s_{ij} = s_ji.$$
+3. $$\text{a large } s_{ij} \text{ implies } d_{ik} \approx d_{kj}.$$  
+
+> The idea here is that the data and the axioms constrain the solution you get. For example, if you're making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constrains.  
+> This should be more clear in the example below.
 
 ## Install packages and/or load libraries
 
@@ -61,10 +68,7 @@ library(psych)
 
 ```{r}
 
-UScitiesD %>% 
-  as.matrix() %>% 
-  as.data.frame() %>% 
-  kable()
+UScitiesD
 
 ```
 

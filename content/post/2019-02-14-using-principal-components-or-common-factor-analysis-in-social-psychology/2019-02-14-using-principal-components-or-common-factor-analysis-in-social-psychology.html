@@ -30,15 +30,27 @@ image:
 <div id="multidimensional-scaling" class="section level1">
 <h1>Multidimensional Scaling</h1>
 <blockquote>
-<p>Multidimensional scaling is an exploratory technique that uses distances or disimilarities between objects to create a multidimensional representation of those objects in metric space. In other words, multidimensional scaling uses data about the distance (e.g., miles between cities) or disimilarity (e.g., how (dis)similar are apples and tomatoes?) among a set of objects to “search” for some metric space that represents those objects and their relations to each other. Metric space is a fancy term for a set of objects and some metric that satisfy a list of axioms.<br />
-Here is one way to represent the distance axioms:<br />
-1. <span class="math display">\[d_{ij} &gt; d_{ii} = 0,  for  i  \neq j.\]</span><br />
-2. <span class="math display">\[d_{ij} = d_ji.\]</span><br />
-3. <span class="math display">\[d_{ij} \leq d_{ik} + d_{kj}.\]</span><br />
-Here is one way to represent the similarity axioms:<br />
-1. <span class="math display">\[s_{ii} &gt; s_{ij}.\]</span><br />
-2. <span class="math display">\[s_{ij} = s_ji.\]</span><br />
-3. a large <span class="math display">\[s_{ij}  implies  d_{ik} \approx d_{kj}.\]</span></p>
+<p>Multidimensional scaling is an exploratory technique that uses distances or disimilarities between objects to create a multidimensional representation of those objects in metric space. In other words, multidimensional scaling uses data about the distance (e.g., miles between cities) or disimilarity (e.g., how (dis)similar are apples and tomatoes?) among a set of objects to “search” for some metric space that represents those objects and their relations to each other. Metric space is a fancy term for a set of objects and some metric that satisfy a list of axioms.</p>
+</blockquote>
+<blockquote>
+<p>Here is one way to represent the distance (d) axioms:</p>
+</blockquote>
+<ol style="list-style-type: decimal">
+<li><span class="math display">\[d_{ij} &gt; d_{ii} = 0 \text{,  for } i \neq j.\]</span></li>
+<li><span class="math display">\[d_{ij} = d_{ji}.\]</span></li>
+<li><span class="math display">\[d_{ij} \leq d_{ik} + d_{kj}.\]</span></li>
+</ol>
+<blockquote>
+<p>Here is one way to represent the similarity (s) axioms:</p>
+</blockquote>
+<ol style="list-style-type: decimal">
+<li><span class="math display">\[s_{ii} &gt; s_{ij}.\]</span></li>
+<li><span class="math display">\[s_{ij} = s_ji.\]</span></li>
+<li><span class="math display">\[\text{a large } s_{ij} \text{ implies } d_{ik} \approx d_{kj}.\]</span></li>
+</ol>
+<blockquote>
+<p>The idea here is that the data and the axioms constrain the solution you get. For example, if you’re making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constrains.<br />
+This should be more clear in the example below.</p>
 </blockquote>
 <div id="install-packages-andor-load-libraries" class="section level2">
 <h2>Install packages and/or load libraries</h2>
@@ -60,159 +72,27 @@ library(psych)</code></pre>
 <p>help(“UScitiesD”)<br />
 UScitiesD gives “straight line” distances between 10 cities in the US.</p>
 </blockquote>
-<pre class="r"><code>UScitiesD %&gt;% 
-  as.matrix() %&gt;% 
-  as.data.frame() %&gt;% 
-  kable()</code></pre>
-<table>
-<thead>
-<tr class="header">
-<th></th>
-<th align="right">Atlanta</th>
-<th align="right">Chicago</th>
-<th align="right">Denver</th>
-<th align="right">Houston</th>
-<th align="right">LosAngeles</th>
-<th align="right">Miami</th>
-<th align="right">NewYork</th>
-<th align="right">SanFrancisco</th>
-<th align="right">Seattle</th>
-<th align="right">Washington.DC</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Atlanta</td>
-<td align="right">0</td>
-<td align="right">587</td>
-<td align="right">1212</td>
-<td align="right">701</td>
-<td align="right">1936</td>
-<td align="right">604</td>
-<td align="right">748</td>
-<td align="right">2139</td>
-<td align="right">2182</td>
-<td align="right">543</td>
-</tr>
-<tr class="even">
-<td>Chicago</td>
-<td align="right">587</td>
-<td align="right">0</td>
-<td align="right">920</td>
-<td align="right">940</td>
-<td align="right">1745</td>
-<td align="right">1188</td>
-<td align="right">713</td>
-<td align="right">1858</td>
-<td align="right">1737</td>
-<td align="right">597</td>
-</tr>
-<tr class="odd">
-<td>Denver</td>
-<td align="right">1212</td>
-<td align="right">920</td>
-<td align="right">0</td>
-<td align="right">879</td>
-<td align="right">831</td>
-<td align="right">1726</td>
-<td align="right">1631</td>
-<td align="right">949</td>
-<td align="right">1021</td>
-<td align="right">1494</td>
-</tr>
-<tr class="even">
-<td>Houston</td>
-<td align="right">701</td>
-<td align="right">940</td>
-<td align="right">879</td>
-<td align="right">0</td>
-<td align="right">1374</td>
-<td align="right">968</td>
-<td align="right">1420</td>
-<td align="right">1645</td>
-<td align="right">1891</td>
-<td align="right">1220</td>
-</tr>
-<tr class="odd">
-<td>LosAngeles</td>
-<td align="right">1936</td>
-<td align="right">1745</td>
-<td align="right">831</td>
-<td align="right">1374</td>
-<td align="right">0</td>
-<td align="right">2339</td>
-<td align="right">2451</td>
-<td align="right">347</td>
-<td align="right">959</td>
-<td align="right">2300</td>
-</tr>
-<tr class="even">
-<td>Miami</td>
-<td align="right">604</td>
-<td align="right">1188</td>
-<td align="right">1726</td>
-<td align="right">968</td>
-<td align="right">2339</td>
-<td align="right">0</td>
-<td align="right">1092</td>
-<td align="right">2594</td>
-<td align="right">2734</td>
-<td align="right">923</td>
-</tr>
-<tr class="odd">
-<td>NewYork</td>
-<td align="right">748</td>
-<td align="right">713</td>
-<td align="right">1631</td>
-<td align="right">1420</td>
-<td align="right">2451</td>
-<td align="right">1092</td>
-<td align="right">0</td>
-<td align="right">2571</td>
-<td align="right">2408</td>
-<td align="right">205</td>
-</tr>
-<tr class="even">
-<td>SanFrancisco</td>
-<td align="right">2139</td>
-<td align="right">1858</td>
-<td align="right">949</td>
-<td align="right">1645</td>
-<td align="right">347</td>
-<td align="right">2594</td>
-<td align="right">2571</td>
-<td align="right">0</td>
-<td align="right">678</td>
-<td align="right">2442</td>
-</tr>
-<tr class="odd">
-<td>Seattle</td>
-<td align="right">2182</td>
-<td align="right">1737</td>
-<td align="right">1021</td>
-<td align="right">1891</td>
-<td align="right">959</td>
-<td align="right">2734</td>
-<td align="right">2408</td>
-<td align="right">678</td>
-<td align="right">0</td>
-<td align="right">2329</td>
-</tr>
-<tr class="even">
-<td>Washington.DC</td>
-<td align="right">543</td>
-<td align="right">597</td>
-<td align="right">1494</td>
-<td align="right">1220</td>
-<td align="right">2300</td>
-<td align="right">923</td>
-<td align="right">205</td>
-<td align="right">2442</td>
-<td align="right">2329</td>
-<td align="right">0</td>
-</tr>
-</tbody>
-</table>
+<pre class="r"><code>UScitiesD</code></pre>
+<pre><code>##               Atlanta Chicago Denver Houston LosAngeles Miami NewYork
+## Chicago           587                                                
+## Denver           1212     920                                        
+## Houston           701     940    879                                 
+## LosAngeles       1936    1745    831    1374                         
+## Miami             604    1188   1726     968       2339              
+## NewYork           748     713   1631    1420       2451  1092        
+## SanFrancisco     2139    1858    949    1645        347  2594    2571
+## Seattle          2182    1737   1021    1891        959  2734    2408
+## Washington.DC     543     597   1494    1220       2300   923     205
+##               SanFrancisco Seattle
+## Chicago                           
+## Denver                            
+## Houston                           
+## LosAngeles                        
+## Miami                             
+## NewYork                           
+## SanFrancisco                      
+## Seattle                678        
+## Washington.DC         2442    2329</code></pre>
 <div id="distance-matrix-represented-with-colors" class="section level3">
 <h3>distance matrix represented with colors</h3>
 <pre class="r"><code>UScitiesD %&gt;% 
@@ -336,7 +216,7 @@ UScitiesD gives “straight line” distances between 10 cities in the US.</p>
 <h3>Parallel Analysis</h3>
 <pre class="r"><code>fa.parallel(saq, fm = &quot;minres&quot;, fa = &quot;both&quot;)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
-<pre><code>## Parallel analysis suggests that the number of factors =  6  and the number of components =  4</code></pre>
+<pre><code>## Parallel analysis suggests that the number of factors =  7  and the number of components =  4</code></pre>
 </div>
 </div>
 </div>
