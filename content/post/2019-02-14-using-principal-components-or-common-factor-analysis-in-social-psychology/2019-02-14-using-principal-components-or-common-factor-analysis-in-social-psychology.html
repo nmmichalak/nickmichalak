@@ -303,21 +303,36 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="measuring-variables-we-cant-observe" class="section level1">
 <h1>Measuring variables we can’t observe</h1>
 <blockquote>
-<p>If we think psychological constructs like extraversion, social dominance orientation, or depression exist, then we should be able to measure them. We can’t measure these constructs directly like we can measure blood pressure or light absorption. But we can ask people questions that we believe index parts of what we mean by, say, extroversion. In …</p>
+<p>If we think psychological constructs like extraversion, social dominance orientation, or depression exist, then we should be able to measure them. We can’t measure these constructs directly like we can measure blood pressure or light absorption. But we can ask people questions that we believe index parts of what we mean by, say, extroversion (e.g., outgoing, sociable, acts like a leader). The questions we ask make up our measurement “test” (e.g., like a test of extroversion), and the scores on our test comprise two parts: truth and error (random or systematic). In other words, unobservable psychological constructs and error can explain the scores we can observe from the tests we administer. This is classical test theory.</p>
 </blockquote>
 </div>
 <div id="partitioning-variance" class="section level1">
 <h1>Partitioning variance</h1>
+<blockquote>
+<p>A factor analysis models the variability in item responses (e.g., responses to questions on a test). Some of that variability can be explained by the relationship between items; some can be explained by what is “special” about the items; and some can be explained by error, random or systematic.</p>
+</blockquote>
 <div id="common-variance" class="section level2">
 <h2>Common Variance</h2>
+<blockquote>
+<p>Common variance refers to variability shared among the items (i.e., what can be explained by inter-item correlations)</p>
+</blockquote>
 <div id="communality" class="section level3">
 <h3>Communality</h3>
+<blockquote>
+<p>Communality (* h^2 <em>) is one definition of common variance and can take values between 0 and 1: </em> h^2 * = means no observed variability can be explained, and 1 means all observed variability can be explained</p>
+</blockquote>
 </div>
 </div>
 <div id="unique-variance" class="section level2">
 <h2>Unique Variance</h2>
+<blockquote>
+<p>Unique variance refers to not-common variance. It has two parts: specific and error.</p>
+</blockquote>
 <div id="specific-variance" class="section level3">
 <h3>Specific Variance</h3>
+<blockquote>
+
+</blockquote>
 </div>
 <div id="error-variance" class="section level3">
 <h3>Error Variance</h3>
@@ -591,6 +606,17 @@ fa(saq, fm = &quot;minres&quot;, rotate = &quot;none&quot;) %&gt;%
   fa.diagram(sort = TRUE)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 </div>
+<div id="compare-loadings-to-those-from-pca" class="section level2">
+<h2>compare loadings to those from PCA</h2>
+<pre class="r"><code>tibble(item = names(principal(saq, rotate = &quot;none&quot;)$loadings[, 1]),
+       pca = principal(saq, rotate = &quot;none&quot;)$loadings[, 1],
+       fa = fa(saq, rotate = &quot;none&quot;, fm = &quot;minres&quot;)$loadings[, 1]) %&gt;% 
+  gather(key = method, value = loading, pca, fa) %&gt;% 
+  ggplot(mapping = aes(x = item, y = loading, fill = method)) +
+  geom_bar(stat = &quot;identity&quot;, position = position_dodge(width = 0.90)) +
+  theme(legend.position = &quot;top&quot;)</code></pre>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+</div>
 <div id="factors" class="section level2">
 <h2>6 factors</h2>
 <pre class="r"><code>fa(saq, nfactors = 6, fm = &quot;minres&quot;, rotate = &quot;oblimin&quot;) %&gt;% 
@@ -668,7 +694,7 @@ fa(saq, fm = &quot;minres&quot;, rotate = &quot;none&quot;) %&gt;%
 <pre class="r"><code># plot
 fa(saq, nfactors = 6, fm = &quot;minres&quot;, rotate = &quot;oblimin&quot;) %&gt;% 
   fa.diagram(sort = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
 </div>
 </div>
 <div id="resources" class="section level1">
@@ -678,6 +704,7 @@ fa(saq, nfactors = 6, fm = &quot;minres&quot;, rotate = &quot;oblimin&quot;) %&g
 <li>Gonzalez, R. (February, 2016). <em>Lecture Notes #10: MDS &amp; Tree Structures.</em> Retrieved from <a href="http://www-personal.umich.edu/~gonzo/coursenotes/file10.pdf" class="uri">http://www-personal.umich.edu/~gonzo/coursenotes/file10.pdf</a> on February 17, 2019.<br />
 </li>
 <li>Revelle, W. (n.d.). <em>An introduction to psychometric theory with applications in R.</em> Retreived from <a href="http://www.personality-project.org/r/book/" class="uri">http://www.personality-project.org/r/book/</a> on February 17, 2019.</li>
+<li>A practical introduction to factor analysis: exploratory factor analysis. <em>UCLA: Statistical Consulting Group.</em> Retreived from <a href="https://stats.idre.ucla.edu/spss/seminars/introduction-to-factor-analysis/a-practical-introduction-to-factor-analysis/" class="uri">https://stats.idre.ucla.edu/spss/seminars/introduction-to-factor-analysis/a-practical-introduction-to-factor-analysis/</a> on February 17, 2019.</li>
 </ul>
 </blockquote>
 </div>

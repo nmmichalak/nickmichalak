@@ -155,17 +155,22 @@ map_data("state") %>%
 ```
 
 # Measuring variables we can't observe
-> If we think psychological constructs like extraversion, social dominance orientation, or depression exist, then we should be able to measure them. We can't measure these constructs directly like we can measure blood pressure or light absorption. But we can ask people questions that we believe index parts of what we mean by, say, extroversion. In ... 
+> If we think psychological constructs like extraversion, social dominance orientation, or depression exist, then we should be able to measure them. We can't measure these constructs directly like we can measure blood pressure or light absorption. But we can ask people questions that we believe index parts of what we mean by, say, extroversion (e.g., outgoing, sociable, acts like a leader). The questions we ask make up our measurement "test" (e.g., like a test of extroversion), and the scores on our test comprise two parts: truth and error (random or systematic). In other words, unobservable psychological constructs and error can explain the scores we can observe from the tests we administer. This is classical test theory.
 
 # Partitioning variance
+> A factor analysis models the variability in item responses (e.g., responses to questions on a test). Some of that variability can be explained by the relationship between items; some can be explained by what is "special" about the items; and some can be explained by error, random or systematic.
 
 ## Common Variance
+> Common variance refers to variability shared among the items (i.e., what can be explained by inter-item correlations)
 
 ### Communality
+> Communality (* h^2 *) is one definition of common variance and can take values between 0 and 1: * h^2 * = means no observed variability can be explained, and 1 means all observed variability can be explained
 
 ## Unique Variance
+> Unique variance refers to not-common variance. It has two parts: specific and error.
 
 ### Specific Variance
+> 
 
 ### Error Variance
 
@@ -267,6 +272,20 @@ fa(saq, fm = "minres", rotate = "none") %>%
 
 ```
 
+## compare loadings to those from PCA
+
+```{r}
+
+tibble(item = names(principal(saq, rotate = "none")$loadings[, 1]),
+       pca = principal(saq, rotate = "none")$loadings[, 1],
+       fa = fa(saq, rotate = "none", fm = "minres")$loadings[, 1]) %>% 
+  gather(key = method, value = loading, pca, fa) %>% 
+  ggplot(mapping = aes(x = item, y = loading, fill = method)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.90)) +
+  theme(legend.position = "top")
+
+```
+
 ## 6 factors
 
 ```{r}
@@ -283,6 +302,7 @@ fa(saq, nfactors = 6, fm = "minres", rotate = "oblimin") %>%
 # Resources
 > * Gonzalez, R. (February, 2016). *Lecture Notes #10: MDS & Tree Structures.* Retrieved from [http://www-personal.umich.edu/~gonzo/coursenotes/file10.pdf](http://www-personal.umich.edu/~gonzo/coursenotes/file10.pdf) on February 17, 2019.  
 > * Revelle, W. (n.d.). *An introduction to psychometric theory with applications in R.* Retreived from [http://www.personality-project.org/r/book/](http://www.personality-project.org/r/book/) on February 17, 2019.
+> * A practical introduction to factor analysis: exploratory factor analysis. *UCLA: Statistical Consulting Group.* Retreived from [https://stats.idre.ucla.edu/spss/seminars/introduction-to-factor-analysis/a-practical-introduction-to-factor-analysis/](https://stats.idre.ucla.edu/spss/seminars/introduction-to-factor-analysis/a-practical-introduction-to-factor-analysis/) on February 17, 2019.
 
 # General word of caution
 > Above, I listed resources prepared by experts on these and related topics. Although I generally do my best to write accurate posts, don't assume my posts are 100% accurate or that they apply to your data or research questions. Trust statistics and methodology experts, not blog posts.
