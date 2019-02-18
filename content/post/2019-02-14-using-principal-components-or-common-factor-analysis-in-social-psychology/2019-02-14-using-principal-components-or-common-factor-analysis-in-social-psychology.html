@@ -265,7 +265,7 @@ select &lt;- dplyr::select</code></pre>
 <div id="metric-multidimensional-scaling-2-dimensions-like-a-map" class="section level3">
 <h3>Metric Multidimensional Scaling (2-dimensions, like a map)</h3>
 <blockquote>
-<p><code>help(&quot;cmdscale&quot;)</code><br />
+<p><code>help(cmdscale)</code><br />
 “Classical multidimensional scaling (MDS) of a data matrix. Also known as principal coordinates analysis (Gower, 1966).”</p>
 </blockquote>
 <pre class="r"><code># give it distance values and number of dimensions
@@ -358,7 +358,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="communality" class="section level3">
 <h3>Communality</h3>
 <blockquote>
-<p>Communality (<em>h<sup>2</sup></em>) is one definition of common variance and can take values between 0 and 1: <em>h<sup>2</sup></em> = means no observed variability can be explained, and 1 means all observed variability can be explained.</p>
+<p>Communality (<em>h<sup>2</sup></em>) is one definition of common variance and can take values between 0 and 1: <em>h<sup>2</sup></em> = 0 means no observed variability can be explained, and 1 means all observed variability can be explained.</p>
 </blockquote>
 </div>
 </div>
@@ -390,7 +390,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="big-five-inventory" class="section level1">
 <h1>Big Five Inventory</h1>
 <blockquote>
-<p>help(bfi) and help(bfi.dictionary)<br />
+<p><code>help(bfi)</code> and <code>help(bfi.dictionary)</code><br />
 “The first 25 items are organized by five putative factors: Agreeableness, Conscientiousness, Extraversion, Neuroticism, and Opennness.”</p>
 </blockquote>
 <blockquote>
@@ -467,7 +467,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="parallel-analysis" class="section level3">
 <h3>Parallel Analysis</h3>
 <blockquote>
-<p>help(fa.parallel)<br />
+<p><code>help(fa.parallel)</code><br />
 “One way to determine the number of factors or components in a data matrix or a correlation matrix is to examine the “scree” plot of the successive eigenvalues. Sharp breaks in the plot suggest the appropriate number of components or factors to extract. “Parallel” analyis is an alternative technique that compares the scree of factors of the observed data with that of a random data matrix of the same size as the original.”</p>
 </blockquote>
 <pre class="r"><code>bfi %&gt;%
@@ -546,7 +546,7 @@ principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;%
 <div id="interpretation-5" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
-<p>The component diagram gives you a big picture sense of the solution: there are 5 components, and the items vary in how much they load (correlate) with each component. The output is a little harder to parse, but notice that items also correlate with other components. For more information about the output, see help(principal).</p>
+<p>The component diagram gives you a big picture sense of the solution: there are 5 components, and the items vary in how much they load (correlate) with each component. The output is a little harder to parse, but notice that items also correlate with other components. For more information about the output, see <code>help(principal)</code>.</p>
 </blockquote>
 </div>
 </div>
@@ -631,7 +631,7 @@ fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;) %
 <div id="interpretation-6" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
-<p>The factor diagram gives you a big picture sense of the solution: there are 5 factors, and the items vary in how much they load (correlate) with each factor. The output is a little harder to parse, but notice that items also correlate with other factors. Factors also correlate with other factors. You also get some model fit indices, which give you a sense of how much the model impled correlation matrix deviates from the original matrix (like residuals in regression). For more information about the output, see help(fa).</p>
+<p>The factor diagram gives you a big picture sense of the solution: there are 5 factors, and the items vary in how much they load (correlate) with each factor. The output is a little harder to parse, but notice that items also correlate with other factors. Factors also correlate with other factors. You also get some model fit indices, which give you a sense of how much the model impled correlation matrix deviates from the original matrix (like residuals in regression). For more information about the output, see <code>help(fa)</code>.</p>
 </blockquote>
 </div>
 </div>
@@ -649,7 +649,7 @@ fa.fit1 &lt;- fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;m
 <div id="factor-congruence" class="section level2">
 <h2>factor congruence</h2>
 <blockquote>
-<p>help(factor.congruence)<br />
+<p><code>help(factor.congruence)</code><br />
 “Given two sets of factor loadings, report their degree of congruence (vector cosine). Although first reported by Burt (1948), this is frequently known as the Tucker index of factor congruence.”</p>
 </blockquote>
 <pre class="r"><code>factor.congruence(list(principal.fit1, fa.fit1)) %&gt;% 
@@ -664,10 +664,16 @@ fa.fit1 &lt;- fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;m
 <div id="interpretation-7" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
-<p>MR variables refer to factors from the common factor model, and RC variable refer to components from the components model. Darker blue tiles suggest two factors are more congruent, and whiter and darker red tiles suggest two factors are less congruent. These give you a sense of how different the loadings are depending on the model you use. In this case, we used one model that assumes all variance is common and the factors are uncorrelated (Component Analysis) and another model that assumes some variance is common but some is also special or due to error, and factors are correlated (Common Factor Analysis).</p>
+<p>MR variables refer to factors from the common factor model, and RC variable refer to components from the components model. Darker blue tiles suggest two factors are more congruent, and whiter and darker red tiles suggest two “factors”<sup>1</sup> are less congruent. These give you a sense of how different the loadings are depending on the model you use. In this case, we used one model that assumes all variance is common and the factors are uncorrelated (Component Analysis) and another model that assumes some variance is common but some is also special or due to error, and factors are correlated (Common Factor Analysis).</p>
 </blockquote>
 </div>
 </div>
+</div>
+<div id="footnotes" class="section level1">
+<h1>Footnotes</h1>
+<ol style="list-style-type: decimal">
+<li>Although it many cases it’s useful to distinguish between factors and components (I do in this post), the information you need to interpret differences in solutions boils down to differences among models, not terms. Here’s a case where it’s confusing to refer to factors and components because it makes it seems like the congruence test is comparing apples to oranges; but it’s comparing “factor” (or “component”) solutions from two different models.</li>
+</ol>
 </div>
 <div id="resources" class="section level1">
 <h1>Resources</h1>
