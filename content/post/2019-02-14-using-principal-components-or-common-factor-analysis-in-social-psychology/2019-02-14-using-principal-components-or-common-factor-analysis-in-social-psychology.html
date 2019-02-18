@@ -67,7 +67,10 @@ library(tidyverse)
 library(knitr)
 library(haven)
 library(maps)
-library(psych)</code></pre>
+library(psych)
+
+# use select from dplyr
+select &lt;- dplyr::select</code></pre>
 </div>
 <div id="data" class="section level2">
 <h2>Data</h2>
@@ -318,7 +321,9 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 </blockquote>
 <div id="communality" class="section level3">
 <h3>Communality</h3>
-<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD &gt; Communality (* h^2 <em>) is one definition of common variance and can take values between 0 and 1: </em> h^2 * = means no observed variability can be explained, and 1 means all observed variability can be explained ======= &gt; Communality (* h^2 <em>) is one definition of common variance and can take values between 0 and 1: </em> h^2 * = means no observed variability can be explained, and 1 means all observed variability can be explained.</p>
+<blockquote>
+<p>Communality (<em>h^2</em>) is one definition of common variance and can take values between 0 and 1: <em>h^2</em> = means no observed variability can be explained, and 1 means all observed variability can be explained.</p>
+</blockquote>
 </div>
 </div>
 <div id="unique-variance" class="section level2">
@@ -329,370 +334,253 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="specific-variance" class="section level3">
 <h3>Specific Variance</h3>
 <blockquote>
-
+<p>Specific variance refers to variance explained by “special” parts of particular items. For example, one of the extraversion items from the HEXACO asks whether respondents agree with the item, “Am usually active and full of energy.” It’s possible some of the variability in agreement to this item comes from people who conider themselves active because they exercise a lot or active because they’re talking to people a lot (i.e., physically active vs. social active).</p>
 </blockquote>
 </div>
 <div id="error-variance" class="section level3">
 <h3>Error Variance</h3>
-</div>
-</div>
-</div>
-<div id="spss-anxiety-questionnaire-saq" class="section level1">
-<h1>SPSS Anxiety Questionnaire (SAQ)</h1>
-<div id="description" class="section level2">
-<h2>Description</h2>
-<div id="read-spss-anxiety-questionnaire-data" class="section level3">
-<h3>Read SPSS Anxiety Questionnaire data</h3>
 <blockquote>
-<p>You can download these data [<a href="https://github.com/nmmichalak/academic-kickstart/raw/master/static/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/data/SAQ.sav"><strong>SAQ.sav</strong></a>]</p>
+<p>Error variance refers to any variability that can’t be explained by common or specific variance. For example, people might respond different because they just received a text message. Note that it’s difficult to distinguish specific variance from error variance unless people take the same test at least 2 times. This would allow you to look for response patterns that emerge across testing contexts that can’t be explained by common variance.</p>
 </blockquote>
-<pre class="r"><code>saq &lt;- read_spss(file = &quot;data/SAQ.sav&quot;)</code></pre>
 </div>
+</div>
+</div>
+<div id="big-five-inventory" class="section level1">
+<h1>Big Five Inventory</h1>
+<div id="sample-questions" class="section level2">
+<h2>Sample Questions</h2>
+<ol style="list-style-type: decimal">
+<li>Am indifferent to the feelings of others.</li>
+<li>Inquire about others’ well-being.</li>
+<li>Know how to comfort others.</li>
+<li>Love children.</li>
+<li>Make people feel at ease.</li>
+<li>Am exacting in my work.</li>
+<li>Continue until everything is perfect.</li>
+<li>Do things according to a plan.</li>
+<li>Do things in a half-way manner.</li>
+<li>Waste my time.</li>
+<li>Don’t talk a lot.</li>
+<li>Find it difficult to approach others.</li>
+<li>Know how to captivate people.</li>
+<li>Make friends easily.</li>
+<li>Take charge.</li>
+<li>Get angry easily.</li>
+<li>Get irritated easily.</li>
+<li>Have frequent mood swings.</li>
+<li>Often feel blue.</li>
+<li>Panic easily.</li>
+<li>Am full of ideas.</li>
+<li>Avoid difficult reading material.</li>
+<li>Carry the conversation to a higher level.</li>
+<li>Spend time reflecting on things.</li>
+<li>Will not probe deeply into a subject.</li>
+</ol>
 <div id="correlation-matrix" class="section level3">
 <h3>Correlation matrix</h3>
-<pre class="r"><code>saq %&gt;% 
+<pre class="r"><code>bfi %&gt;%
+  select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5) %&gt;% 
   cor(use = &quot;pairwise.complete.obs&quot;) %&gt;% 
   round(2) %&gt;% 
   as.data.frame() %&gt;% 
-  rownames_to_column() %&gt;%
-  rename(item1 = rowname) %&gt;% 
+  mutate(item1 = rownames(.)) %&gt;% 
   gather(key = item2, value = r, -item1) %&gt;% 
   ggplot(mapping = aes(x = item1, y = item2, fill = r, label = r)) +
   geom_tile() +
   geom_text() +
   scale_fill_gradient2() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-10-1.png" width="1512" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-9-1.png" width="1512" /></p>
 </div>
 <div id="histograms" class="section level3">
 <h3>Histograms</h3>
-<pre class="r"><code>saq %&gt;% 
+<pre class="r"><code>bfi %&gt;%
+  select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5) %&gt;% 
   gather(key = variable, value = response) %&gt;% 
   ggplot(mapping = aes(x = response)) +
   geom_histogram(binwidth = 1, color = &quot;white&quot;) +
   facet_wrap(facets = ~ variable)</code></pre>
-<pre><code>## Warning: attributes are not identical across measure variables;
-## they will be dropped</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<pre><code>## Warning: Removed 508 rows containing non-finite values (stat_bin).</code></pre>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 </div>
 <div id="parallel-analysis" class="section level3">
 <h3>Parallel Analysis</h3>
-<pre class="r"><code>fa.parallel(saq, fm = &quot;minres&quot;, fa = &quot;both&quot;)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
-<pre><code>## Parallel analysis suggests that the number of factors =  6  and the number of components =  4</code></pre>
+<blockquote>
+<p>help(fa.parallel) “One way to determine the number of factors or components in a data matrix or a correlation matrix is to examine the “scree” plot of the successive eigenvalues. Sharp breaks in the plot suggest the appropriate number of components or factors to extract. “Parallel” analyis is an alternative technique that compares the scree of factors of the observed data with that of a random data matrix of the same size as the original.”</p>
+</blockquote>
+<pre class="r"><code>bfi %&gt;%
+  select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5) %&gt;% 
+  fa.parallel(fm = &quot;minres&quot;, fa = &quot;both&quot;)</code></pre>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<pre><code>## Parallel analysis suggests that the number of factors =  6  and the number of components =  6</code></pre>
 </div>
 </div>
 </div>
 <div id="principal-components-analysis" class="section level1">
 <h1>Principal Components Analysis</h1>
-<div id="all-items" class="section level2">
-<h2>all items</h2>
-<pre class="r"><code>principal(saq, rotate = &quot;none&quot;) %&gt;% 
-  print(sort = TRUE)</code></pre>
-<pre><code>## Principal Components Analysis
-## Call: principal(r = saq, rotate = &quot;none&quot;)
-## Standardized loadings (pattern matrix) based upon correlation matrix
-##      V   PC1    h2   u2 com
-## q18 18  0.70 0.492 0.51   1
-## q07  7  0.69 0.469 0.53   1
-## q16 16  0.68 0.461 0.54   1
-## q13 13  0.67 0.453 0.55   1
-## q12 12  0.67 0.447 0.55   1
-## q21 21  0.66 0.432 0.57   1
-## q14 14  0.66 0.430 0.57   1
-## q11 11  0.65 0.426 0.57   1
-## q17 17  0.64 0.414 0.59   1
-## q04  4  0.63 0.403 0.60   1
-## q03  3 -0.63 0.396 0.60   1
-## q15 15  0.59 0.351 0.65   1
-## q01  1  0.59 0.343 0.66   1
-## q06  6  0.56 0.316 0.68   1
-## q05  5  0.56 0.309 0.69   1
-## q08  8  0.55 0.301 0.70   1
-## q10 10  0.44 0.191 0.81   1
-## q20 20  0.44 0.190 0.81   1
-## q19 19 -0.43 0.182 0.82   1
-## q02  2 -0.30 0.092 0.91   1
-## q22 22 -0.30 0.091 0.91   1
-## q09  9 -0.28 0.081 0.92   1
-## q23 23 -0.14 0.021 0.98   1
-## 
-##                 PC1
-## SS loadings    7.29
-## Proportion Var 0.32
-## 
-## Mean item complexity =  1
-## Test of the hypothesis that 1 component is sufficient.
-## 
-## The root mean square of the residuals (RMSR) is  0.07 
-##  with the empirical chi square  6633.48  with prob &lt;  0 
-## 
-## Fit based upon off diagonal values = 0.94</code></pre>
-<pre class="r"><code>fa(saq, rotate = &quot;none&quot;, fm = &quot;pa&quot;) %&gt;% 
-  print(sort = TRUE)</code></pre>
-<pre><code>## Factor Analysis using method =  pa
-## Call: fa(r = saq, rotate = &quot;none&quot;, fm = &quot;pa&quot;)
-## Standardized loadings (pattern matrix) based upon correlation matrix
-##      V   PA1    h2   u2 com
-## q18 18  0.68 0.464 0.54   1
-## q07  7  0.66 0.440 0.56   1
-## q16 16  0.66 0.430 0.57   1
-## q13 13  0.65 0.422 0.58   1
-## q12 12  0.64 0.416 0.58   1
-## q21 21  0.63 0.400 0.60   1
-## q14 14  0.63 0.398 0.60   1
-## q11 11  0.63 0.392 0.61   1
-## q17 17  0.62 0.381 0.62   1
-## q04  4  0.61 0.369 0.63   1
-## q03  3 -0.60 0.360 0.64   1
-## q15 15  0.56 0.317 0.68   1
-## q01  1  0.56 0.310 0.69   1
-## q06  6  0.53 0.283 0.72   1
-## q05  5  0.52 0.275 0.73   1
-## q08  8  0.52 0.269 0.73   1
-## q10 10  0.41 0.164 0.84   1
-## q20 20  0.40 0.163 0.84   1
-## q19 19 -0.39 0.156 0.84   1
-## q02  2 -0.28 0.076 0.92   1
-## q22 22 -0.27 0.075 0.92   1
-## q09  9 -0.26 0.066 0.93   1
-## q23 23 -0.13 0.017 0.98   1
-## 
-##                 PA1
-## SS loadings    6.64
-## Proportion Var 0.29
-## 
-## Mean item complexity =  1
-## Test of the hypothesis that 1 factor is sufficient.
-## 
-## The degrees of freedom for the null model are  253  and the objective function was  7.55 with Chi Square of  19334.49
-## The degrees of freedom for the model are 230  and the objective function was  1.74 
-## 
-## The root mean square of the residuals (RMSR) is  0.07 
-## The df corrected root mean square of the residuals is  0.07 
-## 
-## The harmonic number of observations is  2571 with the empirical chi square  5547.21  with prob &lt;  0 
-## The total number of observations was  2571  with Likelihood Chi Square =  4463.05  with prob &lt;  0 
-## 
-## Tucker Lewis Index of factoring reliability =  0.756
-## RMSEA index =  0.085  and the 90 % confidence intervals are  0.082 0.087
-## BIC =  2657.08
-## Fit based upon off diagonal values = 0.95
-## Measures of factor score adequacy             
-##                                                    PA1
-## Correlation of (regression) scores with factors   0.96
-## Multiple R square of scores with factors          0.91
-## Minimum correlation of possible factor scores     0.83</code></pre>
-<pre class="r"><code># plot
-principal(saq, rotate = &quot;none&quot;) %&gt;% 
-  fa.diagram(sort = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<div id="save-only-the-25-items-from-the-test-ignore-reverse-worded-items" class="section level2">
+<h2>Save only the 25 items from the test (ignore reverse-worded items)</h2>
+<pre class="r"><code>bfi25 &lt;- bfi %&gt;%
+  select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5)</code></pre>
 </div>
-<div id="components" class="section level2">
-<h2>4 components</h2>
-<pre class="r"><code>principal(saq, nfactors = 4, rotate = &quot;varimax&quot;) %&gt;% 
+<div id="extract-5-components-even-though-the-parallel-analysis-suggested-6" class="section level2">
+<h2>Extract 5 components even though the parallel analysis suggested 6</h2>
+<pre class="r"><code>principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;% 
   print(sort = TRUE)</code></pre>
 <pre><code>## Principal Components Analysis
-## Call: principal(r = saq, nfactors = 4, rotate = &quot;varimax&quot;)
+## Call: principal(r = bfi25, nfactors = 5, rotate = &quot;varimax&quot;)
 ## Standardized loadings (pattern matrix) based upon correlation matrix
-##     item   RC3   RC1   RC4   RC2   h2   u2 com
-## q06    6  0.80 -0.01  0.10 -0.07 0.65 0.35 1.0
-## q18   18  0.68  0.33  0.13 -0.08 0.60 0.40 1.5
-## q13   13  0.65  0.23  0.23 -0.10 0.54 0.46 1.6
-## q07    7  0.64  0.33  0.16 -0.08 0.55 0.45 1.7
-## q14   14  0.58  0.36  0.14 -0.07 0.49 0.51 1.8
-## q10   10  0.55  0.00  0.13 -0.12 0.33 0.67 1.2
-## q15   15  0.46  0.22  0.29 -0.19 0.38 0.62 2.6
-## q20   20 -0.04  0.68  0.07 -0.14 0.48 0.52 1.1
-## q21   21  0.29  0.66  0.16 -0.07 0.55 0.45 1.5
-## q03    3 -0.20 -0.57 -0.18  0.37 0.53 0.47 2.3
-## q12   12  0.47  0.52  0.09 -0.08 0.51 0.49 2.1
-## q04    4  0.32  0.52  0.31  0.04 0.47 0.53 2.4
-## q16   16  0.33  0.51  0.31 -0.12 0.49 0.51 2.6
-## q01    1  0.24  0.50  0.36  0.06 0.43 0.57 2.4
-## q05    5  0.32  0.43  0.24  0.01 0.34 0.66 2.5
-## q08    8  0.13  0.17  0.83  0.01 0.74 0.26 1.1
-## q17   17  0.27  0.22  0.75 -0.04 0.68 0.32 1.5
-## q11   11  0.26  0.21  0.75 -0.14 0.69 0.31 1.5
-## q09    9 -0.09 -0.20  0.12  0.65 0.48 0.52 1.3
-## q22   22 -0.19  0.03 -0.10  0.65 0.46 0.54 1.2
-## q23   23 -0.02  0.17 -0.20  0.59 0.41 0.59 1.4
-## q02    2 -0.01 -0.34  0.07  0.54 0.41 0.59 1.7
-## q19   19 -0.15 -0.37 -0.03  0.43 0.34 0.66 2.2
+##    item   RC2   RC1   RC3   RC5   RC4   h2   u2 com
+## N1   16  0.79  0.07 -0.04 -0.21 -0.08 0.69 0.31 1.2
+## N3   18  0.79 -0.04 -0.06 -0.03  0.00 0.63 0.37 1.0
+## N2   17  0.79  0.04 -0.03 -0.19 -0.02 0.66 0.34 1.1
+## N4   19  0.65 -0.34 -0.17  0.02  0.09 0.57 0.43 1.7
+## N5   20  0.63 -0.16 -0.01  0.15 -0.17 0.48 0.52 1.4
+## E2   12  0.27 -0.72 -0.07 -0.08 -0.02 0.60 0.40 1.3
+## E4   14 -0.10  0.70  0.09  0.28 -0.12 0.61 0.39 1.5
+## E1   11  0.04 -0.68  0.09 -0.07 -0.05 0.48 0.52 1.1
+## E3   13  0.04  0.63  0.07  0.24  0.26 0.53 0.47 1.7
+## E5   15  0.05  0.58  0.34  0.04  0.20 0.50 0.50 1.9
+## C2    7  0.11  0.04  0.74  0.10  0.09 0.58 0.42 1.1
+## C3    8 -0.01  0.00  0.67  0.13 -0.04 0.47 0.53 1.1
+## C4    9  0.28 -0.04 -0.67 -0.05 -0.12 0.54 0.46 1.4
+## C1    6  0.03  0.07  0.65 -0.01  0.21 0.47 0.53 1.2
+## C5   10  0.33 -0.17 -0.62 -0.05  0.06 0.52 0.48 1.7
+## A2    2  0.03  0.21  0.13  0.71  0.07 0.57 0.43 1.3
+## A3    3  0.01  0.35  0.09  0.68  0.05 0.59 0.41 1.6
+## A1    1  0.16  0.13  0.08 -0.63 -0.13 0.46 0.54 1.4
+## A5    5 -0.12  0.44  0.08  0.56  0.04 0.54 0.46 2.1
+## A4    4 -0.06  0.19  0.26  0.53 -0.17 0.41 0.59 2.0
+## O5   25  0.12  0.01 -0.04 -0.03 -0.68 0.48 0.52 1.1
+## O3   23  0.04  0.36  0.08  0.11  0.64 0.55 0.45 1.7
+## O2   22  0.23  0.03 -0.09  0.11 -0.59 0.43 0.57 1.4
+## O1   21  0.02  0.28  0.13  0.02  0.59 0.44 0.56 1.5
+## O4   24  0.28 -0.24 -0.02  0.24  0.50 0.44 0.56 2.6
 ## 
-##                        RC3  RC1  RC4  RC2
-## SS loadings           3.73 3.34 2.55 1.95
-## Proportion Var        0.16 0.15 0.11 0.08
-## Cumulative Var        0.16 0.31 0.42 0.50
-## Proportion Explained  0.32 0.29 0.22 0.17
-## Cumulative Proportion 0.32 0.61 0.83 1.00
+##                        RC2  RC1  RC3  RC5  RC4
+## SS loadings           3.18 3.09 2.56 2.32 2.11
+## Proportion Var        0.13 0.12 0.10 0.09 0.08
+## Cumulative Var        0.13 0.25 0.35 0.45 0.53
+## Proportion Explained  0.24 0.23 0.19 0.17 0.16
+## Cumulative Proportion 0.24 0.47 0.67 0.84 1.00
 ## 
-## Mean item complexity =  1.8
-## Test of the hypothesis that 4 components are sufficient.
+## Mean item complexity =  1.5
+## Test of the hypothesis that 5 components are sufficient.
 ## 
 ## The root mean square of the residuals (RMSR) is  0.06 
-##  with the empirical chi square  4006.15  with prob &lt;  0 
+##  with the empirical chi square  5469.42  with prob &lt;  0 
 ## 
-## Fit based upon off diagonal values = 0.96</code></pre>
+## Fit based upon off diagonal values = 0.92</code></pre>
 <pre class="r"><code># plot
-principal(saq, nfactors = 4, rotate = &quot;varimax&quot;) %&gt;% 
+principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;% 
   fa.diagram(sort = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 </div>
 </div>
 <div id="common-factor-analysis" class="section level1">
 <h1>Common Factor Analysis</h1>
-<div id="all-items-1" class="section level2">
-<h2>all items</h2>
-<pre class="r"><code>fa(saq, fm = &quot;minres&quot;, rotate = &quot;none&quot;) %&gt;% 
-  print(sort = TRUE)</code></pre>
-<pre><code>## Factor Analysis using method =  minres
-## Call: fa(r = saq, rotate = &quot;none&quot;, fm = &quot;minres&quot;)
-## Standardized loadings (pattern matrix) based upon correlation matrix
-##      V   MR1    h2   u2 com
-## q18 18  0.68 0.464 0.54   1
-## q07  7  0.66 0.440 0.56   1
-## q16 16  0.66 0.430 0.57   1
-## q13 13  0.65 0.422 0.58   1
-## q12 12  0.64 0.416 0.58   1
-## q21 21  0.63 0.400 0.60   1
-## q14 14  0.63 0.398 0.60   1
-## q11 11  0.63 0.392 0.61   1
-## q17 17  0.62 0.381 0.62   1
-## q04  4  0.61 0.369 0.63   1
-## q03  3 -0.60 0.360 0.64   1
-## q15 15  0.56 0.317 0.68   1
-## q01  1  0.56 0.310 0.69   1
-## q06  6  0.53 0.283 0.72   1
-## q05  5  0.52 0.275 0.73   1
-## q08  8  0.52 0.269 0.73   1
-## q10 10  0.41 0.164 0.84   1
-## q20 20  0.40 0.163 0.84   1
-## q19 19 -0.39 0.156 0.84   1
-## q02  2 -0.28 0.076 0.92   1
-## q22 22 -0.27 0.075 0.92   1
-## q09  9 -0.26 0.066 0.93   1
-## q23 23 -0.13 0.017 0.98   1
-## 
-##                 MR1
-## SS loadings    6.64
-## Proportion Var 0.29
-## 
-## Mean item complexity =  1
-## Test of the hypothesis that 1 factor is sufficient.
-## 
-## The degrees of freedom for the null model are  253  and the objective function was  7.55 with Chi Square of  19334.49
-## The degrees of freedom for the model are 230  and the objective function was  1.74 
-## 
-## The root mean square of the residuals (RMSR) is  0.07 
-## The df corrected root mean square of the residuals is  0.07 
-## 
-## The harmonic number of observations is  2571 with the empirical chi square  5547.21  with prob &lt;  0 
-## The total number of observations was  2571  with Likelihood Chi Square =  4463.05  with prob &lt;  0 
-## 
-## Tucker Lewis Index of factoring reliability =  0.756
-## RMSEA index =  0.085  and the 90 % confidence intervals are  0.082 0.087
-## BIC =  2657.08
-## Fit based upon off diagonal values = 0.95
-## Measures of factor score adequacy             
-##                                                    MR1
-## Correlation of (regression) scores with factors   0.96
-## Multiple R square of scores with factors          0.91
-## Minimum correlation of possible factor scores     0.83</code></pre>
-<pre class="r"><code># plot
-fa(saq, fm = &quot;minres&quot;, rotate = &quot;none&quot;) %&gt;% 
-  fa.diagram(sort = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
-</div>
-<div id="compare-loadings-to-those-from-pca" class="section level2">
-<h2>compare loadings to those from PCA</h2>
-<pre class="r"><code>tibble(item = names(principal(saq, rotate = &quot;none&quot;)$loadings[, 1]),
-       pca = principal(saq, rotate = &quot;none&quot;)$loadings[, 1],
-       fa = fa(saq, rotate = &quot;none&quot;, fm = &quot;minres&quot;)$loadings[, 1]) %&gt;% 
-  gather(key = method, value = loading, pca, fa) %&gt;% 
-  ggplot(mapping = aes(x = item, y = loading, fill = method)) +
-  geom_bar(stat = &quot;identity&quot;, position = position_dodge(width = 0.90)) +
-  theme(legend.position = &quot;top&quot;)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
-</div>
-<div id="factors" class="section level2">
-<h2>6 factors</h2>
-<pre class="r"><code>fa(saq, nfactors = 6, fm = &quot;minres&quot;, rotate = &quot;oblimin&quot;) %&gt;% 
+<div id="extract-5-factors-even-though-the-parallel-analysis-suggested-6" class="section level2">
+<h2>Extract 5 factors even though the parallel analysis suggested 6</h2>
+<pre class="r"><code>fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;) %&gt;% 
   print(sort = TRUE)</code></pre>
 <pre><code>## Loading required namespace: GPArotation</code></pre>
 <pre><code>## Factor Analysis using method =  minres
-## Call: fa(r = saq, nfactors = 6, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;)
+## Call: fa(r = bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;)
 ## Standardized loadings (pattern matrix) based upon correlation matrix
-##     item   MR1   MR4   MR5   MR2   MR3   MR6   h2   u2 com
-## q06    6  0.77  0.02 -0.09  0.00 -0.08  0.09 0.57 0.43 1.1
-## q18   18  0.60  0.01  0.14 -0.04  0.14 -0.03 0.56 0.44 1.2
-## q13   13  0.53  0.14  0.12 -0.08  0.03 -0.04 0.49 0.51 1.3
-## q07    7  0.49  0.03  0.05  0.00  0.21  0.11 0.50 0.50 1.5
-## q14   14  0.38  0.01  0.17 -0.03  0.14  0.10 0.42 0.58 1.9
-## q12   12  0.31 -0.02  0.25 -0.07  0.26  0.00 0.45 0.55 3.1
-## q10   10  0.28  0.01  0.17 -0.08 -0.14  0.16 0.22 0.78 3.1
-## q08    8 -0.06  0.85  0.00  0.06  0.01  0.00 0.67 0.33 1.0
-## q11   11  0.07  0.74 -0.02 -0.10  0.00  0.01 0.63 0.37 1.1
-## q17   17  0.06  0.63  0.09  0.03  0.02  0.06 0.57 0.43 1.1
-## q01    1  0.00  0.08  0.71  0.01 -0.04 -0.05 0.51 0.49 1.0
-## q16   16 -0.03  0.01  0.53 -0.08  0.05  0.27 0.54 0.46 1.6
-## q05    5  0.11  0.02  0.48 -0.01  0.02  0.02 0.34 0.66 1.1
-## q04    4  0.10  0.09  0.42  0.04  0.15  0.06 0.42 0.58 1.5
-## q09    9  0.02  0.09 -0.02  0.59  0.01 -0.07 0.35 0.65 1.1
-## q22   22 -0.11 -0.08  0.03  0.50  0.11  0.03 0.26 0.74 1.3
-## q02    2  0.05  0.01  0.03  0.45 -0.16 -0.03 0.26 0.74 1.3
-## q23   23 -0.02 -0.12  0.08  0.36  0.09  0.04 0.12 0.88 1.5
-## q03    3 -0.01 -0.08 -0.20  0.35 -0.26 -0.03 0.46 0.54 2.7
-## q19   19 -0.06 -0.03 -0.02  0.34 -0.19 -0.01 0.25 0.75 1.7
-## q21   21  0.14  0.06  0.04  0.02  0.65  0.03 0.60 0.40 1.1
-## q20   20 -0.11  0.06 -0.04 -0.09  0.59  0.04 0.37 0.63 1.2
-## q15   15  0.03  0.04  0.00 -0.01  0.00  0.80 0.70 0.30 1.0
+##    item   MR2   MR1   MR3   MR5   MR4   h2   u2 com
+## N1   16  0.81  0.10  0.00 -0.11 -0.05 0.65 0.35 1.1
+## N2   17  0.78  0.04  0.01 -0.09  0.01 0.60 0.40 1.0
+## N3   18  0.71 -0.10 -0.04  0.08  0.02 0.55 0.45 1.1
+## N5   20  0.49 -0.20  0.00  0.21 -0.15 0.35 0.65 2.0
+## N4   19  0.47 -0.39 -0.14  0.09  0.08 0.49 0.51 2.3
+## E2   12  0.10 -0.68 -0.02 -0.05 -0.06 0.54 0.46 1.1
+## E4   14  0.01  0.59  0.02  0.29 -0.08 0.53 0.47 1.5
+## E1   11 -0.06 -0.56  0.11 -0.08 -0.10 0.35 0.65 1.2
+## E5   15  0.15  0.42  0.27  0.05  0.21 0.40 0.60 2.6
+## E3   13  0.08  0.42  0.00  0.25  0.28 0.44 0.56 2.6
+## C2    7  0.15 -0.09  0.67  0.08  0.04 0.45 0.55 1.2
+## C4    9  0.17  0.00 -0.61  0.04 -0.05 0.45 0.55 1.2
+## C3    8  0.03 -0.06  0.57  0.09 -0.07 0.32 0.68 1.1
+## C5   10  0.19 -0.14 -0.55  0.02  0.09 0.43 0.57 1.4
+## C1    6  0.07 -0.03  0.55 -0.02  0.15 0.33 0.67 1.2
+## A3    3 -0.03  0.12  0.02  0.66  0.03 0.52 0.48 1.1
+## A2    2 -0.02  0.00  0.08  0.64  0.03 0.45 0.55 1.0
+## A5    5 -0.11  0.23  0.01  0.53  0.04 0.46 0.54 1.5
+## A4    4 -0.06  0.06  0.19  0.43 -0.15 0.28 0.72 1.7
+## A1    1  0.21  0.17  0.07 -0.41 -0.06 0.19 0.81 2.0
+## O3   23  0.03  0.15  0.02  0.08  0.61 0.46 0.54 1.2
+## O5   25  0.13  0.10 -0.03  0.04 -0.54 0.30 0.70 1.2
+## O1   21  0.02  0.10  0.07  0.02  0.51 0.31 0.69 1.1
+## O2   22  0.19  0.06 -0.08  0.16 -0.46 0.26 0.74 1.7
+## O4   24  0.13 -0.32 -0.02  0.17  0.37 0.25 0.75 2.7
 ## 
-##                        MR1  MR4  MR5  MR2  MR3  MR6
-## SS loadings           2.37 2.01 1.94 1.40 1.50 1.06
-## Proportion Var        0.10 0.09 0.08 0.06 0.07 0.05
-## Cumulative Var        0.10 0.19 0.27 0.34 0.40 0.45
-## Proportion Explained  0.23 0.20 0.19 0.14 0.15 0.10
-## Cumulative Proportion 0.23 0.43 0.62 0.75 0.90 1.00
+##                        MR2  MR1  MR3  MR5  MR4
+## SS loadings           2.57 2.20 2.03 1.99 1.59
+## Proportion Var        0.10 0.09 0.08 0.08 0.06
+## Cumulative Var        0.10 0.19 0.27 0.35 0.41
+## Proportion Explained  0.25 0.21 0.20 0.19 0.15
+## Cumulative Proportion 0.25 0.46 0.66 0.85 1.00
 ## 
 ##  With factor correlations of 
-##       MR1   MR4   MR5   MR2   MR3   MR6
-## MR1  1.00  0.45  0.48 -0.29  0.39  0.49
-## MR4  0.45  1.00  0.54 -0.17  0.38  0.44
-## MR5  0.48  0.54  1.00 -0.29  0.53  0.43
-## MR2 -0.29 -0.17 -0.29  1.00 -0.35 -0.34
-## MR3  0.39  0.38  0.53 -0.35  1.00  0.33
-## MR6  0.49  0.44  0.43 -0.34  0.33  1.00
+##       MR2   MR1   MR3   MR5   MR4
+## MR2  1.00 -0.21 -0.19 -0.04 -0.01
+## MR1 -0.21  1.00  0.23  0.33  0.17
+## MR3 -0.19  0.23  1.00  0.20  0.19
+## MR5 -0.04  0.33  0.20  1.00  0.19
+## MR4 -0.01  0.17  0.19  0.19  1.00
 ## 
 ## Mean item complexity =  1.5
-## Test of the hypothesis that 6 factors are sufficient.
+## Test of the hypothesis that 5 factors are sufficient.
 ## 
-## The degrees of freedom for the null model are  253  and the objective function was  7.55 with Chi Square of  19334.49
-## The degrees of freedom for the model are 130  and the objective function was  0.23 
+## The degrees of freedom for the null model are  300  and the objective function was  7.23 with Chi Square of  20163.79
+## The degrees of freedom for the model are 185  and the objective function was  0.65 
 ## 
-## The root mean square of the residuals (RMSR) is  0.02 
-## The df corrected root mean square of the residuals is  0.02 
+## The root mean square of the residuals (RMSR) is  0.03 
+## The df corrected root mean square of the residuals is  0.04 
 ## 
-## The harmonic number of observations is  2571 with the empirical chi square  364.32  with prob &lt;  4.4e-24 
-## The total number of observations was  2571  with Likelihood Chi Square =  577.8  with prob &lt;  1.1e-57 
+## The harmonic number of observations is  2762 with the empirical chi square  1392.16  with prob &lt;  5.6e-184 
+## The total number of observations was  2800  with Likelihood Chi Square =  1808.94  with prob &lt;  4.3e-264 
 ## 
-## Tucker Lewis Index of factoring reliability =  0.954
-## RMSEA index =  0.037  and the 90 % confidence intervals are  0.034 0.04
-## BIC =  -442.96
-## Fit based upon off diagonal values = 1
+## Tucker Lewis Index of factoring reliability =  0.867
+## RMSEA index =  0.056  and the 90 % confidence intervals are  0.054 0.058
+## BIC =  340.53
+## Fit based upon off diagonal values = 0.98
 ## Measures of factor score adequacy             
-##                                                    MR1  MR4  MR5  MR2  MR3
-## Correlation of (regression) scores with factors   0.90 0.92 0.88 0.82 0.85
-## Multiple R square of scores with factors          0.81 0.84 0.78 0.67 0.73
-## Minimum correlation of possible factor scores     0.63 0.68 0.56 0.33 0.46
-##                                                    MR6
-## Correlation of (regression) scores with factors   0.86
-## Multiple R square of scores with factors          0.75
-## Minimum correlation of possible factor scores     0.49</code></pre>
+##                                                    MR2  MR1  MR3  MR5  MR4
+## Correlation of (regression) scores with factors   0.92 0.89 0.88 0.88 0.84
+## Multiple R square of scores with factors          0.85 0.79 0.77 0.77 0.71
+## Minimum correlation of possible factor scores     0.70 0.59 0.54 0.54 0.42</code></pre>
 <pre class="r"><code># plot
-fa(saq, nfactors = 6, fm = &quot;minres&quot;, rotate = &quot;oblimin&quot;) %&gt;% 
+fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;) %&gt;% 
   fa.diagram(sort = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+</div>
+</div>
+<div id="compare-correlations-among-factors-extracted-from-each-model" class="section level1">
+<h1>Compare correlations among factors extracted from each model</h1>
+<div id="refit-models-to-make-later-code-easier-to-read-i.e.-so-you-dont-have-to-read-code-for-one-function-nested-inside-another-function" class="section level2">
+<h2>Refit models to make later code easier to read (i.e., so you don’t have to read code for one function nested inside another function)</h2>
+<pre class="r"><code># fit principal componenets analysis
+principal.fit1 &lt;- principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;)
+
+# fit factor analysis
+fa.fit1 &lt;- fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;)</code></pre>
+</div>
+<div id="factor-congruence" class="section level2">
+<h2>factor congruence</h2>
+<blockquote>
+<p>help(factor.congruence)<br />
+“Given two sets of factor loadings, report their degree of congruence (vector cosine). Although first reported by Burt (1948), this is frequently known as the Tucker index of factor congruence.”</p>
+</blockquote>
+<pre class="r"><code>factor.congruence(list(principal.fit1, fa.fit1)) %&gt;% 
+  as.data.frame() %&gt;% 
+  mutate(factor1 = rownames(.)) %&gt;% 
+  gather(key = factor2, value = r, -factor1) %&gt;% 
+  ggplot(mapping = aes(x = factor1, y = factor2, fill = r, label = r)) +
+  geom_tile() +
+  geom_text() +
+  scale_fill_gradient2()</code></pre>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-16-1.png" width="1512" /></p>
 </div>
 </div>
 <div id="resources" class="section level1">

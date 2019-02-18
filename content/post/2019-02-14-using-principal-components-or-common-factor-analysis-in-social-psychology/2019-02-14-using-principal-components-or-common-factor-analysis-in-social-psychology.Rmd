@@ -61,6 +61,9 @@ library(haven)
 library(maps)
 library(psych)
 
+# use select from dplyr
+select <- dplyr::select
+
 ```
 
 ## Data
@@ -164,42 +167,56 @@ map_data("state") %>%
 > Common variance refers to variability shared among the items (i.e., what can be explained by inter-item correlations)
 
 ### Communality
-<<<<<<< HEAD
-> Communality (* h^2 *) is one definition of common variance and can take values between 0 and 1: * h^2 * = means no observed variability can be explained, and 1 means all observed variability can be explained
-=======
-> Communality (* h^2 *) is one definition of common variance and can take values between 0 and 1: * h^2 * = means no observed variability can be explained, and 1 means all observed variability can be explained.
+> Communality (_h^2_) is one definition of common variance and can take values between 0 and 1: _h^2_ = means no observed variability can be explained, and 1 means all observed variability can be explained.
 
 ## Unique Variance
 > Unique variance refers to not-common variance. It has two parts: specific and error.
 
 ### Specific Variance
-> 
+> Specific variance refers to variance explained by "special" parts of particular items. For example, one of the extraversion items from the HEXACO asks whether respondents agree with the item, "Am usually active and full of energy." It's possible some of the variability in agreement to this item comes from people who conider themselves active because they exercise a lot or active because they're talking to people a lot (i.e., physically active vs. social active).
 
 ### Error Variance
+> Error variance refers to any variability that can't be explained by common or specific variance. For example, people might respond different because they just received a text message. Note that it's difficult to distinguish specific variance from error variance unless people take the same test at least 2 times. This would allow you to look for response patterns that emerge across testing contexts that can't be explained by common variance.
 
-# SPSS Anxiety Questionnaire (SAQ)
+# Big Five Inventory
 
-## Description
-
-### Read SPSS Anxiety Questionnaire data
-> You can download these data [[**SAQ.sav**](https://github.com/nmmichalak/academic-kickstart/raw/master/static/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/data/SAQ.sav)]
-
-```{r, warning = FALSE, message = FALSE}
-
-saq <- read_spss(file = "data/SAQ.sav")
-
-```
+## Sample Questions
+1. Am indifferent to the feelings of others.
+2. Inquire about others' well-being.
+3. Know how to comfort others.
+4. Love children.
+5. Make people feel at ease.
+6. Am exacting in my work.
+7. Continue until everything is perfect.
+8. Do things according to a plan.
+9. Do things in a half-way manner.
+10. Waste my time.
+11. Don't talk a lot.
+12. Find it difficult to approach others.
+13. Know how to captivate people.
+14. Make friends easily.
+15. Take charge.
+16. Get angry easily.
+17. Get irritated easily.
+18. Have frequent mood swings.
+19. Often feel blue.
+20. Panic easily.
+21. Am full of ideas.
+22. Avoid difficult reading material.
+23. Carry the conversation to a higher level.
+24. Spend time reflecting on things.
+25. Will not probe deeply into a subject.
 
 ### Correlation matrix
 
 ```{r, fig.width = 15.75, fig.height = 11.25}
 
-saq %>% 
+bfi %>%
+  select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5) %>% 
   cor(use = "pairwise.complete.obs") %>% 
   round(2) %>% 
   as.data.frame() %>% 
-  rownames_to_column() %>%
-  rename(item1 = rowname) %>% 
+  mutate(item1 = rownames(.)) %>% 
   gather(key = item2, value = r, -item1) %>% 
   ggplot(mapping = aes(x = item1, y = item2, fill = r, label = r)) +
   geom_tile() +
@@ -213,7 +230,8 @@ saq %>%
 
 ```{r}
 
-saq %>% 
+bfi %>%
+  select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5) %>% 
   gather(key = variable, value = response) %>% 
   ggplot(mapping = aes(x = response)) +
   geom_histogram(binwidth = 1, color = "white") +
@@ -222,83 +240,84 @@ saq %>%
 ```
 
 ### Parallel Analysis
+> help(fa.parallel)
+> "One way to determine the number of factors or components in a data matrix or a correlation matrix is to examine the “scree" plot of the successive eigenvalues. Sharp breaks in the plot suggest the appropriate number of components or factors to extract. “Parallel" analyis is an alternative technique that compares the scree of factors of the observed data with that of a random data matrix of the same size as the original."
 
 ```{r}
 
-fa.parallel(saq, fm = "minres", fa = "both")
+bfi %>%
+  select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5) %>% 
+  fa.parallel(fm = "minres", fa = "both")
 
 ```
 
 # Principal Components Analysis
 
-## all items
+## Save only the 25 items from the test (ignore reverse-worded items)
 
 ```{r}
 
-principal(saq, rotate = "none") %>% 
-  print(sort = TRUE)
-
-fa(saq, rotate = "none", fm = "pa") %>% 
-  print(sort = TRUE)
-
-# plot
-principal(saq, rotate = "none") %>% 
-  fa.diagram(sort = TRUE)
+bfi25 <- bfi %>%
+  select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5)
 
 ```
 
-## 4 components
+## Extract 5 components even though the parallel analysis suggested 6
 
 ```{r}
 
-principal(saq, nfactors = 4, rotate = "varimax") %>% 
+principal(bfi25, nfactors = 5, rotate = "varimax") %>% 
   print(sort = TRUE)
 
 # plot
-principal(saq, nfactors = 4, rotate = "varimax") %>% 
+principal(bfi25, nfactors = 5, rotate = "varimax") %>% 
   fa.diagram(sort = TRUE)
 
 ```
 
 # Common Factor Analysis
 
-## all items
+## Extract 5 factors even though the parallel analysis suggested 6
 
 ```{r}
 
-fa(saq, fm = "minres", rotate = "none") %>% 
+fa(bfi25, nfactors = 5, rotate = "oblimin", fm = "minres") %>% 
   print(sort = TRUE)
 
 # plot
-fa(saq, fm = "minres", rotate = "none") %>% 
+fa(bfi25, nfactors = 5, rotate = "oblimin", fm = "minres") %>% 
   fa.diagram(sort = TRUE)
 
 ```
 
-## compare loadings to those from PCA
+# Compare correlations among factors extracted from each model
+
+## Refit models to make later code easier to read (i.e., so you don't have to read code for one function nested inside another function)
 
 ```{r}
 
-tibble(item = names(principal(saq, rotate = "none")$loadings[, 1]),
-       pca = principal(saq, rotate = "none")$loadings[, 1],
-       fa = fa(saq, rotate = "none", fm = "minres")$loadings[, 1]) %>% 
-  gather(key = method, value = loading, pca, fa) %>% 
-  ggplot(mapping = aes(x = item, y = loading, fill = method)) +
-  geom_bar(stat = "identity", position = position_dodge(width = 0.90)) +
-  theme(legend.position = "top")
+# fit principal componenets analysis
+principal.fit1 <- principal(bfi25, nfactors = 5, rotate = "varimax")
+
+# fit factor analysis
+fa.fit1 <- fa(bfi25, nfactors = 5, rotate = "oblimin", fm = "minres")
 
 ```
 
-## 6 factors
+## factor congruence
+> help(factor.congruence)  
+> "Given two sets of factor loadings, report their degree of congruence (vector cosine). Although first reported by Burt (1948), this is frequently known as the Tucker index of factor congruence."
 
-```{r}
+```{r, fig.width = 15.75, fig.height = 11.25}
 
-fa(saq, nfactors = 6, fm = "minres", rotate = "oblimin") %>% 
-  print(sort = TRUE)
-
-# plot
-fa(saq, nfactors = 6, fm = "minres", rotate = "oblimin") %>% 
-  fa.diagram(sort = TRUE)
+factor.congruence(list(principal.fit1, fa.fit1)) %>% 
+  as.data.frame() %>% 
+  mutate(factor1 = rownames(.)) %>% 
+  gather(key = factor2, value = r, -factor1) %>% 
+  ggplot(mapping = aes(x = factor1, y = factor2, fill = r, label = r)) +
+  geom_tile() +
+  geom_text() +
+  scale_fill_gradient2()
 
 ```
 
