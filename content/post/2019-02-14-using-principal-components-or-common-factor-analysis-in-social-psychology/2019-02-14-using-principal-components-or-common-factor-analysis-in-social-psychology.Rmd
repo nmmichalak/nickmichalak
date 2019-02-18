@@ -26,8 +26,6 @@ image:
   focal_point: ''
 ---
 
-Note. I'm not done with this post but it's fun to build a new website and see your posts appear so pretty online ... so here it is!
-
 # Multidimensional Scaling
 > Multidimensional scaling is an exploratory technique that uses distances or disimilarities between objects to create a multidimensional representation of those objects in metric space. In other words, multidimensional scaling uses data about the distance (e.g., miles between cities) or disimilarity (e.g., how (dis)similar are apples and tomatoes?) among a set of objects to "search" for some metric space that represents those objects and their relations to each other. Metric space is a fancy term for a set of objects and some metric that satisfy a list of axioms.  
 
@@ -44,6 +42,7 @@ Note. I'm not done with this post but it's fun to build a new website and see yo
 3. $$\text{a large } s_{ij} \text{ implies } d_{ik} \approx d_{kj}.$$  
 
 > The idea here is that the data and the axioms constrain the solution you get. For example, if you're making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constraints.  
+
 > This should be more clear in the example below.
 
 ## Install packages and/or load libraries
@@ -100,6 +99,9 @@ UScitiesD %>%
 
 ```
 
+#### Interpretation
+> Darker tiles index that two cities are relatively far apart, and lighter tiles index that two cities are relatively close together (e.g., white tiles = a city is right next to itself)
+
 ### Metric Multidimensional Scaling (2-dimensions, like a map)
 > `help("cmdscale")`  
 > "Classical multidimensional scaling (MDS) of a data matrix. Also known as principal coordinates analysis (Gower, 1966)."
@@ -126,7 +128,11 @@ tibble(index = 1:length(cmdscale.fit1$eig),
 
 ```
 
+#### Interpretation
+> Because the lines stop dropping after 2-3 points, this suggest most of the information can be "captured" by 2-3 dimensions. To make a plot easier to interpret, I already asked for 2 dimensions.
+
 ### Store points from the fitted configuration/solution in a tibble `data.frame`
+> The first and second dimension are stored as columns in the `points` object from the `cmdscale` function
 
 ```{r}
 
@@ -190,7 +196,14 @@ map_data("state") %>%
 ### Error Variance
 > Error variance refers to any variability that can't be explained by common or specific variance. For example, people might respond different because they just received a text message. Note that it's difficult to distinguish specific variance from error variance unless people take the same test at least 2 times. This would allow you to look for response patterns that emerge across testing contexts that can't be explained by common variance.
 
+# What's the difference between Principal Components Analysis and Common Factor Analysis?
+> The major difference in these techniques boils down to error: Whereas the Principal Components model assumes that all variance is common variance, the Common Factor Analysis model partitions variance into common and error variance. Another way to think about the difference is that the Principal Components model tries to explain as much variance as possible with a small number of components, and Common Factor model tries to explain the shared relationships among the items with a small number of factors after setting aside what is not shared (i.e., the item-specific parts and the error parts). Below, I demonstrate the differences in how these two techniques account for variance in a sample of Big Five Inventory questions.
+
 # Big Five Inventory
+> help(bfi) and help(bfi.dictionary)  
+> "The first 25 items are organized by five putative factors: Agreeableness, Conscientiousness, Extraversion, Neuroticism, and Opennness."  
+
+> "The item data were collected using a 6 point response scale: 1 Very Inaccurate 2 Moderately Inaccurate 3 Slightly Inaccurate 4 Slightly Accurate 5 Moderately Accurate 6 Very Accurate"
 
 ## Sample Questions
 1. Am indifferent to the feelings of others.
@@ -238,6 +251,9 @@ bfi %>%
 
 ```
 
+#### Interpretation
+> Darker purple tiles index more positive correlations, and darker red tiles index more negative correlations. Notice that 5 x 5 boxes of darker colors (i.e., more purple or more red, less white) emerge among similarly labeled items (i.e., the A items correlate more with A items than with C items or with O items)
+
 ### Histograms
 
 ```{r}
@@ -251,8 +267,11 @@ bfi %>%
 
 ```
 
+#### Interpretation
+> Each plot represents a histogram for a specific item. Bigger bars means more participants gave that response. Notice that items vary in their response distributions (e.g., some items receive higher agreement than others, and some items receive more spread out agreement responses)
+
 ### Parallel Analysis
-> help(fa.parallel)
+> help(fa.parallel)  
 > "One way to determine the number of factors or components in a data matrix or a correlation matrix is to examine the “scree" plot of the successive eigenvalues. Sharp breaks in the plot suggest the appropriate number of components or factors to extract. “Parallel" analyis is an alternative technique that compares the scree of factors of the observed data with that of a random data matrix of the same size as the original."
 
 ```{r}
@@ -262,6 +281,9 @@ bfi %>%
   fa.parallel(fm = "minres", fa = "both")
 
 ```
+
+#### Interpretation
+> As in the example from Multidimensional Scaling, one can artfully select how many dimensions to extract based on when the lines in these plots stop falling so precipitously. As an added beneift of parallel analysis, you can use the red lines to compare the eigenvalues to what you would expect from random data with the same number of items. William Revelle the package developer suggests using the plot of triangles. The output tells you how many factors you could extract based on where the blue lines cross the red lines.
 
 # Principal Components Analysis
 
@@ -283,7 +305,7 @@ principal(bfi25, nfactors = 5, rotate = "varimax") %>%
 
 # plot
 principal(bfi25, nfactors = 5, rotate = "varimax") %>% 
-  fa.diagram(sort = TRUE)
+  fa.diagram(sort = TRUE, errors = TRUE)
 
 ```
 
@@ -298,7 +320,7 @@ fa(bfi25, nfactors = 5, rotate = "oblimin", fm = "minres") %>%
 
 # plot
 fa(bfi25, nfactors = 5, rotate = "oblimin", fm = "minres") %>% 
-  fa.diagram(sort = TRUE)
+  fa.diagram(sort = TRUE, errors = TRUE)
 
 ```
 
@@ -332,6 +354,9 @@ factor.congruence(list(principal.fit1, fa.fit1)) %>%
   scale_fill_gradient2()
 
 ```
+
+#### Interpretation
+> Darker blue tiles suggest two factors are more congruent, and whiter and darker red tiles suggest two factors are less congruent. These give you a sense of how different the loadings are depending on the model you use. In this case, we used one model that assumes are variance is common and the factors are unocrrleated (Component Analysis) and another model that assumes some variance is common but some is also special or due to error, and factors are correlated (Common Factor Analysis).
 
 # Resources
 > * Gonzalez, R. (February, 2016). *Lecture Notes #10: MDS & Tree Structures.* Retrieved from [http://www-personal.umich.edu/~gonzo/coursenotes/file10.pdf](http://www-personal.umich.edu/~gonzo/coursenotes/file10.pdf) on February 17, 2019.  

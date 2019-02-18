@@ -28,7 +28,6 @@ image:
 
 
 
-<p>Note. I’m not done with this post but it’s fun to build a new website and see your posts appear so pretty online … so here it is!</p>
 <div id="multidimensional-scaling" class="section level1">
 <h1>Multidimensional Scaling</h1>
 <blockquote>
@@ -51,8 +50,10 @@ image:
 <li><span class="math display">\[\text{a large } s_{ij} \text{ implies } d_{ik} \approx d_{kj}.\]</span></li>
 </ol>
 <blockquote>
-<p>The idea here is that the data and the axioms constrain the solution you get. For example, if you’re making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constraints.<br />
-This should be more clear in the example below.</p>
+<p>The idea here is that the data and the axioms constrain the solution you get. For example, if you’re making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constraints.</p>
+</blockquote>
+<blockquote>
+<p>This should be more clear in the example below.</p>
 </blockquote>
 <div id="install-packages-andor-load-libraries" class="section level2">
 <h2>Install packages and/or load libraries</h2>
@@ -254,6 +255,12 @@ select &lt;- dplyr::select</code></pre>
   scale_fill_gradient2() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-3-1.png" width="1008" /></p>
+<div id="interpretation" class="section level4">
+<h4>Interpretation</h4>
+<blockquote>
+<p>Darker tiles index that two cities are relatively far apart, and lighter tiles index that two cities are relatively close together (e.g., white tiles = a city is right next to itself)</p>
+</blockquote>
+</div>
 </div>
 <div id="metric-multidimensional-scaling-2-dimensions-like-a-map" class="section level3">
 <h3>Metric Multidimensional Scaling (2-dimensions, like a map)</h3>
@@ -277,9 +284,18 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
   geom_point() +
   scale_y_continuous(labels = scales::comma)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<div id="interpretation-1" class="section level4">
+<h4>Interpretation</h4>
+<blockquote>
+<p>Because the lines stop dropping after 2-3 points, this suggest most of the information can be “captured” by 2-3 dimensions. To make a plot easier to interpret, I already asked for 2 dimensions.</p>
+</blockquote>
+</div>
 </div>
 <div id="store-points-from-the-fitted-configurationsolution-in-a-tibble-data.frame" class="section level3">
 <h3>Store points from the fitted configuration/solution in a tibble <code>data.frame</code></h3>
+<blockquote>
+<p>The first and second dimension are stored as columns in the <code>points</code> object from the <code>cmdscale</code> function</p>
+</blockquote>
 <pre class="r"><code>cmdscale.data &lt;- tibble(city = rownames(cmdscale.fit1$points),
                         dimension1 = cmdscale.fit1$points[, 1],
                         dimension2 = cmdscale.fit1$points[, 2])</code></pre>
@@ -365,8 +381,21 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 </div>
 </div>
 </div>
+<div id="whats-the-difference-between-principal-components-analysis-and-common-factor-analysis" class="section level1">
+<h1>What’s the difference between Principal Components Analysis and Common Factor Analysis?</h1>
+<blockquote>
+<p>The major difference in these techniques boils down to error: Whereas the Principal Components model assumes that all variance is common variance, the Common Factor Analysis model partitions variance into common and error variance. Another way to think about the difference is that the Principal Components model tries to explain as much variance as possible with a small number of components, and Common Factor model tries to explain the shared relationships among the items with a small number of factors after setting aside what is not shared (i.e., the item-specific parts and the error parts). Below, I demonstrate the differences in how these two techniques account for variance in a sample of Big Five Inventory questions.</p>
+</blockquote>
+</div>
 <div id="big-five-inventory" class="section level1">
 <h1>Big Five Inventory</h1>
+<blockquote>
+<p>help(bfi) and help(bfi.dictionary)<br />
+“The first 25 items are organized by five putative factors: Agreeableness, Conscientiousness, Extraversion, Neuroticism, and Opennness.”</p>
+</blockquote>
+<blockquote>
+<p>“The item data were collected using a 6 point response scale: 1 Very Inaccurate 2 Moderately Inaccurate 3 Slightly Inaccurate 4 Slightly Accurate 5 Moderately Accurate 6 Very Accurate”</p>
+</blockquote>
 <div id="sample-questions" class="section level2">
 <h2>Sample Questions</h2>
 <ol style="list-style-type: decimal">
@@ -411,6 +440,12 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
   scale_fill_gradient2() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-9-1.png" width="1512" /></p>
+<div id="interpretation-2" class="section level4">
+<h4>Interpretation</h4>
+<blockquote>
+<p>Darker purple tiles index more positive correlations, and darker red tiles index more negative correlations. Notice that 5 x 5 boxes of darker colors (i.e., more purple or more red, less white) emerge among similarly labeled items (i.e., the A items correlate more with A items than with C items or with O items)</p>
+</blockquote>
+</div>
 </div>
 <div id="histograms" class="section level3">
 <h3>Histograms</h3>
@@ -422,17 +457,30 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
   facet_wrap(facets = ~ variable)</code></pre>
 <pre><code>## Warning: Removed 508 rows containing non-finite values (stat_bin).</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<div id="interpretation-3" class="section level4">
+<h4>Interpretation</h4>
+<blockquote>
+<p>Each plot represents a histogram for a specific item. Bigger bars means more participants gave that response. Notice that items vary in their response distributions (e.g., some items receive higher agreement than others, and some items receive more spread out agreement responses)</p>
+</blockquote>
+</div>
 </div>
 <div id="parallel-analysis" class="section level3">
 <h3>Parallel Analysis</h3>
 <blockquote>
-<p>help(fa.parallel) “One way to determine the number of factors or components in a data matrix or a correlation matrix is to examine the “scree” plot of the successive eigenvalues. Sharp breaks in the plot suggest the appropriate number of components or factors to extract. “Parallel” analyis is an alternative technique that compares the scree of factors of the observed data with that of a random data matrix of the same size as the original.”</p>
+<p>help(fa.parallel)<br />
+“One way to determine the number of factors or components in a data matrix or a correlation matrix is to examine the “scree” plot of the successive eigenvalues. Sharp breaks in the plot suggest the appropriate number of components or factors to extract. “Parallel” analyis is an alternative technique that compares the scree of factors of the observed data with that of a random data matrix of the same size as the original.”</p>
 </blockquote>
 <pre class="r"><code>bfi %&gt;%
   select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5) %&gt;% 
   fa.parallel(fm = &quot;minres&quot;, fa = &quot;both&quot;)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <pre><code>## Parallel analysis suggests that the number of factors =  6  and the number of components =  6</code></pre>
+<div id="interpretation-4" class="section level4">
+<h4>Interpretation</h4>
+<blockquote>
+<p>As in the example from Multidimensional Scaling, one can artfully select how many dimensions to extract based on when the lines in these plots stop falling so precipitously. As an added beneift of parallel analysis, you can use the red lines to compare the eigenvalues to what you would expect from random data with the same number of items. William Revelle the package developer suggests using the plot of triangles. The output tells you how many factors you could extract based on where the blue lines cross the red lines.</p>
+</blockquote>
+</div>
 </div>
 </div>
 </div>
@@ -493,7 +541,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 ## Fit based upon off diagonal values = 0.92</code></pre>
 <pre class="r"><code># plot
 principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;% 
-  fa.diagram(sort = TRUE)</code></pre>
+  fa.diagram(sort = TRUE, errors = TRUE)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 </div>
 </div>
@@ -572,7 +620,7 @@ principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;%
 ## Minimum correlation of possible factor scores     0.70 0.59 0.54 0.54 0.42</code></pre>
 <pre class="r"><code># plot
 fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;) %&gt;% 
-  fa.diagram(sort = TRUE)</code></pre>
+  fa.diagram(sort = TRUE, errors = TRUE)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 </div>
 </div>
@@ -601,6 +649,12 @@ fa.fit1 &lt;- fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;m
   geom_text() +
   scale_fill_gradient2()</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-16-1.png" width="1512" /></p>
+<div id="interpretation-5" class="section level4">
+<h4>Interpretation</h4>
+<blockquote>
+<p>Darker blue tiles suggest two factors are more congruent, and whiter and darker red tiles suggest two factors are less congruent. These give you a sense of how different the loadings are depending on the model you use. In this case, we used one model that assumes are variance is common and the factors are unocrrleated (Component Analysis) and another model that assumes some variance is common but some is also special or due to error, and factors are correlated (Common Factor Analysis).</p>
+</blockquote>
+</div>
 </div>
 </div>
 <div id="resources" class="section level1">
