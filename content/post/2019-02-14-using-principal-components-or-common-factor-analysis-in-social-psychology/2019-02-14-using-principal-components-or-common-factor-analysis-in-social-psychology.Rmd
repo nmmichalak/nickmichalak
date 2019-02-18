@@ -7,6 +7,7 @@ categories:
   - common factor analysis
   - tutorial
   - principal components analysis
+  - multidimensional scaling
   - R
   - measurement
   - demonstration
@@ -15,6 +16,7 @@ tags:
   - common factor analysis
   - tutorial
   - principal component analysis
+  - multidimensional scaling
   - R
   - measurement
   - reliability
@@ -135,11 +137,12 @@ cmdscale.data <- tibble(city = rownames(cmdscale.fit1$points),
 ```
 
 #### Plot the solution
+> Note that I asked ggplot2 to plot the negative dimension scores to make the plot more interpretable compared to a map of the U.S. (i.e., real life)
 
 ```{r}
 
 cmdscale.data %>% 
-  ggplot(mapping = aes(x = dimension2, y = dimension1, label = city)) +
+  ggplot(mapping = aes(x = -dimension1, y = -dimension2, label = city)) +
   geom_point() +
   geom_label(nudge_y = 100)
 
@@ -156,6 +159,13 @@ map_data("state") %>%
   coord_quickmap()
 
 ```
+
+# Principal Components and Common Factor Anlayses are special cases of Multidimensional Scaling
+> The major difference between Multidimensional Scaling and Principal Components and Common Factor Anlayses is that Multidimensional Scaling uses distances and (dis)similarity matrices and Principal Components and Common Factor Anlayses use covariance and correlation  matrices. But all these techniques share common issues:  
+1. How do you collect data (e.g., (dis)simlarities between items, likert responses to a question)  
+2. How do you rotate the solution?
+3. What else can you measure to help you intepret the solution?  
+> Principal Components and Common Factor Anlayses have a potentially pesky drawback: Whereas distance and (dis)similarities are more "direct" measures (e.g., asking participants to rate similarity doesn't impose any particular psychological dimension on their judgments), likert-based questions may only indirectly get at which dimensions participants actually use to make judgments; these kinds of questions assume participants use the dimensions provided by the researcher. Keep this in mind as I walk through Principal Components and Common Factor Anlayses below.
 
 # Measuring variables we can't observe
 > If we think psychological constructs like extraversion, social dominance orientation, or depression exist, then we should be able to measure them. We can't measure these constructs directly like we can measure blood pressure or light absorption. But we can ask people questions that we believe index parts of what we mean by, say, extroversion (e.g., outgoing, sociable, acts like a leader). The questions we ask make up our measurement "test" (e.g., like a test of extroversion), and the scores on our test comprise two parts: truth and error (random or systematic). In other words, unobservable psychological constructs and error can explain the scores we can observe from the tests we administer. This is classical test theory.
