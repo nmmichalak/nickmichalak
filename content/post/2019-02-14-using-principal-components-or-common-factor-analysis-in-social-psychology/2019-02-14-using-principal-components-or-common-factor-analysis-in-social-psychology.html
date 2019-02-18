@@ -54,6 +54,9 @@ This should be more clear in the example below.</p>
 </blockquote>
 <div id="install-packages-andor-load-libraries" class="section level2">
 <h2>Install packages and/or load libraries</h2>
+<blockquote>
+<p>I’ll use these packages throughout this post.</p>
+</blockquote>
 <pre class="r"><code># install.packages(&quot;tidyverse&quot;)
 # install.packages(&quot;knitr&quot;)
 # install.packages(&quot;haven&quot;)
@@ -69,37 +72,176 @@ library(psych)</code></pre>
 <div id="data" class="section level2">
 <h2>Data</h2>
 <blockquote>
-<p>help(“UScitiesD”)<br />
-UScitiesD gives “straight line” distances between 10 cities in the US.</p>
+<p><code>help(&quot;UScitiesD&quot;)</code><br />
+“UScitiesD gives “straight line” distances between 10 cities in the US.”</p>
 </blockquote>
-<pre class="r"><code>UScitiesD</code></pre>
-<pre><code>##               Atlanta Chicago Denver Houston LosAngeles Miami NewYork
-## Chicago           587                                                
-## Denver           1212     920                                        
-## Houston           701     940    879                                 
-## LosAngeles       1936    1745    831    1374                         
-## Miami             604    1188   1726     968       2339              
-## NewYork           748     713   1631    1420       2451  1092        
-## SanFrancisco     2139    1858    949    1645        347  2594    2571
-## Seattle          2182    1737   1021    1891        959  2734    2408
-## Washington.DC     543     597   1494    1220       2300   923     205
-##               SanFrancisco Seattle
-## Chicago                           
-## Denver                            
-## Houston                           
-## LosAngeles                        
-## Miami                             
-## NewYork                           
-## SanFrancisco                      
-## Seattle                678        
-## Washington.DC         2442    2329</code></pre>
-<div id="distance-matrix-represented-with-colors" class="section level3">
-<h3>distance matrix represented with colors</h3>
+<pre class="r"><code>UScitiesD %&gt;% 
+  as.matrix() %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Atlanta</th>
+<th align="right">Chicago</th>
+<th align="right">Denver</th>
+<th align="right">Houston</th>
+<th align="right">LosAngeles</th>
+<th align="right">Miami</th>
+<th align="right">NewYork</th>
+<th align="right">SanFrancisco</th>
+<th align="right">Seattle</th>
+<th align="right">Washington.DC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Atlanta</td>
+<td align="right">0</td>
+<td align="right">587</td>
+<td align="right">1212</td>
+<td align="right">701</td>
+<td align="right">1936</td>
+<td align="right">604</td>
+<td align="right">748</td>
+<td align="right">2139</td>
+<td align="right">2182</td>
+<td align="right">543</td>
+</tr>
+<tr class="even">
+<td>Chicago</td>
+<td align="right">587</td>
+<td align="right">0</td>
+<td align="right">920</td>
+<td align="right">940</td>
+<td align="right">1745</td>
+<td align="right">1188</td>
+<td align="right">713</td>
+<td align="right">1858</td>
+<td align="right">1737</td>
+<td align="right">597</td>
+</tr>
+<tr class="odd">
+<td>Denver</td>
+<td align="right">1212</td>
+<td align="right">920</td>
+<td align="right">0</td>
+<td align="right">879</td>
+<td align="right">831</td>
+<td align="right">1726</td>
+<td align="right">1631</td>
+<td align="right">949</td>
+<td align="right">1021</td>
+<td align="right">1494</td>
+</tr>
+<tr class="even">
+<td>Houston</td>
+<td align="right">701</td>
+<td align="right">940</td>
+<td align="right">879</td>
+<td align="right">0</td>
+<td align="right">1374</td>
+<td align="right">968</td>
+<td align="right">1420</td>
+<td align="right">1645</td>
+<td align="right">1891</td>
+<td align="right">1220</td>
+</tr>
+<tr class="odd">
+<td>LosAngeles</td>
+<td align="right">1936</td>
+<td align="right">1745</td>
+<td align="right">831</td>
+<td align="right">1374</td>
+<td align="right">0</td>
+<td align="right">2339</td>
+<td align="right">2451</td>
+<td align="right">347</td>
+<td align="right">959</td>
+<td align="right">2300</td>
+</tr>
+<tr class="even">
+<td>Miami</td>
+<td align="right">604</td>
+<td align="right">1188</td>
+<td align="right">1726</td>
+<td align="right">968</td>
+<td align="right">2339</td>
+<td align="right">0</td>
+<td align="right">1092</td>
+<td align="right">2594</td>
+<td align="right">2734</td>
+<td align="right">923</td>
+</tr>
+<tr class="odd">
+<td>NewYork</td>
+<td align="right">748</td>
+<td align="right">713</td>
+<td align="right">1631</td>
+<td align="right">1420</td>
+<td align="right">2451</td>
+<td align="right">1092</td>
+<td align="right">0</td>
+<td align="right">2571</td>
+<td align="right">2408</td>
+<td align="right">205</td>
+</tr>
+<tr class="even">
+<td>SanFrancisco</td>
+<td align="right">2139</td>
+<td align="right">1858</td>
+<td align="right">949</td>
+<td align="right">1645</td>
+<td align="right">347</td>
+<td align="right">2594</td>
+<td align="right">2571</td>
+<td align="right">0</td>
+<td align="right">678</td>
+<td align="right">2442</td>
+</tr>
+<tr class="odd">
+<td>Seattle</td>
+<td align="right">2182</td>
+<td align="right">1737</td>
+<td align="right">1021</td>
+<td align="right">1891</td>
+<td align="right">959</td>
+<td align="right">2734</td>
+<td align="right">2408</td>
+<td align="right">678</td>
+<td align="right">0</td>
+<td align="right">2329</td>
+</tr>
+<tr class="even">
+<td>Washington.DC</td>
+<td align="right">543</td>
+<td align="right">597</td>
+<td align="right">1494</td>
+<td align="right">1220</td>
+<td align="right">2300</td>
+<td align="right">923</td>
+<td align="right">205</td>
+<td align="right">2442</td>
+<td align="right">2329</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
+<div id="represent-the-distance-matrix-with-colors" class="section level3">
+<h3>Represent the distance matrix with colors</h3>
+<blockquote>
+<ol style="list-style-type: decimal">
+<li>Convert the distance object into a <code>data.frame</code><br />
+</li>
+<li>Restructure the data.frame so each distance value gets its own row, and each distance value corresponds to two city names (even cities with themselves)<br />
+</li>
+<li>Plot the distance values on tiles that are colored by the size of the distance</li>
+</ol>
+</blockquote>
 <pre class="r"><code>UScitiesD %&gt;% 
   as.matrix() %&gt;% 
   as.data.frame() %&gt;% 
-  rownames_to_column() %&gt;%
-  rename(city1 = rowname) %&gt;% 
+  mutate(city1 = rownames(.)) %&gt;% 
   gather(key = city2, value = distance, -city1) %&gt;% 
   ggplot(mapping = aes(x = city1, y = city2, fill = distance, label = distance)) +
   geom_tile() +
@@ -108,14 +250,20 @@ UScitiesD gives “straight line” distances between 10 cities in the US.</p>
   theme(axis.text.x = element_text(angle = 90, hjust = 1))</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-3-1.png" width="1008" /></p>
 </div>
-<div id="non-metric-multidimensional-scaling-2-dimensions-like-a-map" class="section level3">
-<h3>non-Metric Multidimensional Scaling (2-dimensions, like a map)</h3>
-<pre class="r"><code>cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
+<div id="metric-multidimensional-scaling-2-dimensions-like-a-map" class="section level3">
+<h3>Metric Multidimensional Scaling (2-dimensions, like a map)</h3>
+<blockquote>
+<p><code>help(&quot;cmdscale&quot;)</code><br />
+“Classical multidimensional scaling (MDS) of a data matrix. Also known as principal coordinates analysis (Gower, 1966).”</p>
+</blockquote>
+<pre class="r"><code># give it distance values and number of dimensions
+# also ask for the function to output eigenvalues
+cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 </div>
 <div id="plot-eigenvalues-sorted-by-size-i.e.-screeplot" class="section level3">
-<h3>plot eigenvalues sorted by size (i.e., screeplot)</h3>
+<h3>Plot eigenvalues sorted by size (i.e., screeplot)</h3>
 <blockquote>
-<p>look for the “elbow”</p>
+<p>You can use eigenvalues to give you a sense of how many dimensions can capture most of the information from original data. A “big” eigenvalue means a lot of information is contained in a given dimension. You can tell how big the eigenvalues are by looking a a plot of the digenvalues sorted by size. Analysts typically determine the number of dimensions to use by counting eigenvalues from left to right until the pattern of points flattens out (i.e., there is little leftover information contain in the remaining dimensions).</p>
 </blockquote>
 <pre class="r"><code>tibble(index = 1:length(cmdscale.fit1$eig),
        eigenvalue = cmdscale.fit1$eig) %&gt;% 
@@ -125,22 +273,24 @@ UScitiesD gives “straight line” distances between 10 cities in the US.</p>
   scale_y_continuous(labels = scales::comma)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 </div>
-<div id="store-points-from-fitted-configuration" class="section level3">
-<h3>store points from fitted configuration</h3>
-<pre class="r"><code>cmdscale.data &lt;- as_tibble(cmdscale.fit1$points) %&gt;% 
-  mutate(city = rownames(cmdscale.fit1$points))</code></pre>
-<pre><code>## Warning: `as_tibble.matrix()` requires a matrix with column names or a `.name_repair` argument. Using compatibility `.name_repair`.
-## This warning is displayed once per session.</code></pre>
-<div id="plot" class="section level4">
-<h4>plot</h4>
+<div id="store-points-from-the-fitted-configurationsolution-in-a-tibble-data.frame" class="section level3">
+<h3>Store points from the fitted configuration/solution in a tibble <code>data.frame</code></h3>
+<pre class="r"><code>cmdscale.data &lt;- tibble(city = rownames(cmdscale.fit1$points),
+                        dimension1 = cmdscale.fit1$points[, 1],
+                        dimension2 = cmdscale.fit1$points[, 2])</code></pre>
+<div id="plot-the-solution" class="section level4">
+<h4>Plot the solution</h4>
 <pre class="r"><code>cmdscale.data %&gt;% 
-  ggplot(mapping = aes(x = V2, y = V1, label = city)) +
+  ggplot(mapping = aes(x = dimension2, y = dimension1, label = city)) +
   geom_point() +
   geom_label(nudge_y = 100)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 </div>
-<div id="compare" class="section level4">
-<h4>compare</h4>
+<div id="compare-the-solution-above-to-a-map-of-the-u.s.-below" class="section level4">
+<h4>Compare the solution above to a map of the U.S. below</h4>
+<blockquote>
+<p>Because we only used pairwise distances among ten U.S. cities, the solution imperfectly represented real relations among these cities. For example, Miami seems to be in the right spot on the “Southeastern quadrant” of the plot, but New York and Washington D.C. are placed in the “Southwestern quadrant” of the plot.</p>
+</blockquote>
 <pre class="r"><code>map_data(&quot;state&quot;) %&gt;% 
   ggplot(mapping = aes(x = long, y = lat, group = group)) +
   geom_polygon(fill = &quot;white&quot;, colour = &quot;black&quot;) +
@@ -216,7 +366,7 @@ UScitiesD gives “straight line” distances between 10 cities in the US.</p>
 <h3>Parallel Analysis</h3>
 <pre class="r"><code>fa.parallel(saq, fm = &quot;minres&quot;, fa = &quot;both&quot;)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
-<pre><code>## Parallel analysis suggests that the number of factors =  7  and the number of components =  4</code></pre>
+<pre><code>## Parallel analysis suggests that the number of factors =  6  and the number of components =  4</code></pre>
 </div>
 </div>
 </div>
