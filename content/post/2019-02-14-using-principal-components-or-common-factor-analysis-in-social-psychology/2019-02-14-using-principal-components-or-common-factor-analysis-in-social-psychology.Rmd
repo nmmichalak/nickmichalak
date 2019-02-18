@@ -26,7 +26,7 @@ image:
   focal_point: ''
 ---
 
-# Multidimensional Scaling
+# Multidimensional Scaling, the precursor to Principal Components Analysis, Common Factor Analysis, and related techniques
 > Multidimensional scaling is an exploratory technique that uses distances or disimilarities between objects to create a multidimensional representation of those objects in metric space. In other words, multidimensional scaling uses data about the distance (e.g., miles between cities) or disimilarity (e.g., how (dis)similar are apples and tomatoes?) among a set of objects to "search" for some metric space that represents those objects and their relations to each other. Metric space is a fancy term for a set of objects and some metric that satisfy a list of axioms.  
 
 > Here is one way to represent the distance (d) axioms:
@@ -41,7 +41,7 @@ image:
 2. $$s_{ij} = s_ji.$$
 3. $$\text{a large } s_{ij} \text{ implies } d_{ik} \approx d_{kj}.$$  
 
-> The idea here is that the data and the axioms constrain the solution you get. For example, if you're making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constraints.  
+> If you're familiar with the Pythagorean Theorem $$c = \sqrt{a^2 + b^2}$$, and you have a sense of what "similar" means, then these axioms should be intutuive to you. With regard to Multidimensional Scaling, the big idea here is that the data and the axioms constrain the solution you get. For example, if you're making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constraints.  
 
 > This should be more clear in the example below.
 
@@ -115,7 +115,7 @@ cmdscale.fit1 <- cmdscale(UScitiesD, k = 2, eig = TRUE)
 ```
 
 ### Plot eigenvalues sorted by size (i.e., screeplot)
-> You can use eigenvalues to give you a sense of how many dimensions can capture most of the information from original data. A "big" eigenvalue means a lot of information is contained in a given dimension. You can tell how big the eigenvalues are by looking a a plot of the digenvalues sorted by size. Analysts typically determine the number of dimensions to use by counting eigenvalues from left to right until the pattern of points flattens out (i.e., there is little leftover information contain in the remaining dimensions).
+> You can use eigenvalues to give you a sense of how many dimensions can capture most of the information from original data. A "big" eigenvalue means a lot of information is contained in a given dimension. You can tell how big the eigenvalues are by looking a a plot of the digenvalues sorted by size. Analysts typically determine the number of dimensions to use by counting eigenvalues from left to right until the pattern of points flattens out (i.e., there is little leftover information contained in the remaining dimensions).
 
 ```{r}
 
@@ -176,7 +176,7 @@ map_data("state") %>%
 > Principal Components and Common Factor Anlayses have a potentially pesky drawback: Whereas distance and (dis)similarities are more "direct" measures (e.g., asking participants to rate similarity doesn't impose any particular psychological dimension on their judgments), likert-based questions may only indirectly get at which dimensions participants actually use to make judgments; these kinds of questions assume participants use the dimensions provided by the researcher. Keep this in mind as I walk through Principal Components and Common Factor Anlayses below.
 
 # Measuring variables we can't observe
-> If we think psychological constructs like extraversion, social dominance orientation, or depression exist, then we should be able to measure them. We can't measure these constructs directly like we can measure blood pressure or light absorption. But we can ask people questions that we believe index parts of what we mean by, say, extroversion (e.g., outgoing, sociable, acts like a leader). The questions we ask make up our measurement "test" (e.g., like a test of extroversion), and the scores on our test comprise two parts: truth and error (random or systematic). In other words, unobservable psychological constructs and error can explain the scores we can observe from the tests we administer. This is classical test theory.
+> If we think psychological constructs like extraversion, social dominance orientation, or depression exist, then we should be able to measure them. We can't measure these constructs directly like we can measure blood pressure or light absorption. But we can ask people questions that we believe index parts of what we mean by, say, extroversion (e.g., outgoing, sociable, acts like a leader). The questions we ask make up our measurement "test" (e.g., like a test of extroversion), and the scores on our test comprise two parts: truth and error (random or systematic). In other words, unobservable psychological constructs and error can explain the scores we can observe from the tests we administer. This is the gist of classical test theory.
 
 # Partitioning variance
 > A factor analysis models the variability in item responses (e.g., responses to questions on a test). Some of that variability can be explained by the relationship between items; some can be explained by what is "special" about the items; and some can be explained by error, random or systematic.
