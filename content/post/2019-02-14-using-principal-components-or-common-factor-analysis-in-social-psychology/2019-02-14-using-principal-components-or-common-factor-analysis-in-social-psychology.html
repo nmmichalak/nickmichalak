@@ -297,7 +297,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="compare-the-solution-above-to-a-map-of-the-u.s.-below" class="section level4">
 <h4>Compare the solution above to a map of the U.S. below</h4>
 <blockquote>
-<p>Because we only used pairwise distances among ten U.S. cities, the solution imperfectly represented real relations among these cities. For example, Miami seems to be in the right spot on the “Southeastern quadrant” of the plot, but New York and Washington D.C. are placed in the “Southwestern quadrant” of the plot.</p>
+<p>Because we only used pairwise distances among ten U.S. cities, the solution imperfectly represented real relations among these cities. For example, Miami seems to be in the right spot on the “Southeastern quadrant” of the plot, it seems to sit on almost a horizontal line with Houston; in real life, Houston is northwest of Miami, not directly west like the solution implies.</p>
 </blockquote>
 <pre class="r"><code>map_data(&quot;state&quot;) %&gt;% 
   ggplot(mapping = aes(x = long, y = lat, group = group)) +
@@ -311,10 +311,16 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="principal-components-and-common-factor-anlayses-are-special-cases-of-multidimensional-scaling" class="section level1">
 <h1>Principal Components and Common Factor Anlayses are special cases of Multidimensional Scaling</h1>
 <blockquote>
-<p>The major difference between Multidimensional Scaling and Principal Components and Common Factor Anlayses is that Multidimensional Scaling uses distances and (dis)similarity matrices and Principal Components and Common Factor Anlayses use covariance and correlation matrices. But all these techniques share common issues:<br />
-1. How do you collect data (e.g., (dis)simlarities between items, likert responses to a question)<br />
-2. How do you rotate the solution? 3. What else can you measure to help you intepret the solution?<br />
-Principal Components and Common Factor Anlayses have a potentially pesky drawback: Whereas distance and (dis)similarities are more “direct” measures (e.g., asking participants to rate similarity doesn’t impose any particular psychological dimension on their judgments), likert-based questions may only indirectly get at which dimensions participants actually use to make judgments; these kinds of questions assume participants use the dimensions provided by the researcher. Keep this in mind as I walk through Principal Components and Common Factor Anlayses below.</p>
+<p>The major difference between Multidimensional Scaling and Principal Components and Common Factor Anlayses is that Multidimensional Scaling uses distances and (dis)similarity matrices and Principal Components and Common Factor Anlayses use covariance and correlation matrices. But all these techniques share common issues:</p>
+</blockquote>
+<ol style="list-style-type: decimal">
+<li>How do you collect data (e.g., (dis)simlarities between items, likert responses to a question)<br />
+</li>
+<li>How do you rotate the solution?</li>
+<li>What else can you measure to help you intepret the solution?</li>
+</ol>
+<blockquote>
+<p>Principal Components and Common Factor Anlayses have a potentially pesky drawback: Whereas distance and (dis)similarities are more “direct” measures (e.g., asking participants to rate similarity doesn’t impose any particular psychological dimension on their judgments), likert-based questions may only indirectly get at which dimensions participants actually use to make judgments; these kinds of questions assume participants use the dimensions provided by the researcher. Keep this in mind as I walk through Principal Components and Common Factor Anlayses below.</p>
 </blockquote>
 </div>
 <div id="measuring-variables-we-cant-observe" class="section level1">

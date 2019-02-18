@@ -149,7 +149,7 @@ cmdscale.data %>%
 ```
 
 #### Compare the solution above to a map of the U.S. below
-> Because we only used pairwise distances among ten U.S. cities, the solution imperfectly represented real relations among these cities. For example, Miami seems to be in the right spot on the "Southeastern quadrant" of the plot, but New York and Washington D.C. are placed in the "Southwestern quadrant" of the plot.
+> Because we only used pairwise distances among ten U.S. cities, the solution imperfectly represented real relations among these cities. For example, Miami seems to be in the right spot on the "Southeastern quadrant" of the plot, it seems to sit on almost a horizontal line with Houston; in real life, Houston is northwest of Miami, not directly west like the solution implies.
 
 ```{r}
 
@@ -161,10 +161,12 @@ map_data("state") %>%
 ```
 
 # Principal Components and Common Factor Anlayses are special cases of Multidimensional Scaling
-> The major difference between Multidimensional Scaling and Principal Components and Common Factor Anlayses is that Multidimensional Scaling uses distances and (dis)similarity matrices and Principal Components and Common Factor Anlayses use covariance and correlation  matrices. But all these techniques share common issues:  
+> The major difference between Multidimensional Scaling and Principal Components and Common Factor Anlayses is that Multidimensional Scaling uses distances and (dis)similarity matrices and Principal Components and Common Factor Anlayses use covariance and correlation  matrices. But all these techniques share common issues:
+
 1. How do you collect data (e.g., (dis)simlarities between items, likert responses to a question)  
 2. How do you rotate the solution?
 3. What else can you measure to help you intepret the solution?  
+
 > Principal Components and Common Factor Anlayses have a potentially pesky drawback: Whereas distance and (dis)similarities are more "direct" measures (e.g., asking participants to rate similarity doesn't impose any particular psychological dimension on their judgments), likert-based questions may only indirectly get at which dimensions participants actually use to make judgments; these kinds of questions assume participants use the dimensions provided by the researcher. Keep this in mind as I walk through Principal Components and Common Factor Anlayses below.
 
 # Measuring variables we can't observe
