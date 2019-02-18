@@ -41,7 +41,7 @@ image:
 2. $$s_{ij} = s_ji.$$
 3. $$\text{a large } s_{ij} \text{ implies } d_{ik} \approx d_{kj}.$$  
 
-> If you're familiar with the Pythagorean Theorem $$c = \sqrt{a^2 + b^2}$$, and you have a sense of what "similar" means, then these axioms should be intutuive to you. With regard to Multidimensional Scaling, the big idea here is that the data and the axioms constrain the solution you get. For example, if you're making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constraints.  
+> If you're familiar with the Pythagorean Theorem $$c = \sqrt{a^2 + b^2}$$, and you have a sense of what "similar" means, then these axioms should be intutuive to you. With regard to Multidimensional Scaling, the big idea here is that the data and the axioms constrain the solution you get. For example, if you're making a map of U.S. cities—and you want an accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constraints.  
 
 > This should be more clear in the example below.
 
@@ -185,9 +185,9 @@ map_data("state") %>%
 > Common variance refers to variability shared among the items (i.e., what can be explained by inter-item correlations)
 
 ### Communality
-> Communality (_h^2_) is one definition of common variance and can take values between 0 and 1: _h^2_ = means no observed variability can be explained, and 1 means all observed variability can be explained.
+> Communality ( _h^2_ ) is one definition of common variance and can take values between 0 and 1: _h^2_ = means no observed variability can be explained, and 1 means all observed variability can be explained.
 
-## Unique Variance
+## Unique Variance ( _u^2_ )
 > Unique variance refers to not-common variance. It has two parts: specific and error.
 
 ### Specific Variance
@@ -197,7 +197,7 @@ map_data("state") %>%
 > Error variance refers to any variability that can't be explained by common or specific variance. For example, people might respond different because they just received a text message. Note that it's difficult to distinguish specific variance from error variance unless people take the same test at least 2 times. This would allow you to look for response patterns that emerge across testing contexts that can't be explained by common variance.
 
 # What's the difference between Principal Components Analysis and Common Factor Analysis?
-> The major difference in these techniques boils down to error: Whereas the Principal Components model assumes that all variance is common variance, the Common Factor Analysis model partitions variance into common and error variance. Another way to think about the difference is that the Principal Components model tries to explain as much variance as possible with a small number of components, and Common Factor model tries to explain the shared relationships among the items with a small number of factors after setting aside what is not shared (i.e., the item-specific parts and the error parts). Below, I demonstrate the differences in how these two techniques account for variance in a sample of Big Five Inventory questions.
+> The major difference in these techniques boils down to error: Whereas the Principal Components model assumes that all variance is common variance, the Common Factor model partitions variance into common and unique variance (which includes error). Another way to think about the difference is that the Principal Components model tries to explain as much variance as possible with a small number of components, and Common Factor model tries to explain the shared relationships among the items with a small number of factors after setting aside what is not shared (i.e., the item-specific parts and the error parts). Below, I demonstrate the differences in how these two techniques account for variance in a sample of Big Five Inventory questions.
 
 # Big Five Inventory
 > help(bfi) and help(bfi.dictionary)  
@@ -268,7 +268,7 @@ bfi %>%
 ```
 
 #### Interpretation
-> Each plot represents a histogram for a specific item. Bigger bars means more participants gave that response. Notice that items vary in their response distributions (e.g., some items receive higher agreement than others, and some items receive more spread out agreement responses)
+> Each plot represents a histogram for a specific item. Bigger bars mean more participants gave that response. Notice that items vary in their response distributions (e.g., some items receive higher agreement than others, and some items receive more spread out agreement responses)
 
 ### Parallel Analysis
 > help(fa.parallel)  
@@ -283,7 +283,7 @@ bfi %>%
 ```
 
 #### Interpretation
-> As in the example from Multidimensional Scaling, one can artfully select how many dimensions to extract based on when the lines in these plots stop falling so precipitously. As an added beneift of parallel analysis, you can use the red lines to compare the eigenvalues to what you would expect from random data with the same number of items. William Revelle the package developer suggests using the plot of triangles. The output tells you how many factors you could extract based on where the blue lines cross the red lines.
+> As in the example from Multidimensional Scaling, one can artfully select how many dimensions to extract based on when the lines in these plots stop falling so precipitously. As an added benefit of parallel analysis, you can use the red lines to compare the eigenvalues to what you would expect from random data generated from the same number of items. William Revelle the package developer suggests using the plot of triangles (the common factor based eigenvalues). The output tells you how many factors you could extract based on where the blue lines cross the red dotted lines.
 
 # Principal Components Analysis
 
@@ -309,6 +309,9 @@ principal(bfi25, nfactors = 5, rotate = "varimax") %>%
 
 ```
 
+#### Interpretation
+> The component diagram gives you a big picture sense of the solution: there are 5 components, and the items vary in how much they load (correlate) with each component. The output is a little harder to parse, but notice that items also correlate with other components. For more information about the output, see help(principal).
+
 # Common Factor Analysis
 
 ## Extract 5 factors even though the parallel analysis suggested 6
@@ -323,6 +326,9 @@ fa(bfi25, nfactors = 5, rotate = "oblimin", fm = "minres") %>%
   fa.diagram(sort = TRUE, errors = TRUE)
 
 ```
+
+#### Interpretation
+> The factor diagram gives you a big picture sense of the solution: there are 5 factors, and the items vary in how much they load (correlate) with each factor. The output is a little harder to parse, but notice that items also correlate with other factors. Factors also correlate with other factors. You also get some model fit indices, which give you a sense of how much the model impled correlation matrix deviates from the original matrix (like residuals in regression). For more information about the output, see help(fa).
 
 # Compare correlations among factors extracted from each model
 
@@ -356,7 +362,7 @@ factor.congruence(list(principal.fit1, fa.fit1)) %>%
 ```
 
 #### Interpretation
-> Darker blue tiles suggest two factors are more congruent, and whiter and darker red tiles suggest two factors are less congruent. These give you a sense of how different the loadings are depending on the model you use. In this case, we used one model that assumes are variance is common and the factors are unocrrleated (Component Analysis) and another model that assumes some variance is common but some is also special or due to error, and factors are correlated (Common Factor Analysis).
+> MR variables refer to factors from the common factor model, and RC variable refer to components from the  components model. Darker blue tiles suggest two factors are more congruent, and whiter and darker red tiles suggest two factors are less congruent. These give you a sense of how different the loadings are depending on the model you use. In this case, we used one model that assumes all variance is common and the factors are uncorrelated (Component Analysis) and another model that assumes some variance is common but some is also special or due to error, and factors are correlated (Common Factor Analysis).
 
 # Resources
 > * Gonzalez, R. (February, 2016). *Lecture Notes #10: MDS & Tree Structures.* Retrieved from [http://www-personal.umich.edu/~gonzo/coursenotes/file10.pdf](http://www-personal.umich.edu/~gonzo/coursenotes/file10.pdf) on February 17, 2019.  

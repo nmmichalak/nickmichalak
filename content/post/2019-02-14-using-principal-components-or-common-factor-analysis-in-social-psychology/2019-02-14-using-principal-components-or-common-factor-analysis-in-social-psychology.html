@@ -50,7 +50,7 @@ image:
 <li><span class="math display">\[\text{a large } s_{ij} \text{ implies } d_{ik} \approx d_{kj}.\]</span></li>
 </ol>
 <blockquote>
-<p>If you’re familiar with the Pythagorean Theorem <span class="math display">\[c = \sqrt{a^2 + b^2}\]</span>, and you have a sense of what “similar” means, then these axioms should be intutuive to you. With regard to Multidimensional Scaling, the big idea here is that the data and the axioms constrain the solution you get. For example, if you’re making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constraints.</p>
+<p>If you’re familiar with the Pythagorean Theorem <span class="math display">\[c = \sqrt{a^2 + b^2}\]</span>, and you have a sense of what “similar” means, then these axioms should be intutuive to you. With regard to Multidimensional Scaling, the big idea here is that the data and the axioms constrain the solution you get. For example, if you’re making a map of U.S. cities—and you want an accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constraints.</p>
 </blockquote>
 <blockquote>
 <p>This should be more clear in the example below.</p>
@@ -358,12 +358,12 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="communality" class="section level3">
 <h3>Communality</h3>
 <blockquote>
-<p>Communality (<em>h^2</em>) is one definition of common variance and can take values between 0 and 1: <em>h^2</em> = means no observed variability can be explained, and 1 means all observed variability can be explained.</p>
+<p>Communality ( <em>h^2</em> ) is one definition of common variance and can take values between 0 and 1: <em>h^2</em> = means no observed variability can be explained, and 1 means all observed variability can be explained.</p>
 </blockquote>
 </div>
 </div>
-<div id="unique-variance" class="section level2">
-<h2>Unique Variance</h2>
+<div id="unique-variance-u2" class="section level2">
+<h2>Unique Variance ( <em>u^2</em> )</h2>
 <blockquote>
 <p>Unique variance refers to not-common variance. It has two parts: specific and error.</p>
 </blockquote>
@@ -384,7 +384,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="whats-the-difference-between-principal-components-analysis-and-common-factor-analysis" class="section level1">
 <h1>What’s the difference between Principal Components Analysis and Common Factor Analysis?</h1>
 <blockquote>
-<p>The major difference in these techniques boils down to error: Whereas the Principal Components model assumes that all variance is common variance, the Common Factor Analysis model partitions variance into common and error variance. Another way to think about the difference is that the Principal Components model tries to explain as much variance as possible with a small number of components, and Common Factor model tries to explain the shared relationships among the items with a small number of factors after setting aside what is not shared (i.e., the item-specific parts and the error parts). Below, I demonstrate the differences in how these two techniques account for variance in a sample of Big Five Inventory questions.</p>
+<p>The major difference in these techniques boils down to error: Whereas the Principal Components model assumes that all variance is common variance, the Common Factor model partitions variance into common and unique variance (which includes error). Another way to think about the difference is that the Principal Components model tries to explain as much variance as possible with a small number of components, and Common Factor model tries to explain the shared relationships among the items with a small number of factors after setting aside what is not shared (i.e., the item-specific parts and the error parts). Below, I demonstrate the differences in how these two techniques account for variance in a sample of Big Five Inventory questions.</p>
 </blockquote>
 </div>
 <div id="big-five-inventory" class="section level1">
@@ -460,7 +460,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="interpretation-3" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
-<p>Each plot represents a histogram for a specific item. Bigger bars means more participants gave that response. Notice that items vary in their response distributions (e.g., some items receive higher agreement than others, and some items receive more spread out agreement responses)</p>
+<p>Each plot represents a histogram for a specific item. Bigger bars mean more participants gave that response. Notice that items vary in their response distributions (e.g., some items receive higher agreement than others, and some items receive more spread out agreement responses)</p>
 </blockquote>
 </div>
 </div>
@@ -478,7 +478,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="interpretation-4" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
-<p>As in the example from Multidimensional Scaling, one can artfully select how many dimensions to extract based on when the lines in these plots stop falling so precipitously. As an added beneift of parallel analysis, you can use the red lines to compare the eigenvalues to what you would expect from random data with the same number of items. William Revelle the package developer suggests using the plot of triangles. The output tells you how many factors you could extract based on where the blue lines cross the red lines.</p>
+<p>As in the example from Multidimensional Scaling, one can artfully select how many dimensions to extract based on when the lines in these plots stop falling so precipitously. As an added benefit of parallel analysis, you can use the red lines to compare the eigenvalues to what you would expect from random data generated from the same number of items. William Revelle the package developer suggests using the plot of triangles (the common factor based eigenvalues). The output tells you how many factors you could extract based on where the blue lines cross the red dotted lines.</p>
 </blockquote>
 </div>
 </div>
@@ -543,6 +543,12 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;% 
   fa.diagram(sort = TRUE, errors = TRUE)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<div id="interpretation-5" class="section level4">
+<h4>Interpretation</h4>
+<blockquote>
+<p>The component diagram gives you a big picture sense of the solution: there are 5 components, and the items vary in how much they load (correlate) with each component. The output is a little harder to parse, but notice that items also correlate with other components. For more information about the output, see help(principal).</p>
+</blockquote>
+</div>
 </div>
 </div>
 <div id="common-factor-analysis" class="section level1">
@@ -622,6 +628,12 @@ principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;%
 fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;) %&gt;% 
   fa.diagram(sort = TRUE, errors = TRUE)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<div id="interpretation-6" class="section level4">
+<h4>Interpretation</h4>
+<blockquote>
+<p>The factor diagram gives you a big picture sense of the solution: there are 5 factors, and the items vary in how much they load (correlate) with each factor. The output is a little harder to parse, but notice that items also correlate with other factors. Factors also correlate with other factors. You also get some model fit indices, which give you a sense of how much the model impled correlation matrix deviates from the original matrix (like residuals in regression). For more information about the output, see help(fa).</p>
+</blockquote>
+</div>
 </div>
 </div>
 <div id="compare-correlations-among-factors-extracted-from-each-model" class="section level1">
@@ -649,10 +661,10 @@ fa.fit1 &lt;- fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;m
   geom_text() +
   scale_fill_gradient2()</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-16-1.png" width="1512" /></p>
-<div id="interpretation-5" class="section level4">
+<div id="interpretation-7" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
-<p>Darker blue tiles suggest two factors are more congruent, and whiter and darker red tiles suggest two factors are less congruent. These give you a sense of how different the loadings are depending on the model you use. In this case, we used one model that assumes are variance is common and the factors are unocrrleated (Component Analysis) and another model that assumes some variance is common but some is also special or due to error, and factors are correlated (Common Factor Analysis).</p>
+<p>MR variables refer to factors from the common factor model, and RC variable refer to components from the components model. Darker blue tiles suggest two factors are more congruent, and whiter and darker red tiles suggest two factors are less congruent. These give you a sense of how different the loadings are depending on the model you use. In this case, we used one model that assumes all variance is common and the factors are uncorrelated (Component Analysis) and another model that assumes some variance is common but some is also special or due to error, and factors are correlated (Common Factor Analysis).</p>
 </blockquote>
 </div>
 </div>
