@@ -41,7 +41,7 @@ Note. I'm not done with this post but it's fun to build a new website and see yo
 2. $$s_{ij} = s_ji.$$
 3. $$\text{a large } s_{ij} \text{ implies } d_{ik} \approx d_{kj}.$$  
 
-> The idea here is that the data and the axioms constrain the solution you get. For example, if you're making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constrains.  
+> The idea here is that the data and the axioms constrain the solution you get. For example, if you're making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constraints.  
 > This should be more clear in the example below.
 
 ## Install packages and/or load libraries
@@ -76,9 +76,9 @@ UScitiesD %>%
 ```
 
 ### Represent the distance matrix with colors
-> 1. Convert the distance object into a `data.frame`  
-> 2. Restructure the data.frame so each distance value gets its own row, and each distance value corresponds to two city names (even cities with themselves)  
-> 3. Plot the distance values on tiles that are colored by the size of the distance
+> 1. Convert the distance object into a `data.frame`.  
+> 2. Restructure the `data.frame` so each distance value gets its own row, and each distance value corresponds to two city names (even cities paired with themselves, so distance = 0).  
+> 3. Plot the distance values on tiles that are colored by the size of the distance.
 
 ```{r, fig.width = 10.5, fig.height = 7.5}
 
@@ -155,7 +155,7 @@ map_data("state") %>%
 ```
 
 # Measuring variables we can't observe
-> 
+> If we think psychological constructs like extraversion, social dominance orientation, or depression exist, then we should be able to measure them. We can't measure these constructs directly like we can measure blood pressure or light absorption. But we can ask people questions that we believe index parts of what we mean by, say, extroversion. In ... 
 
 # Partitioning variance
 
@@ -227,11 +227,14 @@ fa.parallel(saq, fm = "minres", fa = "both")
 
 ```{r}
 
-principal(saq, rotate = "varimax") %>% 
+principal(saq, rotate = "none") %>% 
+  print(sort = TRUE)
+
+fa(saq, rotate = "none", fm = "pa") %>% 
   print(sort = TRUE)
 
 # plot
-principal(saq, rotate = "varimax") %>% 
+principal(saq, rotate = "none") %>% 
   fa.diagram(sort = TRUE)
 
 ```
@@ -255,11 +258,11 @@ principal(saq, nfactors = 4, rotate = "varimax") %>%
 
 ```{r}
 
-fa(saq, fm = "minres", rotate = "oblimin") %>% 
+fa(saq, fm = "minres", rotate = "none") %>% 
   print(sort = TRUE)
 
 # plot
-fa(saq, fm = "minres", rotate = "oblimin") %>% 
+fa(saq, fm = "minres", rotate = "none") %>% 
   fa.diagram(sort = TRUE)
 
 ```
@@ -276,6 +279,10 @@ fa(saq, nfactors = 6, fm = "minres", rotate = "oblimin") %>%
   fa.diagram(sort = TRUE)
 
 ```
+
+# Resources
+> * Gonzalez, R. (February, 2016). *Lecture Notes #10: MDS & Tree Structures.* Retrieved from [http://www-personal.umich.edu/~gonzo/coursenotes/file10.pdf](http://www-personal.umich.edu/~gonzo/coursenotes/file10.pdf) on February 17, 2019.  
+> * Revelle, W. (n.d.). *An introduction to psychometric theory with applications in R.* Retreived from [http://www.personality-project.org/r/book/](http://www.personality-project.org/r/book/) on February 17, 2019.
 
 # General word of caution
 > Above, I listed resources prepared by experts on these and related topics. Although I generally do my best to write accurate posts, don't assume my posts are 100% accurate or that they apply to your data or research questions. Trust statistics and methodology experts, not blog posts.

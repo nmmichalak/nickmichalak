@@ -49,7 +49,7 @@ image:
 <li><span class="math display">\[\text{a large } s_{ij} \text{ implies } d_{ik} \approx d_{kj}.\]</span></li>
 </ol>
 <blockquote>
-<p>The idea here is that the data and the axioms constrain the solution you get. For example, if you’re making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constrains.<br />
+<p>The idea here is that the data and the axioms constrain the solution you get. For example, if you’re making a map of U.S. cities—and you want a accurate map of the cities—then including 100,000 cities in your analysis will place more constraints on your solution than including 10 cities. More contraints in this case will give you a better picture of 10 cities and their relation to each other (e.g., New York is north of Miami) than fewer constraints.<br />
 This should be more clear in the example below.</p>
 </blockquote>
 <div id="install-packages-andor-load-libraries" class="section level2">
@@ -231,11 +231,11 @@ library(psych)</code></pre>
 <h3>Represent the distance matrix with colors</h3>
 <blockquote>
 <ol style="list-style-type: decimal">
-<li>Convert the distance object into a <code>data.frame</code><br />
+<li>Convert the distance object into a <code>data.frame</code>.<br />
 </li>
-<li>Restructure the data.frame so each distance value gets its own row, and each distance value corresponds to two city names (even cities with themselves)<br />
+<li>Restructure the <code>data.frame</code> so each distance value gets its own row, and each distance value corresponds to two city names (even cities paired with themselves, so distance = 0).<br />
 </li>
-<li>Plot the distance values on tiles that are colored by the size of the distance</li>
+<li>Plot the distance values on tiles that are colored by the size of the distance.</li>
 </ol>
 </blockquote>
 <pre class="r"><code>UScitiesD %&gt;% 
@@ -303,7 +303,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="measuring-variables-we-cant-observe" class="section level1">
 <h1>Measuring variables we can’t observe</h1>
 <blockquote>
-
+<p>If we think psychological constructs like extraversion, social dominance orientation, or depression exist, then we should be able to measure them. We can’t measure these constructs directly like we can measure blood pressure or light absorption. But we can ask people questions that we believe index parts of what we mean by, say, extroversion. In …</p>
 </blockquote>
 </div>
 <div id="partitioning-variance" class="section level1">
@@ -374,10 +374,10 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <h1>Principal Components Analysis</h1>
 <div id="all-items" class="section level2">
 <h2>all items</h2>
-<pre class="r"><code>principal(saq, rotate = &quot;varimax&quot;) %&gt;% 
+<pre class="r"><code>principal(saq, rotate = &quot;none&quot;) %&gt;% 
   print(sort = TRUE)</code></pre>
 <pre><code>## Principal Components Analysis
-## Call: principal(r = saq, rotate = &quot;varimax&quot;)
+## Call: principal(r = saq, rotate = &quot;none&quot;)
 ## Standardized loadings (pattern matrix) based upon correlation matrix
 ##      V   PC1    h2   u2 com
 ## q18 18  0.70 0.492 0.51   1
@@ -415,8 +415,63 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 ##  with the empirical chi square  6633.48  with prob &lt;  0 
 ## 
 ## Fit based upon off diagonal values = 0.94</code></pre>
+<pre class="r"><code>fa(saq, rotate = &quot;none&quot;, fm = &quot;pa&quot;) %&gt;% 
+  print(sort = TRUE)</code></pre>
+<pre><code>## Factor Analysis using method =  pa
+## Call: fa(r = saq, rotate = &quot;none&quot;, fm = &quot;pa&quot;)
+## Standardized loadings (pattern matrix) based upon correlation matrix
+##      V   PA1    h2   u2 com
+## q18 18  0.68 0.464 0.54   1
+## q07  7  0.66 0.440 0.56   1
+## q16 16  0.66 0.430 0.57   1
+## q13 13  0.65 0.422 0.58   1
+## q12 12  0.64 0.416 0.58   1
+## q21 21  0.63 0.400 0.60   1
+## q14 14  0.63 0.398 0.60   1
+## q11 11  0.63 0.392 0.61   1
+## q17 17  0.62 0.381 0.62   1
+## q04  4  0.61 0.369 0.63   1
+## q03  3 -0.60 0.360 0.64   1
+## q15 15  0.56 0.317 0.68   1
+## q01  1  0.56 0.310 0.69   1
+## q06  6  0.53 0.283 0.72   1
+## q05  5  0.52 0.275 0.73   1
+## q08  8  0.52 0.269 0.73   1
+## q10 10  0.41 0.164 0.84   1
+## q20 20  0.40 0.163 0.84   1
+## q19 19 -0.39 0.156 0.84   1
+## q02  2 -0.28 0.076 0.92   1
+## q22 22 -0.27 0.075 0.92   1
+## q09  9 -0.26 0.066 0.93   1
+## q23 23 -0.13 0.017 0.98   1
+## 
+##                 PA1
+## SS loadings    6.64
+## Proportion Var 0.29
+## 
+## Mean item complexity =  1
+## Test of the hypothesis that 1 factor is sufficient.
+## 
+## The degrees of freedom for the null model are  253  and the objective function was  7.55 with Chi Square of  19334.49
+## The degrees of freedom for the model are 230  and the objective function was  1.74 
+## 
+## The root mean square of the residuals (RMSR) is  0.07 
+## The df corrected root mean square of the residuals is  0.07 
+## 
+## The harmonic number of observations is  2571 with the empirical chi square  5547.21  with prob &lt;  0 
+## The total number of observations was  2571  with Likelihood Chi Square =  4463.05  with prob &lt;  0 
+## 
+## Tucker Lewis Index of factoring reliability =  0.756
+## RMSEA index =  0.085  and the 90 % confidence intervals are  0.082 0.087
+## BIC =  2657.08
+## Fit based upon off diagonal values = 0.95
+## Measures of factor score adequacy             
+##                                                    PA1
+## Correlation of (regression) scores with factors   0.96
+## Multiple R square of scores with factors          0.91
+## Minimum correlation of possible factor scores     0.83</code></pre>
 <pre class="r"><code># plot
-principal(saq, rotate = &quot;varimax&quot;) %&gt;% 
+principal(saq, rotate = &quot;none&quot;) %&gt;% 
   fa.diagram(sort = TRUE)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
 </div>
@@ -476,10 +531,10 @@ principal(saq, nfactors = 4, rotate = &quot;varimax&quot;) %&gt;%
 <h1>Common Factor Analysis</h1>
 <div id="all-items-1" class="section level2">
 <h2>all items</h2>
-<pre class="r"><code>fa(saq, fm = &quot;minres&quot;, rotate = &quot;oblimin&quot;) %&gt;% 
+<pre class="r"><code>fa(saq, fm = &quot;minres&quot;, rotate = &quot;none&quot;) %&gt;% 
   print(sort = TRUE)</code></pre>
 <pre><code>## Factor Analysis using method =  minres
-## Call: fa(r = saq, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;)
+## Call: fa(r = saq, rotate = &quot;none&quot;, fm = &quot;minres&quot;)
 ## Standardized loadings (pattern matrix) based upon correlation matrix
 ##      V   MR1    h2   u2 com
 ## q18 18  0.68 0.464 0.54   1
@@ -532,7 +587,7 @@ principal(saq, nfactors = 4, rotate = &quot;varimax&quot;) %&gt;%
 ## Multiple R square of scores with factors          0.91
 ## Minimum correlation of possible factor scores     0.83</code></pre>
 <pre class="r"><code># plot
-fa(saq, fm = &quot;minres&quot;, rotate = &quot;oblimin&quot;) %&gt;% 
+fa(saq, fm = &quot;minres&quot;, rotate = &quot;none&quot;) %&gt;% 
   fa.diagram(sort = TRUE)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 </div>
@@ -615,6 +670,16 @@ fa(saq, nfactors = 6, fm = &quot;minres&quot;, rotate = &quot;oblimin&quot;) %&g
   fa.diagram(sort = TRUE)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 </div>
+</div>
+<div id="resources" class="section level1">
+<h1>Resources</h1>
+<blockquote>
+<ul>
+<li>Gonzalez, R. (February, 2016). <em>Lecture Notes #10: MDS &amp; Tree Structures.</em> Retrieved from <a href="http://www-personal.umich.edu/~gonzo/coursenotes/file10.pdf" class="uri">http://www-personal.umich.edu/~gonzo/coursenotes/file10.pdf</a> on February 17, 2019.<br />
+</li>
+<li>Revelle, W. (n.d.). <em>An introduction to psychometric theory with applications in R.</em> Retreived from <a href="http://www.personality-project.org/r/book/" class="uri">http://www.personality-project.org/r/book/</a> on February 17, 2019.</li>
+</ul>
+</blockquote>
 </div>
 <div id="general-word-of-caution" class="section level1">
 <h1>General word of caution</h1>
