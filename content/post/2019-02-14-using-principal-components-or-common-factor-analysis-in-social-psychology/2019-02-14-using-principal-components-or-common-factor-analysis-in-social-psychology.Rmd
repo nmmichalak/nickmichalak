@@ -185,9 +185,9 @@ map_data("state") %>%
 > Common variance refers to variability shared among the items (i.e., what can be explained by inter-item correlations)
 
 ### Communality
-> Communality ( _h^2_ ) is one definition of common variance and can take values between 0 and 1: _h^2_ = means no observed variability can be explained, and 1 means all observed variability can be explained.
+> Communality (*h^2^*) is one definition of common variance and can take values between 0 and 1: *h^2^* = means no observed variability can be explained, and 1 means all observed variability can be explained.
 
-## Unique Variance ( _u^2_ )
+## Unique Variance (*u^2^*)
 > Unique variance refers to not-common variance. It has two parts: specific and error.
 
 ### Specific Variance
