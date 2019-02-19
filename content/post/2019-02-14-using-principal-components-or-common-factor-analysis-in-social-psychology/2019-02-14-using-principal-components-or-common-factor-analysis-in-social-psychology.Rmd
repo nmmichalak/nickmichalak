@@ -256,7 +256,7 @@ bfi %>%
 
 ### Histograms
 
-```{r, fig.width = 10.5, fig.height = 7.5}
+```{r}
 
 bfi %>%
   select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5) %>% 
@@ -274,7 +274,7 @@ bfi %>%
 > `help(fa.parallel)`  
 > "One way to determine the number of factors or components in a data matrix or a correlation matrix is to examine the “scree" plot of the successive eigenvalues. Sharp breaks in the plot suggest the appropriate number of components or factors to extract. “Parallel" analyis is an alternative technique that compares the scree of factors of the observed data with that of a random data matrix of the same size as the original."
 
-```{r, fig.width = 10.5, fig.height = 7.5}
+```{r}
 
 bfi %>%
   select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5) %>% 
@@ -298,7 +298,7 @@ bfi25 <- bfi %>%
 
 ## Extract 5 components even though the parallel analysis suggested 6
 
-```{r, fig.width = 10.5, fig.height = 7.5}
+```{r}
 
 principal(bfi25, nfactors = 5, rotate = "varimax") %>% 
   print(sort = TRUE)
@@ -316,7 +316,7 @@ principal(bfi25, nfactors = 5, rotate = "varimax") %>%
 
 ## Extract 5 factors even though the parallel analysis suggested 6
 
-```{r, fig.width = 10.5, fig.height = 7.5}
+```{r}
 
 fa(bfi25, nfactors = 5, rotate = "oblimin", fm = "minres") %>% 
   print(sort = TRUE)
