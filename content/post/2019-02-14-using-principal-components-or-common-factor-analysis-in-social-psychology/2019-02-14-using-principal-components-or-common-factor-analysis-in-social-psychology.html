@@ -816,6 +816,44 @@ isoMDS.fit1 &lt;- isoMDS(bfi.d, k = 2, maxit = 100)</code></pre>
 ## iter  10 value 14.459080
 ## final  value 14.459080 
 ## converged</code></pre>
+</div>
+<div id="generate-shepard-plot" class="section level2">
+<h2>Generate Shepard plot</h2>
+<blockquote>
+<p>This helps diagnose whether a monotonic relationship makes sense (i.e., when x goes up, y goes up)</p>
+</blockquote>
+<div id="heres-an-ideal-monotonic-relationship" class="section level3">
+<h3>Here’s an ideal monotonic relationship</h3>
+<blockquote>
+<p>As x goes up, y <em>always</em> goes up</p>
+</blockquote>
+<pre class="r"><code>tibble(x = 1:5, y = x + c(1, 2, 5, 8, 20)) %&gt;% 
+  ggplot(mapping = aes(x = x, y = y)) +
+  geom_point() +
+  geom_line()</code></pre>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+</div>
+<div id="compare-to-the-non-metric-multidimensional-scaling-solution" class="section level3">
+<h3>Compare to the non-metric Multidimensional Scaling Solution</h3>
+<pre class="r"><code># shepard
+Shepard.fit1 &lt;- Shepard(as.dist(bfi.d), isoMDS.fit1$points)
+
+# save the values from the 2 dimensions (x and y) and the predicted/fitted values (yf)
+shepard.data1 &lt;- tibble(x = Shepard.fit1$x, y = Shepard.fit1$y, fit = Shepard.fit1$yf)
+
+# plot
+shepard.data1 %&gt;% 
+  ggplot(mapping = aes(x = x, y = y)) +
+  geom_point(alpha = 0.5) +
+  geom_line(mapping = aes(x = x, y = fit))</code></pre>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+</div>
+<div id="interpretation-8" class="section level3">
+<h3>Interpretation</h3>
+<blockquote>
+<p>In these data, sometimes when x values went up, y values went down. To maintain this ordinal relationship, the algorithm “averages” the values so that the fitted line never goes down (i.e., it never reverses the up-and-then-up-again relationship). Compare the fitted line to the example of an ideal monotonic relationship above. Notice the plateaus. Some plateaus are fine, but those long plateaus at the start of the fitted line aren’t ideal. I’m going to move on with the rest of the demonstration, but in real-life data analysis you might want to investigate these data further (e.g., look for subsets of items an apply non-metric MDS to each, use metric MDS instead).</p>
+</blockquote>
+</div>
 <div id="store-points-from-the-fitted-configurationsolution-in-a-tibble-data.frame-1" class="section level3">
 <h3>Store points from the fitted configuration/solution in a tibble <code>data.frame</code></h3>
 <ol style="list-style-type: decimal">
@@ -839,8 +877,8 @@ isoMDS.fit1 &lt;- isoMDS(bfi.d, k = 2, maxit = 100)</code></pre>
   geom_point() +
   geom_text(nudge_x = 0.025) +
   theme(legend.position = &quot;top&quot;)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
-<div id="interpretation-8" class="section level4">
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<div id="interpretation-9" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
 <p>To be rigorous, I used a non-metric version of Multidimensional Scaling that uses a “non-monotonic” function (i.e., ordinal, non-linear) to find a solution. I only asked for 2 dimensions, so the solution doesn’t quite capture all the meaningful information contained in these 25 questions. However, you can still tell that items that tap into a given trait tend to “land” in a similar space on the plot as their “friends” (i.e., N items land next to other N items). Some items don’t land among their trait friends because they were negatively worded (no N items were negatively worded, so they all landed together). For example, had I negatively scored item C4 (“Do things in a half-way manner.”) and item C5 (“Waste my time.”), those items would likely have landed with item C1 (“Am exacting in my work.”), item C2 (“Continue until everything is perfect.”), and item C3 (“Do things according to a plan.”). So, given the information it had to work with, the Non-Metric Multidimensional Scaling procedure did a pretty good job!</p>

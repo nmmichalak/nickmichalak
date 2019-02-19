@@ -379,6 +379,42 @@ isoMDS.fit1 <- isoMDS(bfi.d, k = 2, maxit = 100)
 
 ```
 
+## Generate Shepard plot
+> This helps diagnose whether a monotonic relationship makes sense (i.e., when x goes up, y goes up)
+
+### Here's an ideal monotonic relationship
+> As x goes up, y *always* goes up
+
+```{r}
+
+tibble(x = 1:5, y = x + c(1, 2, 5, 8, 20)) %>% 
+  ggplot(mapping = aes(x = x, y = y)) +
+  geom_point() +
+  geom_line()
+
+```
+
+### Compare to the non-metric Multidimensional Scaling Solution
+
+```{r}
+
+# shepard
+Shepard.fit1 <- Shepard(as.dist(bfi.d), isoMDS.fit1$points)
+
+# save the values from the 2 dimensions (x and y) and the predicted/fitted values (yf)
+shepard.data1 <- tibble(x = Shepard.fit1$x, y = Shepard.fit1$y, fit = Shepard.fit1$yf)
+
+# plot
+shepard.data1 %>% 
+  ggplot(mapping = aes(x = x, y = y)) +
+  geom_point(alpha = 0.5) +
+  geom_line(mapping = aes(x = x, y = fit))
+
+```
+
+### Interpretation
+> In these data, sometimes when x values went up, y values went down. To maintain this ordinal relationship, the algorithm "averages" the values so that the fitted line never goes down (i.e., it never reverses the up-and-then-up-again relationship). Compare the fitted line to the example of an ideal monotonic relationship above. Notice the plateaus. Some plateaus are fine, but those long plateaus at the start of the fitted line aren't ideal. I'm going to move on with the rest of the demonstration, but in real-life data analysis you might want to investigate these data further (e.g., look for subsets of items an apply non-metric MDS to each, use metric MDS instead).
+
 ### Store points from the fitted configuration/solution in a tibble `data.frame`
 1. The first and second dimension are stored as columns in the `points` object from the `isoMDS` function  
 2. I use the ifelse and str_detect functions to create a trait variable that identifies the trait the item is supposed to "tap into."
