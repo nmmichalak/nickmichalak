@@ -399,33 +399,149 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 </blockquote>
 <div id="sample-questions" class="section level3">
 <h3>Sample Questions</h3>
-<ol style="list-style-type: decimal">
-<li>Am indifferent to the feelings of others.</li>
-<li>Inquire about others’ well-being.</li>
-<li>Know how to comfort others.</li>
-<li>Love children.</li>
-<li>Make people feel at ease.</li>
-<li>Am exacting in my work.</li>
-<li>Continue until everything is perfect.</li>
-<li>Do things according to a plan.</li>
-<li>Do things in a half-way manner.</li>
-<li>Waste my time.</li>
-<li>Don’t talk a lot.</li>
-<li>Find it difficult to approach others.</li>
-<li>Know how to captivate people.</li>
-<li>Make friends easily.</li>
-<li>Take charge.</li>
-<li>Get angry easily.</li>
-<li>Get irritated easily.</li>
-<li>Have frequent mood swings.</li>
-<li>Often feel blue.</li>
-<li>Panic easily.</li>
-<li>Am full of ideas.</li>
-<li>Avoid difficult reading material.</li>
-<li>Carry the conversation to a higher level.</li>
-<li>Spend time reflecting on things.</li>
-<li>Will not probe deeply into a subject.</li>
-</ol>
+<blockquote>
+<p>Note that some items are negatively worded (i.e., response to those questions run opposite to the theoretical trait). I’m going to mostly ignore that in the demonstrations below because it’s not important for understanding.</p>
+</blockquote>
+<pre class="r"><code>bfi.dictionary %&gt;% 
+  slice(-c(26, 27, 28)) %&gt;% 
+  select(Item, Big6, Keying) %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Item</th>
+<th align="left">Big6</th>
+<th align="right">Keying</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Am indifferent to the feelings of others.</td>
+<td align="left">Agreeableness</td>
+<td align="right">-1</td>
+</tr>
+<tr class="even">
+<td align="left">Inquire about others’ well-being.</td>
+<td align="left">Agreeableness</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">Know how to comfort others.</td>
+<td align="left">Agreeableness</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">Love children.</td>
+<td align="left">Agreeableness</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">Make people feel at ease.</td>
+<td align="left">Agreeableness</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">Am exacting in my work.</td>
+<td align="left">Conscientiousness</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">Continue until everything is perfect.</td>
+<td align="left">Conscientiousness</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">Do things according to a plan.</td>
+<td align="left">Conscientiousness</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">Do things in a half-way manner.</td>
+<td align="left">Conscientiousness</td>
+<td align="right">-1</td>
+</tr>
+<tr class="even">
+<td align="left">Waste my time.</td>
+<td align="left">Conscientiousness</td>
+<td align="right">-1</td>
+</tr>
+<tr class="odd">
+<td align="left">Don’t talk a lot.</td>
+<td align="left">Extraversion</td>
+<td align="right">-1</td>
+</tr>
+<tr class="even">
+<td align="left">Find it difficult to approach others.</td>
+<td align="left">Extraversion</td>
+<td align="right">-1</td>
+</tr>
+<tr class="odd">
+<td align="left">Know how to captivate people.</td>
+<td align="left">Extraversion</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">Make friends easily.</td>
+<td align="left">Extraversion</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">Take charge.</td>
+<td align="left">Extraversion</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">Get angry easily.</td>
+<td align="left">Emotional Stability</td>
+<td align="right">-1</td>
+</tr>
+<tr class="odd">
+<td align="left">Get irritated easily.</td>
+<td align="left">Emotional Stability</td>
+<td align="right">-1</td>
+</tr>
+<tr class="even">
+<td align="left">Have frequent mood swings.</td>
+<td align="left">Emotional Stability</td>
+<td align="right">-1</td>
+</tr>
+<tr class="odd">
+<td align="left">Often feel blue.</td>
+<td align="left">Emotional Stability</td>
+<td align="right">-1</td>
+</tr>
+<tr class="even">
+<td align="left">Panic easily.</td>
+<td align="left">Emotional Stability</td>
+<td align="right">-1</td>
+</tr>
+<tr class="odd">
+<td align="left">Am full of ideas.</td>
+<td align="left">Openness</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">Avoid difficult reading material.</td>
+<td align="left">Openness</td>
+<td align="right">-1</td>
+</tr>
+<tr class="odd">
+<td align="left">Carry the conversation to a higher level.</td>
+<td align="left">Openness</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">Spend time reflecting on things.</td>
+<td align="left">Openness</td>
+<td align="right">1</td>
+</tr>
+<tr class="odd">
+<td align="left">Will not probe deeply into a subject.</td>
+<td align="left">Openness</td>
+<td align="right">-1</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="correlation-matrix" class="section level3">
 <h3>Correlation matrix</h3>
@@ -441,7 +557,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
   geom_text() +
   scale_fill_gradient2() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-9-1.png" width="1512" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-10-1.png" width="1512" /></p>
 <div id="interpretation-2" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
@@ -458,7 +574,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
   geom_histogram(binwidth = 1, color = &quot;white&quot;) +
   facet_wrap(facets = ~ variable)</code></pre>
 <pre><code>## Warning: Removed 508 rows containing non-finite values (stat_bin).</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <div id="interpretation-3" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
@@ -475,7 +591,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <pre class="r"><code>bfi %&gt;%
   select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5) %&gt;% 
   fa.parallel(fm = &quot;minres&quot;, fa = &quot;both&quot;)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <pre><code>## Parallel analysis suggests that the number of factors =  6  and the number of components =  6</code></pre>
 <div id="interpretation-4" class="section level4">
 <h4>Interpretation</h4>
@@ -544,7 +660,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <pre class="r"><code># plot
 principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;% 
   fa.diagram(sort = TRUE, errors = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
 <div id="interpretation-5" class="section level3">
 <h3>Interpretation</h3>
 <blockquote>
@@ -629,7 +745,7 @@ principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;%
 <pre class="r"><code># plot
 fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;) %&gt;% 
   fa.diagram(sort = TRUE, errors = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 <div id="interpretation-6" class="section level3">
 <h3>Interpretation</h3>
 <blockquote>
@@ -662,7 +778,7 @@ fa.fit1 &lt;- fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;m
   geom_tile() +
   geom_text() +
   scale_fill_gradient2()</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-16-1.png" width="1512" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-17-1.png" width="1512" /></p>
 <div id="interpretation-7" class="section level3">
 <h3>Interpretation</h3>
 <blockquote>
@@ -724,11 +840,11 @@ isoMDS.fit1 &lt;- isoMDS(bfi.d, k = 2, maxit = 100)</code></pre>
   geom_point() +
   geom_text(nudge_x = 0.025) +
   theme(legend.position = &quot;top&quot;)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <div id="interpretation-8" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
-<p>To be rigorous, I used a non-metric version of Multidimensional Scaling that uses a “non-monotonic” function (i.e., ordinal, non-linear) to find a solution. I only asked for 2 dimensions, so the solution doesn’t quite capture what we might expect: The items from the unique traits didn’t cluster together perfectly in this 2-dimensional space. But the items do seem to “cluster” together a little like you’d expect. Perhaps other technqiues could better capture how these items cluster together in traits (e.g., k-means clustering). Maybe that’s for another post. In any case, these procedures are pretty impressive!</p>
+<p>To be rigorous, I used a non-metric version of Multidimensional Scaling that uses a “non-monotonic” function (i.e., ordinal, non-linear) to find a solution. I only asked for 2 dimensions, so the solution doesn’t quite capture all the meaningful information contained in these 25 questions. However, you can still tell that items that tap into a given trait tend to “land” in a similar space on the plot as their “friends” (i.e., N items land next to other N items). Some items don’t land among their trait friends because they were negatively worded (no N items were negatively worded, so they all landed together). For example, had I negatively scored item C4 (“Do things in a half-way manner.”) and item C5 (“Waste my time.”), those items would likely have landed with item C1 (“Am exacting in my work.”), item C2 (“Continue until everything is perfect.”), and item C3 (“Do things according to a plan.”). So, given the information it had to work with, the Non-Metric Multidimensional Scaling procedure did a pretty good job!</p>
 </blockquote>
 </div>
 </div>

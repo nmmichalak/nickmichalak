@@ -208,31 +208,16 @@ map_data("state") %>%
 > "The item data were collected using a 6 point response scale: 1 Very Inaccurate 2 Moderately Inaccurate 3 Slightly Inaccurate 4 Slightly Accurate 5 Moderately Accurate 6 Very Accurate"
 
 ### Sample Questions
-1. Am indifferent to the feelings of others.
-2. Inquire about others' well-being.
-3. Know how to comfort others.
-4. Love children.
-5. Make people feel at ease.
-6. Am exacting in my work.
-7. Continue until everything is perfect.
-8. Do things according to a plan.
-9. Do things in a half-way manner.
-10. Waste my time.
-11. Don't talk a lot.
-12. Find it difficult to approach others.
-13. Know how to captivate people.
-14. Make friends easily.
-15. Take charge.
-16. Get angry easily.
-17. Get irritated easily.
-18. Have frequent mood swings.
-19. Often feel blue.
-20. Panic easily.
-21. Am full of ideas.
-22. Avoid difficult reading material.
-23. Carry the conversation to a higher level.
-24. Spend time reflecting on things.
-25. Will not probe deeply into a subject.
+> Note that some items are negatively worded (i.e., response to those questions run opposite to the theoretical trait). I'm going to mostly ignore that in the demonstrations below because it's not important for understanding.
+
+```{r}
+
+bfi.dictionary %>% 
+  slice(-c(26, 27, 28)) %>% 
+  select(Item, Big6, Keying) %>% 
+  kable()
+
+```
 
 ### Correlation matrix
 
@@ -425,7 +410,7 @@ isoMDS.data1 %>%
 ```
 
 #### Interpretation
-> To be rigorous, I used a non-metric version of Multidimensional Scaling that uses a "non-monotonic" function (i.e., ordinal, non-linear) to find a solution. I only asked for 2 dimensions, so the solution doesn't quite capture what we might expect: The items from the unique traits didn't cluster together perfectly in this 2-dimensional space. But the items do seem to "cluster" together a little like you'd expect. Perhaps other technqiues could better capture how these items cluster together in traits (e.g., k-means clustering). Maybe that's for another post. In any case, these procedures are pretty impressive!
+> To be rigorous, I used a non-metric version of Multidimensional Scaling that uses a "non-monotonic" function (i.e., ordinal, non-linear) to find a solution. I only asked for 2 dimensions, so the solution doesn't quite capture all the meaningful information contained in these 25 questions. However, you can still tell that items that tap into a given trait tend to "land" in a similar space on the plot as their "friends" (i.e., N items land next to other N items). Some items don't land among their trait friends because they were negatively worded (no N items were negatively worded, so they all landed together). For example, had I negatively scored item C4 ("Do things in a half-way manner.") and item C5 ("Waste my time."), those items would likely have landed with item C1 ("Am exacting in my work."), item C2 ("Continue until everything is perfect."), and item C3 ("Do things according to a plan."). So, given the information it had to work with, the Non-Metric Multidimensional Scaling procedure did a pretty good job!
 
 # Footnotes
 1. Although it many cases it's useful to distinguish between factors and components (I do in this post), the information you need to interpret differences in solutions boils down to differences among models, not terms. Here's a case where it's confusing to refer to factors and components because it makes it seems like the congruence test is comparing apples to oranges; but it's comparing "factor" (or "component") solutions from two different models.
