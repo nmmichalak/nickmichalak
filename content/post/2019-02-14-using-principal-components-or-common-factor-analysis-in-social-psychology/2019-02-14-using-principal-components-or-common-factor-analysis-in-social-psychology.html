@@ -62,14 +62,12 @@ image:
 </blockquote>
 <pre class="r"><code># install.packages(&quot;tidyverse&quot;)
 # install.packages(&quot;knitr&quot;)
-# install.packages(&quot;haven&quot;)
 # install.packages(&quot;maps&quot;)
 # install.packages(&quot;psych&quot;)
 # install.packages(&quot;MASS&quot;)
 
 library(tidyverse)
 library(knitr)
-library(haven)
 library(maps)
 library(psych)
 library(MASS)
@@ -81,7 +79,8 @@ select &lt;- dplyr::select</code></pre>
 <h2>Data</h2>
 <blockquote>
 <p><code>help(&quot;UScitiesD&quot;)</code><br />
-“UScitiesD gives “straight line” distances between 10 cities in the US.”</p>
+“UScitiesD gives “straight line” distances between 10 cities in the US.”<br />
+<code>help(kable)</code> converts a <code>matrix</code> or <code>data.frame</code> into a simple but pretty Markdown table</p>
 </blockquote>
 <pre class="r"><code>UScitiesD %&gt;% 
   as.matrix() %&gt;% 
