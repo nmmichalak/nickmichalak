@@ -456,7 +456,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
   geom_histogram(binwidth = 1, color = &quot;white&quot;) +
   facet_wrap(facets = ~ variable)</code></pre>
 <pre><code>## Warning: Removed 508 rows containing non-finite values (stat_bin).</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-10-1.png" width="1512" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-10-1.png" width="1008" /></p>
 <div id="interpretation-3" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
@@ -473,7 +473,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <pre class="r"><code>bfi %&gt;%
   select(A1, A2, A3, A4, A5, C1, C2, C3, C4, C5, E1, E2, E3, E4, E5, N1, N2, N3, N4, N5, O1, O2, O3, O4, O5) %&gt;% 
   fa.parallel(fm = &quot;minres&quot;, fa = &quot;both&quot;)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-11-1.png" width="1512" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-11-1.png" width="1008" /></p>
 <pre><code>## Parallel analysis suggests that the number of factors =  6  and the number of components =  6</code></pre>
 <div id="interpretation-4" class="section level4">
 <h4>Interpretation</h4>
@@ -542,7 +542,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <pre class="r"><code># plot
 principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;% 
   fa.diagram(sort = TRUE, errors = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-13-1.png" width="1512" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-13-1.png" width="1008" /></p>
 <div id="interpretation-5" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
@@ -627,7 +627,7 @@ principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;%
 <pre class="r"><code># plot
 fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;) %&gt;% 
   fa.diagram(sort = TRUE, errors = TRUE)</code></pre>
-<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-14-1.png" width="1512" /></p>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-14-1.png" width="1008" /></p>
 <div id="interpretation-6" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>
