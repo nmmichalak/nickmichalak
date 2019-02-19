@@ -264,8 +264,9 @@ select &lt;- dplyr::select</code></pre>
 </blockquote>
 </div>
 </div>
-<div id="metric-multidimensional-scaling-2-dimensions-like-a-map" class="section level3">
-<h3>Metric Multidimensional Scaling (2-dimensions, like a map)</h3>
+</div>
+<div id="metric-multidimensional-scaling-2-dimensions-like-a-map" class="section level2">
+<h2>Metric Multidimensional Scaling (2-dimensions, like a map)</h2>
 <blockquote>
 <p><code>help(cmdscale)</code><br />
 “Classical multidimensional scaling (MDS) of a data matrix. Also known as principal coordinates analysis (Gower, 1966).”</p>
@@ -274,8 +275,8 @@ select &lt;- dplyr::select</code></pre>
 # also ask for the function to output eigenvalues
 cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 </div>
-<div id="plot-eigenvalues-sorted-by-size-i.e.-screeplot" class="section level3">
-<h3>Plot eigenvalues sorted by size (i.e., screeplot)</h3>
+<div id="plot-eigenvalues-sorted-by-size-i.e.-screeplot" class="section level2">
+<h2>Plot eigenvalues sorted by size (i.e., screeplot)</h2>
 <blockquote>
 <p>You can use eigenvalues to give you a sense of how many dimensions can capture most of the information from original data. A “big” eigenvalue means a lot of information is contained in a given dimension. You can tell how big the eigenvalues are by looking a a plot of the digenvalues sorted by size. Analysts typically determine the number of dimensions to use by counting eigenvalues from left to right until the pattern of points flattens out (i.e., there is little leftover information contained in the remaining dimensions).</p>
 </blockquote>
@@ -286,23 +287,23 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
   geom_point() +
   scale_y_continuous(labels = scales::comma)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
-<div id="interpretation-1" class="section level4">
-<h4>Interpretation</h4>
+<div id="interpretation-1" class="section level3">
+<h3>Interpretation</h3>
 <blockquote>
 <p>Because the lines stop dropping after 2-3 points, this suggest most of the information can be “captured” by 2-3 dimensions. To make a plot easier to interpret, I already asked for 2 dimensions.</p>
 </blockquote>
 </div>
 </div>
-<div id="store-points-from-the-fitted-configurationsolution-in-a-tibble-data.frame" class="section level3">
-<h3>Store points from the fitted configuration/solution in a tibble <code>data.frame</code></h3>
+<div id="store-points-from-the-fitted-configurationsolution-in-a-tibble-data.frame" class="section level2">
+<h2>Store points from the fitted configuration/solution in a tibble <code>data.frame</code></h2>
 <blockquote>
 <p>The first and second dimension are stored as columns in the <code>points</code> object from the <code>cmdscale</code> function</p>
 </blockquote>
 <pre class="r"><code>cmdscale.data &lt;- tibble(city = rownames(cmdscale.fit1$points),
                         dimension1 = cmdscale.fit1$points[, 1],
                         dimension2 = cmdscale.fit1$points[, 2])</code></pre>
-<div id="plot-the-solution" class="section level4">
-<h4>Plot the solution</h4>
+<div id="plot-the-solution" class="section level3">
+<h3>Plot the solution</h3>
 <blockquote>
 <p>Note that I asked ggplot2 to plot the negative dimension scores to make the plot more interpretable compared to a map of the U.S. (i.e., real life)</p>
 </blockquote>
@@ -312,8 +313,8 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
   geom_label(nudge_y = 100)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 </div>
-<div id="compare-the-solution-above-to-a-map-of-the-u.s.-below" class="section level4">
-<h4>Compare the solution above to a map of the U.S. below</h4>
+<div id="compare-the-solution-above-to-a-map-of-the-u.s.-below" class="section level3">
+<h3>Compare the solution above to a map of the U.S. below</h3>
 <blockquote>
 <p>Because we only used pairwise distances among ten U.S. cities, the solution imperfectly represented real relations among these cities. For example, Miami seems to be in the right spot on the “Southeastern quadrant” of the plot, it seems to sit on almost a horizontal line with Houston; in real life, Houston is northwest of Miami, not directly west like the solution implies.</p>
 </blockquote>
@@ -322,7 +323,6 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
   geom_polygon(fill = &quot;white&quot;, colour = &quot;black&quot;) +
   coord_quickmap()</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
-</div>
 </div>
 </div>
 </div>
@@ -388,9 +388,8 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <blockquote>
 <p>The major difference in these techniques boils down to error: Whereas the Principal Components model assumes that all variance is common variance, the Common Factor model partitions variance into common and unique variance (which includes error). Another way to think about the difference is that the Principal Components model tries to explain as much variance as possible with a small number of components, and Common Factor model tries to explain the shared relationships among the items with a small number of factors after setting aside what is not shared (i.e., the item-specific parts and the error parts). Below, I demonstrate the differences in how these two techniques account for variance in a sample of Big Five Inventory questions.</p>
 </blockquote>
-</div>
-<div id="big-five-inventory" class="section level1">
-<h1>Big Five Inventory</h1>
+<div id="big-five-inventory" class="section level2">
+<h2>Big Five Inventory</h2>
 <blockquote>
 <p><code>help(bfi)</code> and <code>help(bfi.dictionary)</code><br />
 “The first 25 items are organized by five putative factors: Agreeableness, Conscientiousness, Extraversion, Neuroticism, and Opennness.”</p>
@@ -398,8 +397,8 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <blockquote>
 <p>“The item data were collected using a 6 point response scale: 1 Very Inaccurate 2 Moderately Inaccurate 3 Slightly Inaccurate 4 Slightly Accurate 5 Moderately Accurate 6 Very Accurate”</p>
 </blockquote>
-<div id="sample-questions" class="section level2">
-<h2>Sample Questions</h2>
+<div id="sample-questions" class="section level3">
+<h3>Sample Questions</h3>
 <ol style="list-style-type: decimal">
 <li>Am indifferent to the feelings of others.</li>
 <li>Inquire about others’ well-being.</li>
@@ -427,6 +426,7 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <li>Spend time reflecting on things.</li>
 <li>Will not probe deeply into a subject.</li>
 </ol>
+</div>
 <div id="correlation-matrix" class="section level3">
 <h3>Correlation matrix</h3>
 <pre class="r"><code>bfi %&gt;%
@@ -545,8 +545,8 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;% 
   fa.diagram(sort = TRUE, errors = TRUE)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
-<div id="interpretation-5" class="section level4">
-<h4>Interpretation</h4>
+<div id="interpretation-5" class="section level3">
+<h3>Interpretation</h3>
 <blockquote>
 <p>The component diagram gives you a big picture sense of the solution: there are 5 components, and the items vary in how much they load (correlate) with each component. The output is a little harder to parse, but notice that items also correlate with other components. For more information about the output, see <code>help(principal)</code>.</p>
 </blockquote>
@@ -630,8 +630,8 @@ principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;) %&gt;%
 fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;) %&gt;% 
   fa.diagram(sort = TRUE, errors = TRUE)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
-<div id="interpretation-6" class="section level4">
-<h4>Interpretation</h4>
+<div id="interpretation-6" class="section level3">
+<h3>Interpretation</h3>
 <blockquote>
 <p>The factor diagram gives you a big picture sense of the solution: there are 5 factors, and the items vary in how much they load (correlate) with each factor. The output is a little harder to parse, but notice that items also correlate with other factors. Factors also correlate with other factors. You also get some model fit indices, which give you a sense of how much the model impled correlation matrix deviates from the original matrix (like residuals in regression). For more information about the output, see <code>help(fa)</code>.</p>
 </blockquote>
@@ -663,16 +663,16 @@ fa.fit1 &lt;- fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;m
   geom_text() +
   scale_fill_gradient2()</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-16-1.png" width="1512" /></p>
-<div id="interpretation-7" class="section level4">
-<h4>Interpretation</h4>
+<div id="interpretation-7" class="section level3">
+<h3>Interpretation</h3>
 <blockquote>
 <p>MR variables refer to factors from the common factor model, and RC variable refer to components from the components model. Darker blue tiles suggest two factors are more congruent, and whiter and darker red tiles suggest two “factors”<sup>1</sup> are less congruent. These give you a sense of how different the loadings are depending on the model you use. In this case, we used one model that assumes all variance is common and the factors are uncorrelated (Component Analysis) and another model that assumes some variance is common but some is also special or due to error, and factors are correlated (Common Factor Analysis).</p>
 </blockquote>
 </div>
 </div>
 </div>
-<div id="in-closing-use-the-non-metric-multidimensional-scaling-procedure-on-big-five-inventory-items" class="section level1">
-<h1>In closing, use the Non-Metric Multidimensional Scaling procedure on Big Five Inventory items</h1>
+<div id="full-circle-use-the-non-metric-multidimensional-scaling-procedure-on-big-five-inventory-items" class="section level1">
+<h1>Full circle: Use the Non-Metric Multidimensional Scaling procedure on Big Five Inventory items</h1>
 <div id="save-the-correlation-matrix-and-convert-it-to-distance" class="section level2">
 <h2>Save the correlation matrix and convert it to distance</h2>
 <blockquote>
@@ -684,8 +684,9 @@ r &lt;- corFiml(bfi25)
 
 # convert to distance matrix
 bfi.d &lt;- sqrt(2 * (1 - r))</code></pre>
-<div id="kruskals-non-metric-multidimensional-scaling" class="section level3">
-<h3>Kruskal’s Non-metric Multidimensional Scaling</h3>
+</div>
+<div id="kruskals-non-metric-multidimensional-scaling" class="section level2">
+<h2>Kruskal’s Non-metric Multidimensional Scaling</h2>
 <blockquote>
 <p>2-dimensions, because 5 dimensions would be bonkers <code>help(isoMDS)</code><br />
 “This chooses a k-dimensional (default k = 2) configuration to minimize the stress, the square root of the ratio of the sum of squared differences between the input distances and those of the configuration to the sum of configuration distances squared. However, the input distances are allowed a monotonic transformation.”</p>
@@ -700,7 +701,6 @@ isoMDS.fit1 &lt;- isoMDS(bfi.d, k = 2, maxit = 100)</code></pre>
 ## iter  10 value 14.459080
 ## final  value 14.459080 
 ## converged</code></pre>
-</div>
 <div id="store-points-from-the-fitted-configurationsolution-in-a-tibble-data.frame-1" class="section level3">
 <h3>Store points from the fitted configuration/solution in a tibble <code>data.frame</code></h3>
 <ol style="list-style-type: decimal">
@@ -716,15 +716,15 @@ isoMDS.fit1 &lt;- isoMDS(bfi.d, k = 2, maxit = 100)</code></pre>
                                ifelse(str_detect(item, pattern = &quot;E&quot;), &quot;Extraversion&quot;,
                                ifelse(str_detect(item, pattern = &quot;N&quot;), &quot;Emotional Stability&quot;,
                                ifelse(str_detect(item, pattern = &quot;O&quot;), &quot;Openness&quot;, NA))))))</code></pre>
-<div id="plot-the-imperfect-2-dimension-solution" class="section level4">
-<h4>Plot the (imperfect) 2-dimension solution</h4>
+</div>
+<div id="plot-the-imperfect-2-dimension-solution" class="section level3">
+<h3>Plot the (imperfect) 2-dimension solution</h3>
 <pre class="r"><code>isoMDS.data1 %&gt;% 
   ggplot(mapping = aes(x = dimension1, y = dimension2, label = item, color = trait)) +
   geom_point() +
   geom_text(nudge_x = 0.025) +
   theme(legend.position = &quot;top&quot;)</code></pre>
 <p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
-</div>
 <div id="interpretation-8" class="section level4">
 <h4>Interpretation</h4>
 <blockquote>

@@ -104,7 +104,7 @@ UScitiesD %>%
 #### Interpretation
 > Darker tiles index that two cities are relatively far apart, and lighter tiles index that two cities are relatively close together (e.g., white tiles = a city is right next to itself)
 
-### Metric Multidimensional Scaling (2-dimensions, like a map)
+## Metric Multidimensional Scaling (2-dimensions, like a map)
 > `help(cmdscale)`  
 > "Classical multidimensional scaling (MDS) of a data matrix. Also known as principal coordinates analysis (Gower, 1966)."
 
@@ -116,7 +116,7 @@ cmdscale.fit1 <- cmdscale(UScitiesD, k = 2, eig = TRUE)
 
 ```
 
-### Plot eigenvalues sorted by size (i.e., screeplot)
+## Plot eigenvalues sorted by size (i.e., screeplot)
 > You can use eigenvalues to give you a sense of how many dimensions can capture most of the information from original data. A "big" eigenvalue means a lot of information is contained in a given dimension. You can tell how big the eigenvalues are by looking a a plot of the digenvalues sorted by size. Analysts typically determine the number of dimensions to use by counting eigenvalues from left to right until the pattern of points flattens out (i.e., there is little leftover information contained in the remaining dimensions).
 
 ```{r}
@@ -130,10 +130,10 @@ tibble(index = 1:length(cmdscale.fit1$eig),
 
 ```
 
-#### Interpretation
+### Interpretation
 > Because the lines stop dropping after 2-3 points, this suggest most of the information can be "captured" by 2-3 dimensions. To make a plot easier to interpret, I already asked for 2 dimensions.
 
-### Store points from the fitted configuration/solution in a tibble `data.frame`
+## Store points from the fitted configuration/solution in a tibble `data.frame`
 > The first and second dimension are stored as columns in the `points` object from the `cmdscale` function
 
 ```{r}
@@ -144,7 +144,7 @@ cmdscale.data <- tibble(city = rownames(cmdscale.fit1$points),
 
 ```
 
-#### Plot the solution
+### Plot the solution
 > Note that I asked ggplot2 to plot the negative dimension scores to make the plot more interpretable compared to a map of the U.S. (i.e., real life)
 
 ```{r}
@@ -156,7 +156,7 @@ cmdscale.data %>%
 
 ```
 
-#### Compare the solution above to a map of the U.S. below
+### Compare the solution above to a map of the U.S. below
 > Because we only used pairwise distances among ten U.S. cities, the solution imperfectly represented real relations among these cities. For example, Miami seems to be in the right spot on the "Southeastern quadrant" of the plot, it seems to sit on almost a horizontal line with Houston; in real life, Houston is northwest of Miami, not directly west like the solution implies.
 
 ```{r}
@@ -201,13 +201,13 @@ map_data("state") %>%
 # What's the difference between Principal Components Analysis and Common Factor Analysis?
 > The major difference in these techniques boils down to error: Whereas the Principal Components model assumes that all variance is common variance, the Common Factor model partitions variance into common and unique variance (which includes error). Another way to think about the difference is that the Principal Components model tries to explain as much variance as possible with a small number of components, and Common Factor model tries to explain the shared relationships among the items with a small number of factors after setting aside what is not shared (i.e., the item-specific parts and the error parts). Below, I demonstrate the differences in how these two techniques account for variance in a sample of Big Five Inventory questions.
 
-# Big Five Inventory
+## Big Five Inventory
 > `help(bfi)` and `help(bfi.dictionary)`  
 > "The first 25 items are organized by five putative factors: Agreeableness, Conscientiousness, Extraversion, Neuroticism, and Opennness."  
 
 > "The item data were collected using a 6 point response scale: 1 Very Inaccurate 2 Moderately Inaccurate 3 Slightly Inaccurate 4 Slightly Accurate 5 Moderately Accurate 6 Very Accurate"
 
-## Sample Questions
+### Sample Questions
 1. Am indifferent to the feelings of others.
 2. Inquire about others' well-being.
 3. Know how to comfort others.
@@ -311,7 +311,7 @@ principal(bfi25, nfactors = 5, rotate = "varimax") %>%
 
 ```
 
-#### Interpretation
+### Interpretation
 > The component diagram gives you a big picture sense of the solution: there are 5 components, and the items vary in how much they load (correlate) with each component. The output is a little harder to parse, but notice that items also correlate with other components. For more information about the output, see `help(principal)`.
 
 # Common Factor Analysis
@@ -329,7 +329,7 @@ fa(bfi25, nfactors = 5, rotate = "oblimin", fm = "minres") %>%
 
 ```
 
-#### Interpretation
+### Interpretation
 > The factor diagram gives you a big picture sense of the solution: there are 5 factors, and the items vary in how much they load (correlate) with each factor. The output is a little harder to parse, but notice that items also correlate with other factors. Factors also correlate with other factors. You also get some model fit indices, which give you a sense of how much the model impled correlation matrix deviates from the original matrix (like residuals in regression). For more information about the output, see `help(fa)`.
 
 # Compare correlations among factors extracted from each model
@@ -363,10 +363,10 @@ factor.congruence(list(principal.fit1, fa.fit1)) %>%
 
 ```
 
-#### Interpretation
+### Interpretation
 > MR variables refer to factors from the common factor model, and RC variable refer to components from the  components model. Darker blue tiles suggest two factors are more congruent, and whiter and darker red tiles suggest two "factors"^1^ are less congruent. These give you a sense of how different the loadings are depending on the model you use. In this case, we used one model that assumes all variance is common and the factors are uncorrelated (Component Analysis) and another model that assumes some variance is common but some is also special or due to error, and factors are correlated (Common Factor Analysis).
 
-# In closing, use the Non-Metric Multidimensional Scaling procedure on Big Five Inventory items
+# Full circle: Use the Non-Metric Multidimensional Scaling procedure on Big Five Inventory items
 
 ## Save the correlation matrix and convert it to distance
 > `help(corFiml)`  
@@ -382,7 +382,7 @@ bfi.d <- sqrt(2 * (1 - r))
 
 ```
 
-### Kruskal's Non-metric Multidimensional Scaling
+## Kruskal's Non-metric Multidimensional Scaling
 > 2-dimensions, because 5 dimensions would be bonkers
 > `help(isoMDS)`  
 > "This chooses a k-dimensional (default k = 2) configuration to minimize the stress, the square root of the ratio of the sum of squared differences between the input distances and those of the configuration to the sum of configuration distances squared. However, the input distances are allowed a monotonic transformation."
@@ -412,7 +412,7 @@ isoMDS.data1 <- tibble(item = rownames(isoMDS.fit1$points),
 
 ```
 
-#### Plot the (imperfect) 2-dimension solution
+### Plot the (imperfect) 2-dimension solution
 
 ```{r}
 
