@@ -64,10 +64,10 @@ library(MBESS)</code></pre>
 <blockquote>
 <p>I took the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="https://github.com/nmmichalak/academic-kickstart/blob/master/static/post/2019-02-13-testing-indirect-effects-mediation-in-r/data/mackinnon_2008_t10.1.csv"><strong>mackinnon_2008_t10.1.csv</strong></a>]</p>
 </blockquote>
-<pre class="r"><code>thirst_dat &lt;- read_csv(&quot;data/mackinnon_2008_t10.1.csv&quot;)</code></pre>
+<pre class="r"><code>thirst.dat &lt;- read_csv(&quot;data/mackinnon_2008_t10.1.csv&quot;)</code></pre>
 <div id="print-first-and-last-five-observations" class="section level3">
 <h3>Print first and last five observations</h3>
-<pre class="r"><code>thirst_dat %&gt;% 
+<pre class="r"><code>thirst.dat %&gt;% 
   headTail() %&gt;% 
   kable()</code></pre>
 <table>
@@ -141,11 +141,11 @@ library(MBESS)</code></pre>
 <div id="visualize-relationships" class="section level2">
 <h2>Visualize relationships</h2>
 <blockquote>
-<p>It’s always a good idea to look at your data. Check some assumptions.</p>
+<p>It’s always a good idea to look at your data. Check some assumptions. See <code>help(pairs.panels)</code> for details.</p>
 </blockquote>
-<pre class="r"><code>thirst_dat %&gt;% 
+<pre class="r"><code>thirst.dat %&gt;% 
   select(room_temp, thirst, consume) %&gt;% 
-  pairs.panels()</code></pre>
+  pairs.panels(scale = FALSE, pch = &quot;.&quot;)</code></pre>
 <p><img src="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 </div>
 <div id="conceptual-diagram" class="section level2">
@@ -187,14 +187,14 @@ library(MBESS)</code></pre>
 <blockquote>
 <p>You must specify bootstrapping in the <code>sem()</code> function</p>
 </blockquote>
-<pre class="r"><code>fsem1 &lt;- sem(mod1, data = thirst_dat, se = &quot;bootstrap&quot;, bootstrap = 10000)</code></pre>
+<pre class="r"><code>sem.fit1 &lt;- sem(mod1, data = thirst.dat, se = &quot;bootstrap&quot;, bootstrap = 10000)</code></pre>
 </div>
 <div id="summarize-model" class="section level2">
 <h2>Summarize model</h2>
 <blockquote>
-<p>standardized = TRUE adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
+<p><code>standardized = TRUE</code> adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
 </blockquote>
-<pre class="r"><code>summary(fsem1, standardized = TRUE)</code></pre>
+<pre class="r"><code>summary(sem.fit1, standardized = TRUE)</code></pre>
 <pre><code>## lavaan 0.6-3 ended normally after 12 iterations
 ## 
 ##   Optimization method                           NLMINB
@@ -235,7 +235,7 @@ library(MBESS)</code></pre>
 <blockquote>
 <p>In the boot.ci.type argument, I ask for bia-corrected and accelerated confidence intervals.</p>
 </blockquote>
-<pre class="r"><code>parameterestimates(fsem1, boot.ci.type = &quot;bca.simple&quot;, standardized = TRUE) %&gt;% 
+<pre class="r"><code>parameterestimates(sem.fit1, boot.ci.type = &quot;bca.simple&quot;, standardized = TRUE) %&gt;% 
   kable()</code></pre>
 <table>
 <thead>
@@ -382,7 +382,7 @@ library(MBESS)</code></pre>
 <div id="interpretation" class="section level2">
 <h2>Interpretation</h2>
 <blockquote>
-<p>Every 1&amp;degF increase in room temperature was associated with an <em>a</em> = 0.339 (<em>S.E.</em> = 0.101) increase in thirstiness units. Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking <em>b</em> = 0.451 (<em>S.E.</em> = 0.149) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness. Specifically, for every <em>a</em> = 0.339 unit increase in the association between room temperature and thirstiness, there was an <em>ab</em> = 0.153 (<em>S.E.</em> = 0.064) increase in deciliters of water people drank. Importatnly, a bias-corrected bootstrapped confidence interval with 10,000 samples was above zero, 95% CI [0.06, 0.32]. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.208 (<em>S.E.</em> = 0.130).</p>
+<p>Every 1°F increase in room temperature was associated with an <em>a</em> = 0.76 (<em>S.E.</em> = 0.15) increase in thirstiness units. Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking 0.35 (<em>S.E.</em> = 0.14) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness. Specifically, for every <em>a</em> = 0.76 unit increase in the association between room temperature and thirstiness, there was an <em>ab</em> = 0.26 (<em>S.E.</em> = 0.12) increase in deciliters of water people drank. Importatnly, a bias-corrected bootstrapped confidence interval with 10,000 samples was above zero, 95% CI [0.06, 0.32]. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.04 (<em>S.E.</em> = 0.19).</p>
 </blockquote>
 </div>
 <div id="test-same-model-using-mediation-from-mbess" class="section level2">
@@ -390,7 +390,7 @@ library(MBESS)</code></pre>
 <blockquote>
 <p>The syntax for <code>mediation()</code> doesn’t have as steep a learning curve as lavaan, but lavaan (and SEM in general) has a gazillion-fold more flexability in specifying more involved models.</p>
 </blockquote>
-<pre class="r"><code>with(thirst_dat, mediation(x = room_temp, mediator = thirst, dv = consume, bootstrap = TRUE, which.boot = &quot;BCa&quot;, B = 10000))</code></pre>
+<pre class="r"><code>with(thirst.dat, mediation(x = room_temp, mediator = thirst, dv = consume, bootstrap = TRUE, which.boot = &quot;BCa&quot;, B = 10000))</code></pre>
 <pre><code>## [1] &quot;Bootstrap resampling has begun. This process may take a considerable amount of time if the number of replications is large, which is optimal for the bootstrap procedure.&quot;</code></pre>
 <pre><code>##                                          Estimate CI.Lower_BCa
 ## Indirect.Effect                        0.26447934  0.067266940
@@ -420,7 +420,7 @@ library(MBESS)</code></pre>
 ## SOS                                       1.0000000</code></pre>
 <div id="plot-the-mediation-effect" class="section level3">
 <h3>Plot the mediation effect</h3>
-<pre class="r"><code>with(thirst_dat, mediation.effect.plot(x = room_temp, mediator = thirst, dv = consume, ylab = &quot;Water Drank (dl)&quot;, xlab = &quot;Thirstiness (1/5 = Not at all thirty/Very thirsty)&quot;))</code></pre>
+<pre class="r"><code>with(thirst.dat, mediation.effect.plot(x = room_temp, mediator = thirst, dv = consume, ylab = &quot;Water Drank (dl)&quot;, xlab = &quot;Thirstiness (1/5 = Not at all thirty/Very thirsty)&quot;))</code></pre>
 <p><img src="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <blockquote>
 <p>The plot above depicts the relationship between the proposed mediator (thirstiness) and outcome variable (water drank, in dl) at different levels of the proposed antecedent (room temperature, in &amp;degF). The plot doesn’t label this, but if check out the right triangle formed in between the vertical lines marking the <em>a</em> coefficient, you’ll see the indirect effect, which is the height of this triangle.</p>
@@ -429,12 +429,12 @@ library(MBESS)</code></pre>
 </div>
 <div id="test-the-same-model-using-mediate-from-psych" class="section level2">
 <h2>Test the same model using <code>mediate()</code> from psych</h2>
-<pre class="r"><code>mediate(consume ~ room_temp + thirst, data = thirst_dat, n.iter = 10000) %&gt;% 
+<pre class="r"><code>mediate(consume ~ room_temp + thirst, data = thirst.dat, n.iter = 10000) %&gt;% 
   print(short = FALSE)</code></pre>
 <p><img src="/post/2019-02-13-testing-indirect-effects-mediation-in-r/2019-02-13-testing-indirect-effects-mediation-in-r_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <pre><code>## 
 ## Mediation/Moderation Analysis 
-## Call: mediate(y = consume ~ room_temp + thirst, data = thirst_dat, 
+## Call: mediate(y = consume ~ room_temp + thirst, data = thirst.dat, 
 ##     n.iter = 10000)
 ## 
 ## The DV (Y) was  consume . The IV (X) was  room_temp thirst . The mediating variable(s) =  .
