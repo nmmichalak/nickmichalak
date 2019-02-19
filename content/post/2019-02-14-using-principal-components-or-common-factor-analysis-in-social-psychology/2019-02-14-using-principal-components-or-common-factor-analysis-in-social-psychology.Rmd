@@ -55,12 +55,14 @@ image:
 # install.packages("haven")
 # install.packages("maps")
 # install.packages("psych")
+# install.packages("MASS")
 
 library(tidyverse)
 library(knitr)
 library(haven)
 library(maps)
 library(psych)
+library(MASS)
 
 # use select from dplyr
 select <- dplyr::select
@@ -363,6 +365,67 @@ factor.congruence(list(principal.fit1, fa.fit1)) %>%
 
 #### Interpretation
 > MR variables refer to factors from the common factor model, and RC variable refer to components from the  components model. Darker blue tiles suggest two factors are more congruent, and whiter and darker red tiles suggest two "factors"^1^ are less congruent. These give you a sense of how different the loadings are depending on the model you use. In this case, we used one model that assumes all variance is common and the factors are uncorrelated (Component Analysis) and another model that assumes some variance is common but some is also special or due to error, and factors are correlated (Common Factor Analysis).
+
+# In closing, use the Non-Metric Multidimensional Scaling procedure on Big Five Inventory items
+
+## Save the correlation matrix and convert it to distance
+> `help(corFiml)`  
+> "In the presence of missing data, Full Information Maximum Likelihood (FIML) is an alternative to simply using the pairwise correlations. The implementation in the lavaan package for structural equation modeling has been adapted for the simpler case of just finding the correlations or covariances."
+
+```{r}
+
+# save correlation matrix
+r <- corFiml(bfi25)
+
+# convert to distance matrix
+bfi.d <- sqrt(2 * (1 - r))
+
+```
+
+### Kruskal's Non-metric Multidimensional Scaling
+> 2-dimensions, because 5 dimensions would be bonkers
+> `help(isoMDS)`  
+> "This chooses a k-dimensional (default k = 2) configuration to minimize the stress, the square root of the ratio of the sum of squared differences between the input distances and those of the configuration to the sum of configuration distances squared. However, the input distances are allowed a monotonic transformation."
+
+```{r}
+
+# give it distance values and number of dimensions
+# also ask for the function to output eigenvalues
+isoMDS.fit1 <- isoMDS(bfi.d, k = 2, maxit = 100)
+
+```
+
+### Store points from the fitted configuration/solution in a tibble `data.frame`
+1. The first and second dimension are stored as columns in the `points` object from the `isoMDS` function  
+2. I use the ifelse and str_detect functions to create a trait variable that identifies the trait the item is supposed to "tap into."
+
+```{r}
+
+isoMDS.data1 <- tibble(item = rownames(isoMDS.fit1$points),
+                       dimension1 = isoMDS.fit1$points[, 1],
+                       dimension2 = isoMDS.fit1$points[, 2],
+                       trait = ifelse(str_detect(item, pattern = "A"), "Agreeableness",
+                               ifelse(str_detect(item, pattern = "C"), "Conscientiousness",
+                               ifelse(str_detect(item, pattern = "E"), "Extraversion",
+                               ifelse(str_detect(item, pattern = "N"), "Emotional Stability",
+                               ifelse(str_detect(item, pattern = "O"), "Openness", NA))))))
+
+```
+
+#### Plot the (imperfect) 2-dimension solution
+
+```{r}
+
+isoMDS.data1 %>% 
+  ggplot(mapping = aes(x = dimension1, y = dimension2, label = item, color = trait)) +
+  geom_point() +
+  geom_text(nudge_x = 0.025) +
+  theme(legend.position = "top")
+
+```
+
+#### Interpretation
+> To be rigorous, I used a non-metric version of Multidimensional Scaling that uses a "non-monotonic" function (i.e., ordinal, non-linear) to find a solution. I only asked for 2 dimensions, so the solution doesn't quite capture what we might expect: The items from the unique traits didn't cluster together perfectly in this 2-dimensional space. But the items do seem to "cluster" together a little like you'd expect. Perhaps other technqiues could better capture how these items cluster together in traits (e.g., k-means clustering). Maybe that's for another post. In any case, these procedures are pretty impressive!
 
 # Footnotes
 1. Although it many cases it's useful to distinguish between factors and components (I do in this post), the information you need to interpret differences in solutions boils down to differences among models, not terms. Here's a case where it's confusing to refer to factors and components because it makes it seems like the congruence test is comparing apples to oranges; but it's comparing "factor" (or "component") solutions from two different models.

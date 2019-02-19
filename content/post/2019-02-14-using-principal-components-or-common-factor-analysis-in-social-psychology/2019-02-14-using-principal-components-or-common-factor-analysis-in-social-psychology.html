@@ -65,12 +65,14 @@ image:
 # install.packages(&quot;haven&quot;)
 # install.packages(&quot;maps&quot;)
 # install.packages(&quot;psych&quot;)
+# install.packages(&quot;MASS&quot;)
 
 library(tidyverse)
 library(knitr)
 library(haven)
 library(maps)
 library(psych)
+library(MASS)
 
 # use select from dplyr
 select &lt;- dplyr::select</code></pre>
@@ -666,6 +668,69 @@ fa.fit1 &lt;- fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;m
 <blockquote>
 <p>MR variables refer to factors from the common factor model, and RC variable refer to components from the components model. Darker blue tiles suggest two factors are more congruent, and whiter and darker red tiles suggest two “factors”<sup>1</sup> are less congruent. These give you a sense of how different the loadings are depending on the model you use. In this case, we used one model that assumes all variance is common and the factors are uncorrelated (Component Analysis) and another model that assumes some variance is common but some is also special or due to error, and factors are correlated (Common Factor Analysis).</p>
 </blockquote>
+</div>
+</div>
+</div>
+<div id="in-closing-use-the-non-metric-multidimensional-scaling-procedure-on-big-five-inventory-items" class="section level1">
+<h1>In closing, use the Non-Metric Multidimensional Scaling procedure on Big Five Inventory items</h1>
+<div id="save-the-correlation-matrix-and-convert-it-to-distance" class="section level2">
+<h2>Save the correlation matrix and convert it to distance</h2>
+<blockquote>
+<p><code>help(corFiml)</code><br />
+“In the presence of missing data, Full Information Maximum Likelihood (FIML) is an alternative to simply using the pairwise correlations. The implementation in the lavaan package for structural equation modeling has been adapted for the simpler case of just finding the correlations or covariances.”</p>
+</blockquote>
+<pre class="r"><code># save correlation matrix
+r &lt;- corFiml(bfi25)
+
+# convert to distance matrix
+bfi.d &lt;- sqrt(2 * (1 - r))</code></pre>
+<div id="kruskals-non-metric-multidimensional-scaling" class="section level3">
+<h3>Kruskal’s Non-metric Multidimensional Scaling</h3>
+<blockquote>
+<p>2-dimensions, because 5 dimensions would be bonkers <code>help(isoMDS)</code><br />
+“This chooses a k-dimensional (default k = 2) configuration to minimize the stress, the square root of the ratio of the sum of squared differences between the input distances and those of the configuration to the sum of configuration distances squared. However, the input distances are allowed a monotonic transformation.”</p>
+</blockquote>
+<pre class="r"><code># give it distance values and number of dimensions
+# also ask for the function to output eigenvalues
+isoMDS.fit1 &lt;- isoMDS(bfi.d, k = 2, maxit = 100)</code></pre>
+<pre><code>## initial  value 20.324535 
+## iter   5 value 14.753512
+## iter  10 value 14.467916
+## iter  10 value 14.460913
+## iter  10 value 14.459080
+## final  value 14.459080 
+## converged</code></pre>
+</div>
+<div id="store-points-from-the-fitted-configurationsolution-in-a-tibble-data.frame-1" class="section level3">
+<h3>Store points from the fitted configuration/solution in a tibble <code>data.frame</code></h3>
+<ol style="list-style-type: decimal">
+<li>The first and second dimension are stored as columns in the <code>points</code> object from the <code>isoMDS</code> function<br />
+</li>
+<li>I use the ifelse and str_detect functions to create a trait variable that identifies the trait the item is supposed to “tap into.”</li>
+</ol>
+<pre class="r"><code>isoMDS.data1 &lt;- tibble(item = rownames(isoMDS.fit1$points),
+                       dimension1 = isoMDS.fit1$points[, 1],
+                       dimension2 = isoMDS.fit1$points[, 2],
+                       trait = ifelse(str_detect(item, pattern = &quot;A&quot;), &quot;Agreeableness&quot;,
+                               ifelse(str_detect(item, pattern = &quot;C&quot;), &quot;Conscientiousness&quot;,
+                               ifelse(str_detect(item, pattern = &quot;E&quot;), &quot;Extraversion&quot;,
+                               ifelse(str_detect(item, pattern = &quot;N&quot;), &quot;Emotional Stability&quot;,
+                               ifelse(str_detect(item, pattern = &quot;O&quot;), &quot;Openness&quot;, NA))))))</code></pre>
+<div id="plot-the-imperfect-2-dimension-solution" class="section level4">
+<h4>Plot the (imperfect) 2-dimension solution</h4>
+<pre class="r"><code>isoMDS.data1 %&gt;% 
+  ggplot(mapping = aes(x = dimension1, y = dimension2, label = item, color = trait)) +
+  geom_point() +
+  geom_text(nudge_x = 0.025) +
+  theme(legend.position = &quot;top&quot;)</code></pre>
+<p><img src="/post/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology/2019-02-14-using-principal-components-or-common-factor-analysis-in-social-psychology_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+</div>
+<div id="interpretation-8" class="section level4">
+<h4>Interpretation</h4>
+<blockquote>
+<p>To be rigorous, I used a non-metric version of Multidimensional Scaling that uses a “non-monotonic” function (i.e., ordinal, non-linear) to find a solution. I only asked for 2 dimensions, so the solution doesn’t quite capture what we might expect: The items from the unique traits didn’t cluster together perfectly in this 2-dimensional space. But the items do seem to “cluster” together a little like you’d expect. Perhaps other technqiues could better capture how these items cluster together in traits (e.g., k-means clustering). Maybe that’s for another post. In any case, these procedures are pretty impressive!</p>
+</blockquote>
+</div>
 </div>
 </div>
 </div>
