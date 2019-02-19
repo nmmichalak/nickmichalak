@@ -370,13 +370,13 @@ cmdscale.fit1 &lt;- cmdscale(UScitiesD, k = 2, eig = TRUE)</code></pre>
 <div id="specific-variance" class="section level3">
 <h3>Specific Variance</h3>
 <blockquote>
-<p>Specific variance refers to variance explained by “special” parts of particular items. For example, one of the extraversion items from the HEXACO asks whether respondents agree with the item, “Am usually active and full of energy.” It’s possible some of the variability in agreement to this item comes from people who conider themselves active because they exercise a lot or active because they’re talking to people a lot (i.e., physically active vs. social active).</p>
+<p>Specific variance refers to variance explained by “special” parts of particular items. For example, one of the extraversion items from the <a href="http://www.hexaco.org/">HEXACO</a> asks whether respondents agree with the item, “Am usually active and full of energy.” It’s possible some of the variability in agreement to this item comes from people who conider themselves active because they exercise a lot or active because they’re talking to people a lot (i.e., physically active vs. social active).</p>
 </blockquote>
 </div>
 <div id="error-variance" class="section level3">
 <h3>Error Variance</h3>
 <blockquote>
-<p>Error variance refers to any variability that can’t be explained by common or specific variance. For example, people might respond different because they just received a text message. Note that it’s difficult to distinguish specific variance from error variance unless people take the same test at least 2 times. This would allow you to look for response patterns that emerge across testing contexts that can’t be explained by common variance.</p>
+<p>Error variance refers to any variability that can’t be explained by common or specific variance. For example, people might respond differently because they just received a text message. Note that it’s difficult to distinguish specific variance from error variance unless people take the same test at least 2 times. This would allow you to look for response patterns that emerge across testing contexts that can’t be explained by what’s common among the questions.</p>
 </blockquote>
 </div>
 </div>
@@ -646,8 +646,8 @@ principal.fit1 &lt;- principal(bfi25, nfactors = 5, rotate = &quot;varimax&quot;
 # fit factor analysis
 fa.fit1 &lt;- fa(bfi25, nfactors = 5, rotate = &quot;oblimin&quot;, fm = &quot;minres&quot;)</code></pre>
 </div>
-<div id="factor-congruence" class="section level2">
-<h2>factor congruence</h2>
+<div id="are-the-factors-and-components-congruent" class="section level2">
+<h2>Are the factors and components congruent?</h2>
 <blockquote>
 <p><code>help(factor.congruence)</code><br />
 “Given two sets of factor loadings, report their degree of congruence (vector cosine). Although first reported by Burt (1948), this is frequently known as the Tucker index of factor congruence.”</p>

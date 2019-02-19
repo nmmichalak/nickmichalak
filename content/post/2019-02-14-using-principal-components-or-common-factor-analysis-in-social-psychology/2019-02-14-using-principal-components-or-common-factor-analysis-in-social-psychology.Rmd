@@ -191,10 +191,10 @@ map_data("state") %>%
 > Unique variance refers to not-common variance. It has two parts: specific and error.
 
 ### Specific Variance
-> Specific variance refers to variance explained by "special" parts of particular items. For example, one of the extraversion items from the HEXACO asks whether respondents agree with the item, "Am usually active and full of energy." It's possible some of the variability in agreement to this item comes from people who conider themselves active because they exercise a lot or active because they're talking to people a lot (i.e., physically active vs. social active).
+> Specific variance refers to variance explained by "special" parts of particular items. For example, one of the extraversion items from the [HEXACO](http://www.hexaco.org/) asks whether respondents agree with the item, "Am usually active and full of energy." It's possible some of the variability in agreement to this item comes from people who conider themselves active because they exercise a lot or active because they're talking to people a lot (i.e., physically active vs. social active).
 
 ### Error Variance
-> Error variance refers to any variability that can't be explained by common or specific variance. For example, people might respond different because they just received a text message. Note that it's difficult to distinguish specific variance from error variance unless people take the same test at least 2 times. This would allow you to look for response patterns that emerge across testing contexts that can't be explained by common variance.
+> Error variance refers to any variability that can't be explained by common or specific variance. For example, people might respond differently because they just received a text message. Note that it's difficult to distinguish specific variance from error variance unless people take the same test at least 2 times. This would allow you to look for response patterns that emerge across testing contexts that can't be explained by what's common among the questions.
 
 # What's the difference between Principal Components Analysis and Common Factor Analysis?
 > The major difference in these techniques boils down to error: Whereas the Principal Components model assumes that all variance is common variance, the Common Factor model partitions variance into common and unique variance (which includes error). Another way to think about the difference is that the Principal Components model tries to explain as much variance as possible with a small number of components, and Common Factor model tries to explain the shared relationships among the items with a small number of factors after setting aside what is not shared (i.e., the item-specific parts and the error parts). Below, I demonstrate the differences in how these two techniques account for variance in a sample of Big Five Inventory questions.
@@ -344,7 +344,7 @@ fa.fit1 <- fa(bfi25, nfactors = 5, rotate = "oblimin", fm = "minres")
 
 ```
 
-## factor congruence
+## Are the factors and components congruent?
 > `help(factor.congruence)`  
 > "Given two sets of factor loadings, report their degree of congruence (vector cosine). Although first reported by Burt (1948), this is frequently known as the Tucker index of factor congruence."
 
