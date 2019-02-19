@@ -89,45 +89,46 @@ library(psych)</code></pre>
 <blockquote>
 <p>I combined the data from Table 3.1 in Mackinnon (2008, p. 56) [<a href="https://github.com/nmmichalak/academic-kickstart/blob/master/static/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t3.1.csv"><strong>mackinnon_2008_t3.1.csv</strong></a>] with those from Table 10.1 in Mackinnon (2008, p. 291) [<a href="https://github.com/nmmichalak/academic-kickstart/blob/master/static/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/data/mackinnon_2008_t10.1.csv"><strong>mackinnon_2008_t10.1.csv.csv</strong></a>]</p>
 </blockquote>
-<pre class="r"><code>thirst_norm &lt;- read_csv(&quot;data/mackinnon_2008_t3.1.csv&quot;)
-thirst_fit &lt;- read_csv(&quot;data/mackinnon_2008_t10.1.csv&quot;)</code></pre>
+<pre class="r"><code>thirst.normal &lt;- read_csv(&quot;data/mackinnon_2008_t3.1.csv&quot;)
+thirst.fit &lt;- read_csv(&quot;data/mackinnon_2008_t10.1.csv&quot;)</code></pre>
 </div>
 <div id="code-new-ids-for-fit-data" class="section level2">
 <h2>Code new IDs for fit data</h2>
-<pre class="r"><code>thirst_fit$id &lt;- 51:100</code></pre>
+<pre class="r"><code>thirst.fit$id &lt;- 51:100</code></pre>
 </div>
 <div id="add-column-in-both-datasets-that-identifies-fitness-group" class="section level2">
 <h2>Add column in both datasets that identifies fitness group</h2>
 <blockquote>
 <p>Unfit = -0.5 and Fit = 0.5</p>
 </blockquote>
-<pre class="r"><code>thirst_norm$phys_fit &lt;- -0.5
-thirst_fit$phys_fit &lt;- 0.5</code></pre>
+<pre class="r"><code>thirst.normal$phys_fit &lt;- -0.5
+thirst.fit$phys_fit &lt;- 0.5</code></pre>
 </div>
 <div id="bind-unfit-and-fit-data-by-rows" class="section level2">
 <h2>Bind unfit and fit data by rows</h2>
 <blockquote>
 <p>Imagine stacking these datasets on top of eachother</p>
 </blockquote>
-<pre class="r"><code>thirst_data &lt;- bind_rows(thirst_norm, thirst_fit)</code></pre>
+<pre class="r"><code>thirst.data &lt;- bind_rows(thirst.normal, thirst.fit)</code></pre>
 </div>
 <div id="mean-center-predictors" class="section level2">
 <h2>Mean-center predictors</h2>
 <blockquote>
 <p>i.e., mean-center everything but the consume variable</p>
 </blockquote>
-<pre class="r"><code>thirst_data &lt;- thirst_data %&gt;% 
-  mutate(room_temp_c = room_temp - mean(room_temp),
+<pre class="r"><code>thirst.data &lt;- thirst.data %&gt;% 
+  mutate(id = factor(id),
+         room_temp_c = room_temp - mean(room_temp),
          thirst_c = thirst - mean(thirst))</code></pre>
 </div>
 <div id="compute-interaction-terms" class="section level2">
 <h2>Compute interaction terms</h2>
-<pre class="r"><code>thirst_data &lt;- thirst_data %&gt;% 
+<pre class="r"><code>thirst.data &lt;- thirst.data %&gt;% 
   mutate(tmp_fit = room_temp_c * phys_fit,
          thrst_fit = thirst_c * phys_fit)</code></pre>
 <div id="print-first-and-last-five-observations" class="section level3">
 <h3>Print first and last five observations</h3>
-<pre class="r"><code>thirst_data %&gt;% 
+<pre class="r"><code>thirst.data %&gt;% 
   headTail() %&gt;% 
   kable()</code></pre>
 <table>
@@ -190,7 +191,7 @@ thirst_fit$phys_fit &lt;- 0.5</code></pre>
 <td align="left">1.06</td>
 </tr>
 <tr class="odd">
-<td align="left">…</td>
+<td align="left">NA</td>
 <td align="left">…</td>
 <td align="left">…</td>
 <td align="left">…</td>
@@ -249,18 +250,18 @@ thirst_fit$phys_fit &lt;- 0.5</code></pre>
 </div>
 <div id="save-to-data-folder" class="section level3">
 <h3>Save to data folder</h3>
-<pre class="r"><code>thirst_data %&gt;% 
-  write_csv(path = &quot;data/thirst_data.csv&quot;)</code></pre>
+<pre class="r"><code>thirst.data %&gt;% 
+  write_csv(path = &quot;data/thirst.data.csv&quot;)</code></pre>
 </div>
 </div>
 <div id="visualize-relationships" class="section level2">
 <h2>Visualize relationships</h2>
 <blockquote>
-<p>It’s always a good idea to look at your data. Check some assumptions.</p>
+<p>It’s always a good idea to look at your data. Check some assumptions. See <code>help(pairs.panels)</code> for details.</p>
 </blockquote>
-<pre class="r"><code>thirst_data %&gt;% 
+<pre class="r"><code>thirst.data %&gt;% 
   select(room_temp, room_temp_c, thirst, thirst_c, consume, phys_fit, tmp_fit, thrst_fit) %&gt;% 
-  pairs.panels()</code></pre>
+  pairs.panels(scale = FALSE, pch = &quot;.&quot;)</code></pre>
 <p><img src="/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 </div>
 <div id="conceptual-diagram" class="section level2">
@@ -307,14 +308,14 @@ thirst_fit$phys_fit &lt;- 0.5</code></pre>
 <blockquote>
 <p>You must specify bootstrapping in the <code>sem()</code> function</p>
 </blockquote>
-<pre class="r"><code>fsem1 &lt;- sem(mod1, data = thirst_data, se = &quot;bootstrap&quot;, bootstrap = 10000)</code></pre>
+<pre class="r"><code>sem.fit1 &lt;- sem(mod1, data = thirst.data, se = &quot;bootstrap&quot;, bootstrap = 10000)</code></pre>
 </div>
 <div id="summarize-model" class="section level2">
 <h2>Summarize model</h2>
 <blockquote>
-<p>standardized = TRUE adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
+<p><code>standardized = TRUE</code> adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
 </blockquote>
-<pre class="r"><code>summary(fsem1, standardized = TRUE, fit.measures = TRUE)</code></pre>
+<pre class="r"><code>summary(sem.fit1, standardized = TRUE, fit.measures = TRUE)</code></pre>
 <pre><code>## lavaan 0.6-3 ended normally after 16 iterations
 ## 
 ##   Optimization method                           NLMINB
@@ -390,9 +391,9 @@ thirst_fit$phys_fit &lt;- 0.5</code></pre>
 <div id="print-all-model-parameters" class="section level2">
 <h2>Print all model parameters</h2>
 <blockquote>
-<p>in the boot.ci.type argument, I ask for bia-corrected and accelerated confidence intervals</p>
+<p>in the <code>boot.ci.type</code> argument, I ask for bia-corrected and accelerated confidence intervals</p>
 </blockquote>
-<pre class="r"><code>parameterestimates(fsem1, boot.ci.type = &quot;bca.simple&quot;, standardized = TRUE) %&gt;% 
+<pre class="r"><code>parameterestimates(sem.fit1, boot.ci.type = &quot;bca.simple&quot;, standardized = TRUE) %&gt;% 
   kable()</code></pre>
 <table>
 <thead>
@@ -689,7 +690,7 @@ thirst_fit$phys_fit &lt;- 0.5</code></pre>
 <div id="interpretation" class="section level2">
 <h2>Interpretation</h2>
 <blockquote>
-<p>There was no sufficient evidence that physically fit people were thirstier than normal people, <em>a2</em> = 0.195 (<em>S.E.</em> = 0.198). Every 1°F increase in room temperature was associated with an <em>a1</em> = 0.550 (<em>S.E.</em> = 0.090) increase in thirstiness units. However, this association was different between physically fit people and normal people, <em>a3</em> = 0.422 (<em>S.E.</em> = 0.181). Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking <em>b1</em> = 0.361 (<em>S.E.</em> = 0.106) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, <em>b1a3</em> = 0.153 (<em>S.E.</em> = 0.084); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.011, 0.316]. Among normal people, for every <em>a1</em> = 0.550 unit increase in the association between room temperature and thirstiness, there was an <em>a1b1 + a1b3</em> = 0.339 (<em>S.E.</em> = 0.103) increase in deciliters of water people drank. Among physically fit people, for every <em>a1</em> = 0.550 unit increase in the association between room temperature and thirstiness, there was an <em>a1b1 + a1b3</em> = 0.275 (<em>S.E.</em> = 0.098) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.162 (<em>S.E.</em> = 0.111).</p>
+<p>There was no sufficient evidence that physically fit people were thirstier than normal people, <em>a<sub>2</sub></em> = 0.19 (<em>S.E.</em> = 0.2). Every 1°F increase in room temperature was associated with an <em>a<sub>1</sub></em> = 0.55 (<em>S.E.</em> = 0.09) increase in thirstiness units. However, this association was different between physically fit people and normal people, <em>a<sub>3</sub></em> = 0.42 (<em>S.E.</em> = 0.18). Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking <em>b<sub>1</sub></em> = 0.36 (<em>S.E.</em> = 0.1) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, <em>b<sub>1</sub>a<sub>3</sub></em> = 0.15 (<em>S.E.</em> = 0.08); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.011, 0.316]. Among normal people, for every <em>a<sub>1</sub></em> = 0.55 unit increase in the association between room temperature and thirstiness, there was an <em>a<sub>1</sub>b<sub>1</sub> + a<sub>1</sub>b<sub>3</sub></em> = 0.12 (<em>S.E.</em> = 0.05) increase in deciliters of water people drank. Among physically fit people, for every <em>a<sub>1</sub></em> = 0.55 unit increase in the association between room temperature and thirstiness, there was an <em>a<sub>1</sub>b<sub>1</sub> + a<sub>1</sub>b<sub>3</sub></em> = 0.27 (<em>S.E.</em> = 0.1) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.16 (<em>S.E.</em> = 0.11).</p>
 </blockquote>
 </div>
 <div id="conceptual-diagram-1" class="section level2">
@@ -730,14 +731,14 @@ thirst_fit$phys_fit &lt;- 0.5</code></pre>
 <blockquote>
 <p>You must specify bootstrapping in the <code>sem()</code> function</p>
 </blockquote>
-<pre class="r"><code>fsem2 &lt;- sem(mod2, data = thirst_data, se = &quot;bootstrap&quot;, bootstrap = 10000)</code></pre>
+<pre class="r"><code>sem.fit2 &lt;- sem(mod2, data = thirst.data, se = &quot;bootstrap&quot;, bootstrap = 10000)</code></pre>
 </div>
 <div id="summarize-model-1" class="section level2">
 <h2>Summarize model</h2>
 <blockquote>
-<p>standardized = TRUE adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
+<p><code>standardized = TRUE</code> adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
 </blockquote>
-<pre class="r"><code>summary(fsem2, standardized = TRUE, fit.measures = TRUE)</code></pre>
+<pre class="r"><code>summary(sem.fit2, standardized = TRUE, fit.measures = TRUE)</code></pre>
 <pre><code>## lavaan 0.6-3 ended normally after 15 iterations
 ## 
 ##   Optimization method                           NLMINB
@@ -811,9 +812,9 @@ thirst_fit$phys_fit &lt;- 0.5</code></pre>
 <div id="print-all-model-parameters-1" class="section level2">
 <h2>Print all model parameters</h2>
 <blockquote>
-<p>in the boot.ci.type argument, I ask for bia-corrected and accelerated confidence intervals</p>
+<p>in the <code>boot.ci.type</code> argument, I ask for bia-corrected and accelerated confidence intervals</p>
 </blockquote>
-<pre class="r"><code>parameterestimates(fsem2, boot.ci.type = &quot;bca.simple&quot;, standardized = TRUE) %&gt;% 
+<pre class="r"><code>parameterestimates(sem.fit2, boot.ci.type = &quot;bca.simple&quot;, standardized = TRUE) %&gt;% 
   kable()</code></pre>
 <table>
 <thead>
@@ -1080,7 +1081,7 @@ thirst_fit$phys_fit &lt;- 0.5</code></pre>
 <div id="interpretation-1" class="section level2">
 <h2>Interpretation</h2>
 <blockquote>
-<p>Every 1 ℉ increase in room temperature was associated with an <em>a1</em> = 0.497 (<em>S.E.</em> = 0.086) increase in thirstiness units. Adjusting for all other predictors, every 1-unit increase in thirstiness was associated with drinking <em>b1</em> = 0.388 (<em>S.E.</em> = 0.100) more deciliters of water. Also, adjusting for all other predictors, there was no sufficient evidence that physically fit people drank less water than normal people, <em>b2</em> = -0.259 (<em>S.E.</em> = 0.200). There was also no sufficient evidence that the relation between thirstiness and water drinking depended on physical fitness group, <em>b3</em> = -0.174 (<em>S.E.</em> = 0.181). Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, <em>a1b3</em> = -0.086 (<em>S.E.</em> = 0.090); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.262, 0.090]. Among normal people, for every <em>a1</em> = 0.497 unit increase in the association between room temperature and thirstiness, there was an <em>a1b1 + a1b3</em> = 0.236 (<em>S.E.</em> = 0.080) increase in deciliters of water people drank. Among physically fit people, for every <em>a1</em> = 0.497 unit increase in the association between room temperature and thirstiness, there was an <em>a1b1 + a1b3</em> = 0.149 (<em>S.E.</em> = 0.069) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.150 (<em>S.E.</em> = 0.109).</p>
+<p>Every 1°F increase in room temperature was associated with an <em>a<sub>1</sub></em> = 0.5 (<em>S.E.</em> = 0.09) increase in thirstiness units. Adjusting for all other predictors, every 1-unit increase in thirstiness was associated with drinking <em>b<sub>1</sub></em> = -0.17 (<em>S.E.</em> = 0.18) more deciliters of water. Also, adjusting for all other predictors, there was no sufficient evidence that physically fit people drank less water than normal people, <em>b<sub>2</sub></em> = (<em>S.E.</em> = ). There was also no sufficient evidence that the relation between thirstiness and water drinking depended on physical fitness group, <em>b<sub>3</sub></em> = (<em>S.E.</em> = ). Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, <em>a<sub>1</sub>b<sub>3</sub></em> = (<em>S.E.</em> = ); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.262, 0.090]. Among normal people, for every <em>a<sub>1</sub></em> = 0.5 unit increase in the association between room temperature and thirstiness, there was an <em>a<sub>1</sub>b<sub>1</sub> + a<sub>1</sub>b<sub>3</sub></em> = (<em>S.E.</em> = ) increase in deciliters of water people drank. Among physically fit people, for every <em>a<sub>1</sub></em> = 0.5 unit increase in the association between room temperature and thirstiness, there was an <em>a<sub>1</sub>b<sub>1</sub> + a<sub>1</sub>b<sub>3</sub></em> = (<em>S.E.</em> = ) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.15 (<em>S.E.</em> = 0.11).</p>
 </blockquote>
 </div>
 <div id="resources" class="section level2">

@@ -70,8 +70,8 @@ library(psych)
 
 ```{r, message = FALSE, warning = FALSE}
 
-thirst_norm <- read_csv("data/mackinnon_2008_t3.1.csv")
-thirst_fit <- read_csv("data/mackinnon_2008_t10.1.csv")
+thirst.normal <- read_csv("data/mackinnon_2008_t3.1.csv")
+thirst.fit <- read_csv("data/mackinnon_2008_t10.1.csv")
 
 ```
 
@@ -79,7 +79,7 @@ thirst_fit <- read_csv("data/mackinnon_2008_t10.1.csv")
 
 ```{r}
 
-thirst_fit$id <- 51:100
+thirst.fit$id <- 51:100
 
 ```
 
@@ -88,8 +88,8 @@ thirst_fit$id <- 51:100
 
 ```{r}
 
-thirst_norm$phys_fit <- -0.5
-thirst_fit$phys_fit <- 0.5
+thirst.normal$phys_fit <- -0.5
+thirst.fit$phys_fit <- 0.5
 
 ```
 
@@ -98,7 +98,7 @@ thirst_fit$phys_fit <- 0.5
 
 ```{r}
 
-thirst_data <- bind_rows(thirst_norm, thirst_fit)
+thirst.data <- bind_rows(thirst.normal, thirst.fit)
 
 ```
 
@@ -107,8 +107,9 @@ thirst_data <- bind_rows(thirst_norm, thirst_fit)
 
 ```{r}
 
-thirst_data <- thirst_data %>% 
-  mutate(room_temp_c = room_temp - mean(room_temp),
+thirst.data <- thirst.data %>% 
+  mutate(id = factor(id),
+         room_temp_c = room_temp - mean(room_temp),
          thirst_c = thirst - mean(thirst))
 
 ```
@@ -117,7 +118,7 @@ thirst_data <- thirst_data %>%
 
 ```{r}
 
-thirst_data <- thirst_data %>% 
+thirst.data <- thirst.data %>% 
   mutate(tmp_fit = room_temp_c * phys_fit,
          thrst_fit = thirst_c * phys_fit)
 
@@ -127,7 +128,7 @@ thirst_data <- thirst_data %>%
 
 ```{r}
 
-thirst_data %>% 
+thirst.data %>% 
   headTail() %>% 
   kable()
 
@@ -137,19 +138,19 @@ thirst_data %>%
 
 ```{r}
 
-thirst_data %>% 
-  write_csv(path = "data/thirst_data.csv")
+thirst.data %>% 
+  write_csv(path = "data/thirst.data.csv")
 
 ```
 
 ## Visualize relationships
-> It's always a good idea to look at your data. Check some assumptions. 
+> It's always a good idea to look at your data. Check some assumptions. See `help(pairs.panels)` for details.
 
 ```{r}
 
-thirst_data %>% 
+thirst.data %>% 
   select(room_temp, room_temp_c, thirst, thirst_c, consume, phys_fit, tmp_fit, thrst_fit) %>% 
-  pairs.panels()
+  pairs.panels(scale = FALSE, pch = ".")
 
 ```
 
@@ -197,31 +198,31 @@ set.seed(1234)
 
 ```{r}
 
-fsem1 <- sem(mod1, data = thirst_data, se = "bootstrap", bootstrap = 10000)
+sem.fit1 <- sem(mod1, data = thirst.data, se = "bootstrap", bootstrap = 10000)
 
 ```
 
 ## Summarize model
-> standardized = TRUE adds standardized estimate to the model output. Also, see `help("standardizedsolution")`
+> `standardized = TRUE` adds standardized estimate to the model output. Also, see `help("standardizedsolution")`
 
 ```{r}
 
-summary(fsem1, standardized = TRUE, fit.measures = TRUE)
+summary(sem.fit1, standardized = TRUE, fit.measures = TRUE)
 
 ```
 
 ## Print all model parameters
-> in the boot.ci.type argument, I ask for bia-corrected and accelerated confidence intervals
+> in the `boot.ci.type` argument, I ask for bia-corrected and accelerated confidence intervals
 
 ```{r}
 
-parameterestimates(fsem1, boot.ci.type = "bca.simple", standardized = TRUE) %>% 
+parameterestimates(sem.fit1, boot.ci.type = "bca.simple", standardized = TRUE) %>% 
   kable()
 
 ```
 
 ## Interpretation
-> There was no sufficient evidence that physically fit people were thirstier than normal people, *a2* = 0.195 (*S.E.* = 0.198). Every 1&deg;F increase in room temperature was associated with an *a1* = 0.550 (*S.E.* = 0.090) increase in thirstiness units. However, this association was different between physically fit people and normal people, *a3* = 0.422 (*S.E.* = 0.181). Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking *b1* = 0.361 (*S.E.* = 0.106) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, *b1a3* = 0.153 (*S.E.* = 0.084); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.011, 0.316]. Among normal people, for every *a1* = 0.550 unit increase in the association between room temperature and thirstiness, there was an *a1b1 + a1b3* = 0.339 (*S.E.* = 0.103) increase in deciliters of water people drank. Among physically fit people, for every *a1* = 0.550 unit increase in the association between room temperature and thirstiness, there was an *a1b1 + a1b3* = 0.275 (*S.E.* = 0.098) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, *c'* = 0.162 (*S.E.* = 0.111).
+> There was no sufficient evidence that physically fit people were thirstier than normal people, *a~2~* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "a2"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "a2"], 2)`). Every 1&deg;F increase in room temperature was associated with an *a~1~* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "a1"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "a1"], 2)`) increase in thirstiness units. However, this association was different between physically fit people and normal people, *a~3~* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "a3"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "a3"], 2)`). Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking *b~1~* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "b1"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "b1"], 2)`) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, *b~1~a~3~* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "b1a3"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "b1a3"], 2)`); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.011, 0.316]. Among normal people, for every *a~1~* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "a1"], 2)` unit increase in the association between room temperature and thirstiness, there was an *a~1~b~1~ + a~1~b~3~* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "norm"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "norm"], 2)`) increase in deciliters of water people drank. Among physically fit people, for every *a~1~* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "a1"], 2)` unit increase in the association between room temperature and thirstiness, there was an *a~1~b~1~ + a~1~b~3~* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "fit"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "fit"], 2)`) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, *c'* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "cp"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "cp"], 2)`).
 
 ## Conceptual Diagram
 ![Figure 2. Focus on which association fitness group could moderate. Here, the association between thirstiness and water drinking depends on fitness group.](/post/2019-02-14-testing-conditional-indirect-effects-mediation-in-r/2019-02-14-testing-conditional-indirect-effects-mediation-in-r_files/figure_02.jpeg)
@@ -257,31 +258,31 @@ mod2 <- "# a path
 
 ```{r}
 
-fsem2 <- sem(mod2, data = thirst_data, se = "bootstrap", bootstrap = 10000)
+sem.fit2 <- sem(mod2, data = thirst.data, se = "bootstrap", bootstrap = 10000)
 
 ```
 
 ## Summarize model
-> standardized = TRUE adds standardized estimate to the model output. Also, see `help("standardizedsolution")`
+> `standardized = TRUE` adds standardized estimate to the model output. Also, see `help("standardizedsolution")`
 
 ```{r}
 
-summary(fsem2, standardized = TRUE, fit.measures = TRUE)
+summary(sem.fit2, standardized = TRUE, fit.measures = TRUE)
 
 ```
 
 ## Print all model parameters
-> in the boot.ci.type argument, I ask for bia-corrected and accelerated confidence intervals
+> in the `boot.ci.type` argument, I ask for bia-corrected and accelerated confidence intervals
 
 ```{r}
 
-parameterestimates(fsem2, boot.ci.type = "bca.simple", standardized = TRUE) %>% 
+parameterestimates(sem.fit2, boot.ci.type = "bca.simple", standardized = TRUE) %>% 
   kable()
 
 ```
 
 ## Interpretation
-> Every 1 ℉ increase in room temperature was associated with an *a1* = 0.497 (*S.E.* = 0.086) increase in thirstiness units. Adjusting for all other predictors, every 1-unit increase in thirstiness was associated with drinking *b1* = 0.388 (*S.E.* = 0.100) more deciliters of water. Also, adjusting for all other predictors, there was no sufficient evidence that physically fit people drank less water than normal people, *b2* = -0.259 (*S.E.* = 0.200). There was also no sufficient evidence that the relation between thirstiness and water drinking depended on physical fitness group, *b3* = -0.174 (*S.E.* = 0.181). Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, *a1b3* = -0.086 (*S.E.* = 0.090); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.262, 0.090]. Among normal people, for every *a1* = 0.497 unit increase in the association between room temperature and thirstiness, there was an *a1b1 + a1b3* = 0.236 (*S.E.* = 0.080) increase in deciliters of water people drank. Among physically fit people, for every *a1* = 0.497 unit increase in the association between room temperature and thirstiness, there was an *a1b1 + a1b3* = 0.149 (*S.E.* = 0.069) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, *c'* = 0.150 (*S.E.* = 0.109).
+> Every 1&deg;F increase in room temperature was associated with an *a~1~* = `r round(sem.fit2@ParTable$est[sem.fit1@ParTable$label == "a1"], 2)` (*S.E.* = `r round(sem.fit2@ParTable$se[sem.fit1@ParTable$label == "a1"], 2)`) increase in thirstiness units. Adjusting for all other predictors, every 1-unit increase in thirstiness was associated with drinking *b~1~* = `r round(sem.fit2@ParTable$est[sem.fit1@ParTable$label == "b1"], 2)` (*S.E.* = `r round(sem.fit2@ParTable$se[sem.fit1@ParTable$label == "b1"], 2)`) more deciliters of water. Also, adjusting for all other predictors, there was no sufficient evidence that physically fit people drank less water than normal people, *b~2~* = `r round(sem.fit2@ParTable$est[sem.fit1@ParTable$label == "b2"], 2)` (*S.E.* = `r round(sem.fit2@ParTable$se[sem.fit1@ParTable$label == "b2"], 2)`). There was also no sufficient evidence that the relation between thirstiness and water drinking depended on physical fitness group, *b~3~* = `r round(sem.fit2@ParTable$est[sem.fit1@ParTable$label == "b3"], 2)` (*S.E.* = `r round(sem.fit2@ParTable$se[sem.fit1@ParTable$label == "b3"], 2)`). Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, *a~1~b~3~* = `r round(sem.fit2@ParTable$est[sem.fit1@ParTable$label == "a1b3"], 2)` (*S.E.* = `r round(sem.fit2@ParTable$se[sem.fit1@ParTable$label == "a1b3"], 2)`); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.262, 0.090]. Among normal people, for every *a~1~* = `r round(sem.fit2@ParTable$est[sem.fit1@ParTable$label == "a1"], 2)` unit increase in the association between room temperature and thirstiness, there was an *a~1~b~1~ + a~1~b~3~* = `r round(sem.fit2@ParTable$est[sem.fit1@ParTable$label == "normie"], 2)` (*S.E.* = `r round(sem.fit2@ParTable$se[sem.fit1@ParTable$label == "normie"], 2)`) increase in deciliters of water people drank. Among physically fit people, for every *a~1~* = `r round(sem.fit2@ParTable$est[sem.fit1@ParTable$label == "a1"], 2)` unit increase in the association between room temperature and thirstiness, there was an *a~1~b~1~ + a~1~b~3~* = `r round(sem.fit2@ParTable$est[sem.fit1@ParTable$label == "fitie"], 2)` (*S.E.* = `r round(sem.fit2@ParTable$se[sem.fit1@ParTable$label == "fitie"], 2)`) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, *c'* = `r round(sem.fit2@ParTable$est[sem.fit1@ParTable$label == "cp"], 2)` (*S.E.* = `r round(sem.fit2@ParTable$se[sem.fit1@ParTable$label == "cp"], 2)`).
 
 ## Resources
 > * Hayes, A. F. (2015). An index and test of linear moderated mediation. *Multivariate Behavioral Research, 50*(1), 1-22.
