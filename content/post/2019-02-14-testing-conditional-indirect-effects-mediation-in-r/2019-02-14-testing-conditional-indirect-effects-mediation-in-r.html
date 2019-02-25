@@ -52,7 +52,7 @@ image:
 <div id="what-is-a-conditional-indirect-effect-i.e.-moderated-mediation" class="section level2">
 <h2>What is a conditional indirect effect (i.e., moderated mediation)?</h2>
 <blockquote>
-<p>The conditional indirect concept combines moderation and mediaition. Think back to the idea behind a simple indirect effect: It quantifies the extent to which two variables are related through a third variable, the mediator. Coneptually, the conditional indirect effect quantifies the indirect effect at different values of a moderator. In this sense, an indirect effect may be stronger, weaker, or opposite in sign, depending on values of a moderator. Importantly, a moderator may qualify any relation that’s a part of some proposed mediation model. For example, physical fitness might qualify the association between room temperature and thirstiness, between thirstiness and water drinking, or both.</p>
+<p>The conditional indirect concept combines moderation and mediation. Think back to the idea behind a simple indirect effect: It quantifies the extent to which two variables are related through a third variable, the mediator. Coneptually, the conditional indirect effect quantifies the indirect effect at different values of a moderator. In this sense, an indirect effect may be stronger, weaker, or opposite in sign, depending on values of a moderator. Importantly, a moderator may qualify any relation that’s a part of some proposed mediation model. For example, physical fitness might qualify the association between room temperature and thirstiness, between thirstiness and water drinking, or both.</p>
 </blockquote>
 </div>
 <div id="what-is-the-index-of-moderated-mediation" class="section level2">
@@ -282,7 +282,7 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 </ul>
 </blockquote>
 <pre class="r"><code>mod1 &lt;- &quot;# a path
-         thirst_c ~ a1 * room_temp_c
+         thirst_c ~ 1 + a1 * room_temp_c
          thirst_c ~ a2 * phys_fit
          thirst_c ~ a3 * tmp_fit
 
@@ -290,7 +290,7 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
          consume ~ b1 * thirst_c
 
          # c prime path 
-         consume ~ cp * room_temp_c
+         consume ~ 1 + cp * room_temp_c
 
          # index of moderated mediation and conditional indirect effects
          b1a3 := b1 * a3
@@ -308,7 +308,7 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <blockquote>
 <p>You must specify bootstrapping in the <code>sem()</code> function</p>
 </blockquote>
-<pre class="r"><code>sem.fit1 &lt;- sem(mod1, data = thirst.data, se = &quot;bootstrap&quot;, bootstrap = 10000)</code></pre>
+<pre class="r"><code>sem.fit1 &lt;- sem(mod1, data = thirst.data, se = &quot;bootstrap&quot;, bootstrap = 10000, likelihood = &quot;wishart&quot;)</code></pre>
 </div>
 <div id="summarize-model" class="section level2">
 <h2>Summarize model</h2>
@@ -316,48 +316,48 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <p><code>standardized = TRUE</code> adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
 </blockquote>
 <pre class="r"><code>summary(sem.fit1, standardized = TRUE, fit.measures = TRUE)</code></pre>
-<pre><code>## lavaan 0.6-3 ended normally after 16 iterations
+<pre><code>## lavaan 0.6-3 ended normally after 18 iterations
 ## 
 ##   Optimization method                           NLMINB
-##   Number of free parameters                          7
+##   Number of free parameters                          9
 ## 
 ##   Number of observations                           100
 ## 
 ##   Estimator                                         ML
-##   Model Fit Test Statistic                       2.828
+##   Model Fit Test Statistic                       2.800
 ##   Degrees of freedom                                 2
-##   P-value (Chi-square)                           0.243
+##   P-value (Chi-square)                           0.247
 ## 
 ## Model test baseline model:
 ## 
-##   Minimum Function Test Statistic               52.668
+##   Minimum Function Test Statistic               52.141
 ##   Degrees of freedom                                 7
 ##   P-value                                        0.000
 ## 
 ## User model versus baseline model:
 ## 
 ##   Comparative Fit Index (CFI)                    0.982
-##   Tucker-Lewis Index (TLI)                       0.937
+##   Tucker-Lewis Index (TLI)                       0.938
 ## 
 ## Loglikelihood and Information Criteria:
 ## 
-##   Loglikelihood user model (H0)               -283.013
-##   Loglikelihood unrestricted model (H1)       -281.599
+##   Loglikelihood user model (H0)               -284.018
+##   Loglikelihood unrestricted model (H1)       -282.604
 ## 
-##   Number of free parameters                          7
-##   Akaike (AIC)                                 580.027
-##   Bayesian (BIC)                               598.263
-##   Sample-size adjusted Bayesian (BIC)          576.155
+##   Number of free parameters                          9
+##   Akaike (AIC)                                 586.037
+##   Bayesian (BIC)                               609.483
+##   Sample-size adjusted Bayesian (BIC)          581.059
 ## 
 ## Root Mean Square Error of Approximation:
 ## 
 ##   RMSEA                                          0.064
-##   90 Percent Confidence Interval          0.000  0.219
-##   P-value RMSEA &lt;= 0.05                          0.326
+##   90 Percent Confidence Interval          0.000  0.220
+##   P-value RMSEA &lt;= 0.05                          0.329
 ## 
 ## Standardized Root Mean Square Residual:
 ## 
-##   SRMR                                           0.037
+##   SRMR                                           0.032
 ## 
 ## Parameter Estimates:
 ## 
@@ -368,17 +368,22 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 ## Regressions:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
 ##   thirst_c ~                                                            
-##     rom_tmp_c (a1)    0.550    0.090    6.093    0.000    0.550    0.495
-##     phys_fit  (a2)    0.195    0.198    0.983    0.325    0.195    0.086
-##     tmp_fit   (a3)    0.422    0.181    2.333    0.020    0.422    0.190
+##     rom_tmp_c (a1)    0.550    0.091    6.062    0.000    0.550    0.495
+##     phys_fit  (a2)    0.195    0.199    0.979    0.328    0.195    0.086
+##     tmp_fit   (a3)    0.422    0.182    2.322    0.020    0.422    0.190
 ##   consume ~                                                             
-##     thirst_c  (b1)    0.361    0.102    3.554    0.000    0.361    0.361
-##     rom_tmp_c (cp)    0.162    0.111    1.466    0.143    0.162    0.146
+##     thirst_c  (b1)    0.361    0.102    3.536    0.000    0.361    0.361
+##     rom_tmp_c (cp)    0.162    0.111    1.459    0.145    0.162    0.146
+## 
+## Intercepts:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .thirst_c          0.011    0.100    0.105    0.916    0.011    0.009
+##    .consume           3.130    0.103   30.507    0.000    3.130    2.760
 ## 
 ## Variances:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
-##    .thirst_c          0.966    0.109    8.870    0.000    0.966    0.759
-##    .consume           1.020    0.137    7.428    0.000    1.020    0.801
+##    .thirst_c          0.975    0.111    8.826    0.000    0.975    0.759
+##    .consume           1.030    0.139    7.391    0.000    1.030    0.801
 ## 
 ## Defined Parameters:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
@@ -416,63 +421,93 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">thirst_c</td>
-<td align="left">~</td>
-<td align="left">room_temp_c</td>
-<td align="left">a1</td>
-<td align="right">0.5498407</td>
-<td align="right">0.0902423</td>
-<td align="right">6.0929355</td>
-<td align="right">0.0000000</td>
-<td align="right">0.3721695</td>
-<td align="right">0.7288016</td>
-<td align="right">0.5498407</td>
-<td align="right">0.4953097</td>
-<td align="right">0.4873103</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">0.0105624</td>
+<td align="right">0.1002602</td>
+<td align="right">0.1053499</td>
+<td align="right">0.9160981</td>
+<td align="right">-0.1862491</td>
+<td align="right">0.2032403</td>
+<td align="right">0.0105624</td>
+<td align="right">0.0093143</td>
+<td align="right">0.0093143</td>
 </tr>
 <tr class="even">
 <td align="left">thirst_c</td>
 <td align="left">~</td>
-<td align="left">phys_fit</td>
-<td align="left">a2</td>
-<td align="right">0.1949840</td>
-<td align="right">0.1982628</td>
-<td align="right">0.9834622</td>
-<td align="right">0.3253800</td>
-<td align="right">-0.1830428</td>
-<td align="right">0.5837959</td>
-<td align="right">0.1949840</td>
-<td align="right">0.0864048</td>
-<td align="right">0.1728096</td>
+<td align="left">room_temp_c</td>
+<td align="left">a1</td>
+<td align="right">0.5498407</td>
+<td align="right">0.0906969</td>
+<td align="right">6.0623951</td>
+<td align="right">0.0000000</td>
+<td align="right">0.3721695</td>
+<td align="right">0.7288016</td>
+<td align="right">0.5498407</td>
+<td align="right">0.4953096</td>
+<td align="right">0.4848676</td>
 </tr>
 <tr class="odd">
+<td align="left">thirst_c</td>
+<td align="left">~</td>
+<td align="left">phys_fit</td>
+<td align="left">a2</td>
+<td align="right">0.1949841</td>
+<td align="right">0.1992617</td>
+<td align="right">0.9785328</td>
+<td align="right">0.3278109</td>
+<td align="right">-0.1830427</td>
+<td align="right">0.5837960</td>
+<td align="right">0.1949841</td>
+<td align="right">0.0864048</td>
+<td align="right">0.1719434</td>
+</tr>
+<tr class="even">
 <td align="left">thirst_c</td>
 <td align="left">~</td>
 <td align="left">tmp_fit</td>
 <td align="left">a3</td>
 <td align="right">0.4224961</td>
-<td align="right">0.1810685</td>
-<td align="right">2.3333499</td>
-<td align="right">0.0196298</td>
+<td align="right">0.1819807</td>
+<td align="right">2.3216538</td>
+<td align="right">0.0202516</td>
 <td align="right">0.0637116</td>
-<td align="right">0.7788685</td>
+<td align="right">0.7788684</td>
 <td align="right">0.4224961</td>
 <td align="right">0.1900669</td>
-<td align="right">0.3744480</td>
+<td align="right">0.3725710</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">consume</td>
 <td align="left">~</td>
 <td align="left">thirst_c</td>
 <td align="left">b1</td>
 <td align="right">0.3611336</td>
-<td align="right">0.1016088</td>
-<td align="right">3.5541554</td>
-<td align="right">0.0003792</td>
-<td align="right">0.1600217</td>
-<td align="right">0.5569569</td>
+<td align="right">0.1021207</td>
+<td align="right">3.5363404</td>
+<td align="right">0.0004057</td>
+<td align="right">0.1600216</td>
+<td align="right">0.5569571</td>
 <td align="right">0.3611336</td>
 <td align="right">0.3611336</td>
 <td align="right">0.3611336</td>
+</tr>
+<tr class="even">
+<td align="left">consume</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">3.1300000</td>
+<td align="right">0.1025979</td>
+<td align="right">30.5074478</td>
+<td align="right">0.0000000</td>
+<td align="right">2.9287894</td>
+<td align="right">3.3330492</td>
+<td align="right">3.1300000</td>
+<td align="right">2.7601372</td>
+<td align="right">2.7601372</td>
 </tr>
 <tr class="odd">
 <td align="left">consume</td>
@@ -480,27 +515,27 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <td align="left">room_temp_c</td>
 <td align="left">cp</td>
 <td align="right">0.1624260</td>
-<td align="right">0.1107634</td>
-<td align="right">1.4664229</td>
-<td align="right">0.1425331</td>
+<td align="right">0.1113214</td>
+<td align="right">1.4590725</td>
+<td align="right">0.1445452</td>
 <td align="right">-0.0600536</td>
-<td align="right">0.3759548</td>
+<td align="right">0.3759545</td>
 <td align="right">0.1624260</td>
 <td align="right">0.1463173</td>
-<td align="right">0.1439542</td>
+<td align="right">0.1432326</td>
 </tr>
 <tr class="even">
 <td align="left">thirst_c</td>
 <td align="left">~~</td>
 <td align="left">thirst_c</td>
 <td align="left"></td>
-<td align="right">0.9656892</td>
-<td align="right">0.1088703</td>
-<td align="right">8.8700859</td>
+<td align="right">0.9754437</td>
+<td align="right">0.1105240</td>
+<td align="right">8.8256241</td>
 <td align="right">0.0000000</td>
-<td align="right">0.7891153</td>
-<td align="right">1.2159609</td>
-<td align="right">0.9656892</td>
+<td align="right">0.7970862</td>
+<td align="right">1.2282433</td>
+<td align="right">0.9754437</td>
 <td align="right">0.7585337</td>
 <td align="right">0.7585337</td>
 </tr>
@@ -509,13 +544,13 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <td align="left">~~</td>
 <td align="left">consume</td>
 <td align="left"></td>
-<td align="right">1.0196157</td>
-<td align="right">0.1372662</td>
-<td align="right">7.4280159</td>
+<td align="right">1.0299148</td>
+<td align="right">0.1393513</td>
+<td align="right">7.3907821</td>
 <td align="right">0.0000000</td>
-<td align="right">0.7945891</td>
-<td align="right">1.3449966</td>
-<td align="right">1.0196157</td>
+<td align="right">0.8026152</td>
+<td align="right">1.3585829</td>
+<td align="right">1.0299148</td>
 <td align="right">0.8008921</td>
 <td align="right">0.8008921</td>
 </tr>
@@ -524,60 +559,60 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <td align="left">~~</td>
 <td align="left">room_temp_c</td>
 <td align="left"></td>
-<td align="right">1.0331000</td>
+<td align="right">1.0435354</td>
 <td align="right">0.0000000</td>
 <td align="right">NA</td>
 <td align="right">NA</td>
-<td align="right">1.0331000</td>
-<td align="right">1.0331000</td>
-<td align="right">1.0331000</td>
+<td align="right">1.0435354</td>
+<td align="right">1.0435354</td>
+<td align="right">1.0435354</td>
 <td align="right">1.0000000</td>
-<td align="right">1.0331000</td>
+<td align="right">1.0435354</td>
 </tr>
 <tr class="odd">
 <td align="left">room_temp_c</td>
 <td align="left">~~</td>
 <td align="left">phys_fit</td>
 <td align="left"></td>
-<td align="right">-0.0250000</td>
+<td align="right">-0.0252525</td>
 <td align="right">0.0000000</td>
 <td align="right">NA</td>
 <td align="right">NA</td>
-<td align="right">-0.0250000</td>
-<td align="right">-0.0250000</td>
-<td align="right">-0.0250000</td>
+<td align="right">-0.0252525</td>
+<td align="right">-0.0252525</td>
+<td align="right">-0.0252525</td>
 <td align="right">-0.0491925</td>
-<td align="right">-0.0250000</td>
+<td align="right">-0.0252525</td>
 </tr>
 <tr class="even">
 <td align="left">room_temp_c</td>
 <td align="left">~~</td>
 <td align="left">tmp_fit</td>
 <td align="left"></td>
-<td align="right">-0.1185000</td>
+<td align="right">-0.1196970</td>
 <td align="right">0.0000000</td>
 <td align="right">NA</td>
 <td align="right">NA</td>
-<td align="right">-0.1185000</td>
-<td align="right">-0.1185000</td>
-<td align="right">-0.1185000</td>
+<td align="right">-0.1196970</td>
+<td align="right">-0.1196970</td>
+<td align="right">-0.1196970</td>
 <td align="right">-0.2296847</td>
-<td align="right">-0.1185000</td>
+<td align="right">-0.1196970</td>
 </tr>
 <tr class="odd">
 <td align="left">phys_fit</td>
 <td align="left">~~</td>
 <td align="left">phys_fit</td>
 <td align="left"></td>
-<td align="right">0.2500000</td>
+<td align="right">0.2525253</td>
 <td align="right">0.0000000</td>
 <td align="right">NA</td>
 <td align="right">NA</td>
-<td align="right">0.2500000</td>
-<td align="right">0.2500000</td>
-<td align="right">0.2500000</td>
+<td align="right">0.2525253</td>
+<td align="right">0.2525253</td>
+<td align="right">0.2525253</td>
 <td align="right">1.0000000</td>
-<td align="right">0.2500000</td>
+<td align="right">0.2525253</td>
 </tr>
 <tr class="even">
 <td align="left">phys_fit</td>
@@ -599,90 +634,135 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <td align="left">~~</td>
 <td align="left">tmp_fit</td>
 <td align="left"></td>
-<td align="right">0.2576500</td>
+<td align="right">0.2602525</td>
 <td align="right">0.0000000</td>
 <td align="right">NA</td>
 <td align="right">NA</td>
-<td align="right">0.2576500</td>
-<td align="right">0.2576500</td>
-<td align="right">0.2576500</td>
+<td align="right">0.2602525</td>
+<td align="right">0.2602525</td>
+<td align="right">0.2602525</td>
 <td align="right">1.0000000</td>
-<td align="right">0.2576500</td>
+<td align="right">0.2602525</td>
 </tr>
 <tr class="even">
+<td align="left">room_temp_c</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">phys_fit</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">tmp_fit</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">-0.0250000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">-0.0250000</td>
+<td align="right">-0.0250000</td>
+<td align="right">-0.0250000</td>
+<td align="right">-0.0490052</td>
+<td align="right">-0.0250000</td>
+</tr>
+<tr class="odd">
 <td align="left">b1a3</td>
 <td align="left">:=</td>
 <td align="left">b1*a3</td>
 <td align="left">b1a3</td>
 <td align="right">0.1525775</td>
 <td align="right">0.0836278</td>
-<td align="right">1.8244835</td>
+<td align="right">1.8244836</td>
 <td align="right">0.0680790</td>
 <td align="right">0.0263707</td>
-<td align="right">0.3565039</td>
+<td align="right">0.3565040</td>
 <td align="right">0.1525775</td>
 <td align="right">0.0686396</td>
-<td align="right">0.1352257</td>
+<td align="right">0.1345479</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">normss</td>
 <td align="left">:=</td>
 <td align="left">a1+a3*-0.5</td>
 <td align="left">normss</td>
 <td align="right">0.3385926</td>
 <td align="right">0.1027928</td>
-<td align="right">3.2939323</td>
+<td align="right">3.2939329</td>
 <td align="right">0.0009880</td>
-<td align="right">0.1288963</td>
-<td align="right">0.5308571</td>
+<td align="right">0.1288965</td>
+<td align="right">0.5308572</td>
 <td align="right">0.3385926</td>
 <td align="right">0.4002762</td>
-<td align="right">0.3000863</td>
+<td align="right">0.2985821</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">fitss</td>
 <td align="left">:=</td>
 <td align="left">a1+a3*0.5</td>
 <td align="left">fitss</td>
 <td align="right">0.7610887</td>
 <td align="right">0.1487184</td>
-<td align="right">5.1176509</td>
+<td align="right">5.1176511</td>
 <td align="right">0.0000003</td>
-<td align="right">0.4684898</td>
-<td align="right">1.0587654</td>
+<td align="right">0.4684899</td>
+<td align="right">1.0587656</td>
 <td align="right">0.7610887</td>
 <td align="right">0.5903431</td>
-<td align="right">0.6745343</td>
+<td align="right">0.6711531</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">norm</td>
 <td align="left">:=</td>
 <td align="left">a1<em>b1+b1a3</em>-0.5</td>
 <td align="left">norm</td>
 <td align="right">0.1222772</td>
 <td align="right">0.0497408</td>
-<td align="right">2.4582864</td>
+<td align="right">2.4582868</td>
 <td align="right">0.0139602</td>
 <td align="right">0.0432260</td>
 <td align="right">0.2426515</td>
 <td align="right">0.1222772</td>
 <td align="right">0.1445532</td>
-<td align="right">0.1083713</td>
+<td align="right">0.1078280</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">fit</td>
 <td align="left">:=</td>
 <td align="left">a1<em>b1+b1a3</em>0.5</td>
 <td align="left">fit</td>
 <td align="right">0.2748547</td>
 <td align="right">0.0976629</td>
-<td align="right">2.8143207</td>
+<td align="right">2.8143210</td>
 <td align="right">0.0048880</td>
-<td align="right">0.1132201</td>
-<td align="right">0.5028417</td>
+<td align="right">0.1132200</td>
+<td align="right">0.5028420</td>
 <td align="right">0.2748547</td>
 <td align="right">0.2131927</td>
-<td align="right">0.2435970</td>
+<td align="right">0.2423760</td>
 </tr>
 </tbody>
 </table>
@@ -690,7 +770,7 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <div id="interpretation" class="section level2">
 <h2>Interpretation</h2>
 <blockquote>
-<p>There was no sufficient evidence that physically fit people were thirstier than normal people, <em>a<sub>2</sub></em> = 0.19 (<em>S.E.</em> = 0.2). Every 1°F increase in room temperature was associated with an <em>a<sub>1</sub></em> = 0.55 (<em>S.E.</em> = 0.09) increase in thirstiness units. However, this association was different between physically fit people and normal people, <em>a<sub>3</sub></em> = 0.42 (<em>S.E.</em> = 0.18). Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking <em>b<sub>1</sub></em> = 0.36 (<em>S.E.</em> = 0.1) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, <em>b<sub>1</sub>a<sub>3</sub></em> = 0.15 (<em>S.E.</em> = 0.08); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.011, 0.316]. Among normal people, for every <em>a<sub>1</sub></em> = 0.55 unit increase in the association between room temperature and thirstiness, there was an <em>a<sub>1</sub>b<sub>1</sub> + a<sub>1</sub>b<sub>3</sub></em> = 0.12 (<em>S.E.</em> = 0.05) increase in deciliters of water people drank. Among physically fit people, for every <em>a<sub>1</sub></em> = 0.55 unit increase in the association between room temperature and thirstiness, there was an <em>a<sub>1</sub>b<sub>1</sub> + a<sub>1</sub>b<sub>3</sub></em> = 0.27 (<em>S.E.</em> = 0.1) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.16 (<em>S.E.</em> = 0.11).</p>
+<p>There was no sufficient evidence that physically fit people were thirstier than normal people, <em>a<sub>2</sub></em> = 0.19 (<em>S.E.</em> = 0.2). Every 1°F increase in room temperature was associated with an <em>a<sub>1</sub></em> = 0.55 (<em>S.E.</em> = 0.09) increase in thirstiness units. However, this association was different between physically fit people and normal people, <em>a<sub>3</sub></em> = 0.42 (<em>S.E.</em> = 0.18). Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking <em>b<sub>1</sub></em> = 0.36 (<em>S.E.</em> = 0.1) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, <em>b<sub>1</sub>a<sub>3</sub></em> = 0.15 (<em>S.E.</em> = 0.08); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI []. Among normal people, for every <em>a<sub>1</sub></em> = 0.55 unit increase in the association between room temperature and thirstiness, there was an <em>a<sub>1</sub>b<sub>1</sub> + a<sub>1</sub>b<sub>3</sub></em> = 0.12 (<em>S.E.</em> = 0.05) increase in deciliters of water people drank. Among physically fit people, for every <em>a<sub>1</sub></em> = 0.55 unit increase in the association between room temperature and thirstiness, there was an <em>a<sub>1</sub>b<sub>1</sub> + a<sub>1</sub>b<sub>3</sub></em> = 0.27 (<em>S.E.</em> = 0.1) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.16 (<em>S.E.</em> = 0.11).</p>
 </blockquote>
 </div>
 <div id="conceptual-diagram-1" class="section level2">
@@ -711,10 +791,10 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 </ul>
 </blockquote>
 <pre class="r"><code>mod2 &lt;- &quot;# a path
-         thirst_c ~ a1 * room_temp_c
+         thirst_c ~ 1 + a1 * room_temp_c
 
          # b paths
-         consume ~ b1 * thirst_c
+         consume ~ 1 + b1 * thirst_c
          consume ~ b2 * phys_fit
          consume ~ b3 * thrst_fit
 
@@ -739,10 +819,10 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <p><code>standardized = TRUE</code> adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
 </blockquote>
 <pre class="r"><code>summary(sem.fit2, standardized = TRUE, fit.measures = TRUE)</code></pre>
-<pre><code>## lavaan 0.6-3 ended normally after 15 iterations
+<pre><code>## lavaan 0.6-3 ended normally after 17 iterations
 ## 
 ##   Optimization method                           NLMINB
-##   Number of free parameters                          7
+##   Number of free parameters                          9
 ## 
 ##   Number of observations                           100
 ## 
@@ -767,10 +847,10 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 ##   Loglikelihood user model (H0)               -284.391
 ##   Loglikelihood unrestricted model (H1)       -282.825
 ## 
-##   Number of free parameters                          7
-##   Akaike (AIC)                                 582.782
-##   Bayesian (BIC)                               601.018
-##   Sample-size adjusted Bayesian (BIC)          578.910
+##   Number of free parameters                          9
+##   Akaike (AIC)                                 586.782
+##   Bayesian (BIC)                               610.228
+##   Sample-size adjusted Bayesian (BIC)          581.804
 ## 
 ## Root Mean Square Error of Approximation:
 ## 
@@ -780,7 +860,7 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 ## 
 ## Standardized Root Mean Square Residual:
 ## 
-##   SRMR                                           0.044
+##   SRMR                                           0.038
 ## 
 ## Parameter Estimates:
 ## 
@@ -797,6 +877,11 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 ##     phys_fit  (b2)   -0.259    0.201   -1.291    0.197   -0.259   -0.114
 ##     thrst_fit (b3)   -0.174    0.181   -0.956    0.339   -0.174   -0.086
 ##     rom_tmp_c (cp)    0.150    0.109    1.382    0.167    0.150    0.134
+## 
+## Intercepts:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .thirst_c         -0.000    0.100   -0.000    1.000   -0.000   -0.000
+##    .consume           3.136    0.103   30.342    0.000    3.136    2.757
 ## 
 ## Variances:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
@@ -837,18 +922,48 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">thirst_c</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">0.0000000</td>
+<td align="right">0.1004896</td>
+<td align="right">0.0000000</td>
+<td align="right">1.0000000</td>
+<td align="right">-0.1977053</td>
+<td align="right">0.1995289</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">thirst_c</td>
 <td align="left">~</td>
 <td align="left">room_temp_c</td>
 <td align="left">a1</td>
-<td align="right">0.4966607</td>
+<td align="right">0.4966606</td>
 <td align="right">0.0861541</td>
-<td align="right">5.7647913</td>
+<td align="right">5.7647915</td>
 <td align="right">0.0000000</td>
-<td align="right">0.3222938</td>
-<td align="right">0.6611485</td>
-<td align="right">0.4966607</td>
-<td align="right">0.4474038</td>
-<td align="right">0.4401782</td>
+<td align="right">0.3222940</td>
+<td align="right">0.6611484</td>
+<td align="right">0.4966606</td>
+<td align="right">0.4474037</td>
+<td align="right">0.4401781</td>
+</tr>
+<tr class="odd">
+<td align="left">consume</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">3.1360731</td>
+<td align="right">0.1033571</td>
+<td align="right">30.3421015</td>
+<td align="right">0.0000000</td>
+<td align="right">2.9325325</td>
+<td align="right">3.3381810</td>
+<td align="right">3.1360731</td>
+<td align="right">2.7569399</td>
+<td align="right">2.7569399</td>
 </tr>
 <tr class="even">
 <td align="left">consume</td>
@@ -856,11 +971,11 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <td align="left">thirst_c</td>
 <td align="left">b1</td>
 <td align="right">0.3875517</td>
-<td align="right">0.0999002</td>
-<td align="right">3.8793900</td>
+<td align="right">0.0999001</td>
+<td align="right">3.8793904</td>
 <td align="right">0.0001047</td>
-<td align="right">0.1948484</td>
-<td align="right">0.5862784</td>
+<td align="right">0.1948483</td>
+<td align="right">0.5862785</td>
 <td align="right">0.3875517</td>
 <td align="right">0.3844165</td>
 <td align="right">0.3844165</td>
@@ -870,15 +985,15 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <td align="left">~</td>
 <td align="left">phys_fit</td>
 <td align="left">b2</td>
-<td align="right">-0.2592202</td>
+<td align="right">-0.2592200</td>
 <td align="right">0.2008515</td>
-<td align="right">-1.2906061</td>
-<td align="right">0.1968403</td>
+<td align="right">-1.2906054</td>
+<td align="right">0.1968405</td>
 <td align="right">-0.6762858</td>
-<td align="right">0.1283306</td>
-<td align="right">-0.2592202</td>
-<td align="right">-0.1139410</td>
-<td align="right">-0.2278820</td>
+<td align="right">0.1283304</td>
+<td align="right">-0.2592200</td>
+<td align="right">-0.1139409</td>
+<td align="right">-0.2278818</td>
 </tr>
 <tr class="even">
 <td align="left">consume</td>
@@ -887,8 +1002,8 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <td align="left">b3</td>
 <td align="right">-0.1735151</td>
 <td align="right">0.1814711</td>
-<td align="right">-0.9561580</td>
-<td align="right">0.3389924</td>
+<td align="right">-0.9561584</td>
+<td align="right">0.3389922</td>
 <td align="right">-0.5541755</td>
 <td align="right">0.1553659</td>
 <td align="right">-0.1735151</td>
@@ -902,10 +1017,10 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <td align="left">cp</td>
 <td align="right">0.1503720</td>
 <td align="right">0.1087761</td>
-<td align="right">1.3823988</td>
-<td align="right">0.1668493</td>
-<td align="right">-0.0709680</td>
-<td align="right">0.3587754</td>
+<td align="right">1.3823991</td>
+<td align="right">0.1668492</td>
+<td align="right">-0.0709681</td>
+<td align="right">0.3587755</td>
 <td align="right">0.1503720</td>
 <td align="right">0.1343629</td>
 <td align="right">0.1321929</td>
@@ -917,26 +1032,26 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <td align="left"></td>
 <td align="right">1.0182634</td>
 <td align="right">0.1136086</td>
-<td align="right">8.9629045</td>
+<td align="right">8.9629044</td>
 <td align="right">0.0000000</td>
-<td align="right">0.8157392</td>
-<td align="right">1.2675973</td>
+<td align="right">0.8157393</td>
+<td align="right">1.2675968</td>
 <td align="right">1.0182634</td>
-<td align="right">0.7998298</td>
-<td align="right">0.7998298</td>
+<td align="right">0.7998299</td>
+<td align="right">0.7998299</td>
 </tr>
 <tr class="odd">
 <td align="left">consume</td>
 <td align="left">~~</td>
 <td align="left">consume</td>
 <td align="left"></td>
-<td align="right">0.9939831</td>
+<td align="right">0.9939832</td>
 <td align="right">0.1265148</td>
 <td align="right">7.8566577</td>
 <td align="right">0.0000000</td>
-<td align="right">0.8005747</td>
-<td align="right">1.3374865</td>
-<td align="right">0.9939831</td>
+<td align="right">0.8005745</td>
+<td align="right">1.3374866</td>
+<td align="right">0.9939832</td>
 <td align="right">0.7681770</td>
 <td align="right">0.7681770</td>
 </tr>
@@ -1031,49 +1146,94 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <td align="right">0.3170500</td>
 </tr>
 <tr class="even">
+<td align="left">room_temp_c</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="odd">
+<td align="left">phys_fit</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">thrst_fit</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">0.0350000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.0350000</td>
+<td align="right">0.0350000</td>
+<td align="right">0.0350000</td>
+<td align="right">0.0621590</td>
+<td align="right">0.0350000</td>
+</tr>
+<tr class="odd">
 <td align="left">a1b3</td>
 <td align="left">:=</td>
 <td align="left">a1*b3</td>
 <td align="left">a1b3</td>
 <td align="right">-0.0861781</td>
 <td align="right">0.0897744</td>
-<td align="right">-0.9599411</td>
+<td align="right">-0.9599413</td>
 <td align="right">0.3370848</td>
-<td align="right">-0.2818981</td>
+<td align="right">-0.2818982</td>
 <td align="right">0.0733223</td>
 <td align="right">-0.0861781</td>
 <td align="right">-0.0384275</td>
 <td align="right">-0.0671439</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">normie</td>
 <td align="left">:=</td>
 <td align="left">a1<em>b1+a1b3</em>-0.5</td>
 <td align="left">normie</td>
 <td align="right">0.2355707</td>
 <td align="right">0.0801761</td>
-<td align="right">2.9381648</td>
+<td align="right">2.9381647</td>
 <td align="right">0.0033016</td>
 <td align="right">0.1030349</td>
-<td align="right">0.4261216</td>
+<td align="right">0.4261215</td>
 <td align="right">0.2355707</td>
 <td align="right">0.1912031</td>
 <td align="right">0.2027837</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">fitie</td>
 <td align="left">:=</td>
 <td align="left">a1<em>b1+a1b3</em>0.5</td>
 <td align="left">fitie</td>
 <td align="right">0.1493926</td>
 <td align="right">0.0688598</td>
-<td align="right">2.1695180</td>
+<td align="right">2.1695176</td>
 <td align="right">0.0300434</td>
 <td align="right">0.0249656</td>
 <td align="right">0.2984616</td>
 <td align="right">0.1493926</td>
-<td align="right">0.1527757</td>
-<td align="right">0.1356398</td>
+<td align="right">0.1527756</td>
+<td align="right">0.1356397</td>
 </tr>
 </tbody>
 </table>
@@ -1081,7 +1241,7 @@ thirst.fit$phys_fit &lt;- 0.5</code></pre>
 <div id="interpretation-1" class="section level2">
 <h2>Interpretation</h2>
 <blockquote>
-<p>Every 1°F increase in room temperature was associated with an <em>a<sub>1</sub></em> = 0.5 (<em>S.E.</em> = 0.09) increase in thirstiness units. Adjusting for all other predictors, every 1-unit increase in thirstiness was associated with drinking <em>b<sub>1</sub></em> = -0.17 (<em>S.E.</em> = 0.18) more deciliters of water. Also, adjusting for all other predictors, there was no sufficient evidence that physically fit people drank less water than normal people, <em>b<sub>2</sub></em> = (<em>S.E.</em> = ). There was also no sufficient evidence that the relation between thirstiness and water drinking depended on physical fitness group, <em>b<sub>3</sub></em> = (<em>S.E.</em> = ). Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, <em>a<sub>1</sub>b<sub>3</sub></em> = (<em>S.E.</em> = ); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI [-0.262, 0.090]. Among normal people, for every <em>a<sub>1</sub></em> = 0.5 unit increase in the association between room temperature and thirstiness, there was an <em>a<sub>1</sub>b<sub>1</sub> + a<sub>1</sub>b<sub>3</sub></em> = (<em>S.E.</em> = ) increase in deciliters of water people drank. Among physically fit people, for every <em>a<sub>1</sub></em> = 0.5 unit increase in the association between room temperature and thirstiness, there was an <em>a<sub>1</sub>b<sub>1</sub> + a<sub>1</sub>b<sub>3</sub></em> = (<em>S.E.</em> = ) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.15 (<em>S.E.</em> = 0.11).</p>
+<p>Every 1°F increase in room temperature was associated with an <em>a<sub>1</sub></em> = 0.5 (<em>S.E.</em> = 0.09) increase in thirstiness units. Adjusting for all other predictors, every 1-unit increase in thirstiness was associated with drinking <em>b<sub>1</sub></em> = 0.39 (<em>S.E.</em> = 0.1) more deciliters of water. Also, adjusting for all other predictors, there was no sufficient evidence that physically fit people drank less water than normal people, <em>b<sub>2</sub></em> = -0.26 (<em>S.E.</em> = 0.2). There was also no sufficient evidence that the relation between thirstiness and water drinking depended on physical fitness group, <em>b<sub>3</sub></em> = -0.17 (<em>S.E.</em> = 0.18). Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness, but there was no sufficient evidence that this indirect effect was different between physically fit and normal people, <em>a<sub>1</sub>b<sub>3</sub></em> = -0.09 (<em>S.E.</em> = 0.09); a bias-corrected bootstrapped confidence interval with 10,000 samples for the index of moderated mediation captured zero, 95% CI []. Among normal people, for every <em>a<sub>1</sub></em> = 0.5 unit increase in the association between room temperature and thirstiness, there was an <em>a<sub>1</sub>b<sub>1</sub> + a<sub>1</sub>b<sub>3</sub></em> = 0.24 (<em>S.E.</em> = 0.08) increase in deciliters of water people drank. Among physically fit people, for every <em>a<sub>1</sub></em> = 0.5 unit increase in the association between room temperature and thirstiness, there was an <em>a<sub>1</sub>b<sub>1</sub> + a<sub>1</sub>b<sub>3</sub></em> = 0.15 (<em>S.E.</em> = 0.07) increase in deciliters of water people drank. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.15 (<em>S.E.</em> = 0.11).</p>
 </blockquote>
 </div>
 <div id="resources" class="section level2">

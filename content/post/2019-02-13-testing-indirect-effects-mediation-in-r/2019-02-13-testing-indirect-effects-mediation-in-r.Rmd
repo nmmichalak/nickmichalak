@@ -92,10 +92,10 @@ thirst.dat %>%
 ```{r}
 
 mod1 <- "# a path
-         thirst ~ a * room_temp
+         thirst ~ 1 + a * room_temp
 
          # b path
-         consume ~ b * thirst
+         consume ~ 1 + b * thirst
 
          # c prime path 
          consume ~ cp * room_temp
@@ -143,7 +143,7 @@ parameterestimates(sem.fit1, boot.ci.type = "bca.simple", standardized = TRUE) %
 ```
 
 ## Interpretation
-> Every 1&deg;F increase in room temperature was associated with an *a* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "a"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "a"], 2)`) increase in thirstiness units. Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "b"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "b"], 2)`) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness. Specifically, for every *a* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "a"], 2)` unit increase in the association between room temperature and thirstiness, there was an *ab* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "ab"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "ab"], 2)`) increase in deciliters of water people drank. Importatnly, a bias-corrected bootstrapped confidence interval with 10,000 samples was above zero, 95% CI [0.06, 0.32]. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, *c'* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "cp"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "cp"], 2)`).
+> Every 1&deg;F increase in room temperature was associated with an *a* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "a"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "a"], 2)`) increase in thirstiness units. Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "b"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "b"], 2)`) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness. Specifically, for every *a* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "a"], 2)` unit increase in the association between room temperature and thirstiness, there was an *ab* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "ab"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "ab"], 2)`) increase in deciliters of water people drank. Importatnly, a bias-corrected bootstrapped confidence interval with 10,000 samples was above zero, 95% CI [`r cat(round(as.numeric(parameterestimates(sem.fit1, boot.ci.type = "bca.simple", standardized = TRUE)[7, 9:10]), 3), sep = ", ")`]. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, *c'* = `r round(sem.fit1@ParTable$est[sem.fit1@ParTable$label == "cp"], 2)` (*S.E.* = `r round(sem.fit1@ParTable$se[sem.fit1@ParTable$label == "cp"], 2)`).
 
 ## Test same model using `mediation()` from MBESS
 > The syntax for `mediation()` doesn't have as steep a learning curve as lavaan, but lavaan (and SEM in general) has a gazillion-fold more flexability in specifying more involved models.

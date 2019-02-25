@@ -166,10 +166,10 @@ library(MBESS)</code></pre>
 </ul>
 </blockquote>
 <pre class="r"><code>mod1 &lt;- &quot;# a path
-         thirst ~ a * room_temp
+         thirst ~ 1 + a * room_temp
 
          # b path
-         consume ~ b * thirst
+         consume ~ 1 + b * thirst
 
          # c prime path 
          consume ~ cp * room_temp
@@ -195,10 +195,10 @@ library(MBESS)</code></pre>
 <p><code>standardized = TRUE</code> adds standardized estimate to the model output. Also, see <code>help(&quot;standardizedsolution&quot;)</code></p>
 </blockquote>
 <pre class="r"><code>summary(sem.fit1, standardized = TRUE)</code></pre>
-<pre><code>## lavaan 0.6-3 ended normally after 12 iterations
+<pre><code>## lavaan 0.6-3 ended normally after 45 iterations
 ## 
 ##   Optimization method                           NLMINB
-##   Number of free parameters                          5
+##   Number of free parameters                          7
 ## 
 ##   Number of observations                            50
 ## 
@@ -219,6 +219,11 @@ library(MBESS)</code></pre>
 ##   consume ~                                                             
 ##     thirst     (b)    0.348    0.135    2.566    0.010    0.348    0.377
 ##     room_temp (cp)    0.036    0.189    0.190    0.850    0.036    0.029
+## 
+## Intercepts:
+##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
+##    .thirst          -50.137   10.392   -4.825    0.000  -50.137  -41.212
+##    .consume          -0.610   13.068   -0.047    0.963   -0.610   -0.543
 ## 
 ## Variances:
 ##                    Estimate  Std.Err  z-value  P(&gt;|z|)   Std.lv  Std.all
@@ -258,18 +263,48 @@ library(MBESS)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">thirst</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">-50.1370968</td>
+<td align="right">10.3917984</td>
+<td align="right">-4.8246795</td>
+<td align="right">0.0000014</td>
+<td align="right">-70.5071001</td>
+<td align="right">-29.1342980</td>
+<td align="right">-50.1370968</td>
+<td align="right">-41.2124397</td>
+<td align="right">-41.2124397</td>
+</tr>
+<tr class="even">
+<td align="left">thirst</td>
 <td align="left">~</td>
 <td align="left">room_temp</td>
 <td align="left">a</td>
 <td align="right">0.7610887</td>
 <td align="right">0.1478894</td>
-<td align="right">5.1463379</td>
+<td align="right">5.1463382</td>
 <td align="right">0.0000003</td>
-<td align="right">0.4615390</td>
+<td align="right">0.4615386</td>
 <td align="right">1.0516483</td>
 <td align="right">0.7610887</td>
 <td align="right">0.5573208</td>
 <td align="right">0.6256111</td>
+</tr>
+<tr class="odd">
+<td align="left">consume</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">-0.6095498</td>
+<td align="right">13.0681341</td>
+<td align="right">-0.0466440</td>
+<td align="right">0.9627970</td>
+<td align="right">-28.2155834</td>
+<td align="right">23.5558529</td>
+<td align="right">-0.6095498</td>
+<td align="right">-0.5431164</td>
+<td align="right">-0.5431164</td>
 </tr>
 <tr class="even">
 <td align="left">consume</td>
@@ -278,10 +313,10 @@ library(MBESS)</code></pre>
 <td align="left">b</td>
 <td align="right">0.3475013</td>
 <td align="right">0.1354310</td>
-<td align="right">2.5658923</td>
+<td align="right">2.5658927</td>
 <td align="right">0.0102911</td>
-<td align="right">0.0649463</td>
-<td align="right">0.5977806</td>
+<td align="right">0.0649464</td>
+<td align="right">0.5977807</td>
 <td align="right">0.3475013</td>
 <td align="right">0.3766787</td>
 <td align="right">0.3766787</td>
@@ -294,9 +329,9 @@ library(MBESS)</code></pre>
 <td align="right">0.0359239</td>
 <td align="right">0.1894877</td>
 <td align="right">0.1895842</td>
-<td align="right">0.8496350</td>
+<td align="right">0.8496349</td>
 <td align="right">-0.3163420</td>
-<td align="right">0.4346033</td>
+<td align="right">0.4346034</td>
 <td align="right">0.0359239</td>
 <td align="right">0.0285146</td>
 <td align="right">0.0320086</td>
@@ -308,10 +343,10 @@ library(MBESS)</code></pre>
 <td align="left"></td>
 <td align="right">1.0203024</td>
 <td align="right">0.1571380</td>
-<td align="right">6.4930346</td>
+<td align="right">6.4930348</td>
 <td align="right">0.0000000</td>
 <td align="right">0.7538658</td>
-<td align="right">1.3725827</td>
+<td align="right">1.3725825</td>
 <td align="right">1.0203024</td>
 <td align="right">0.6893935</td>
 <td align="right">0.6893935</td>
@@ -323,10 +358,10 @@ library(MBESS)</code></pre>
 <td align="left"></td>
 <td align="right">1.0647750</td>
 <td align="right">0.2075633</td>
-<td align="right">5.1298806</td>
+<td align="right">5.1298811</td>
 <td align="right">0.0000003</td>
-<td align="right">0.7421154</td>
-<td align="right">1.6034917</td>
+<td align="right">0.7421153</td>
+<td align="right">1.6034916</td>
 <td align="right">1.0647750</td>
 <td align="right">0.8453279</td>
 <td align="right">0.8453279</td>
@@ -347,31 +382,46 @@ library(MBESS)</code></pre>
 <td align="right">0.7936000</td>
 </tr>
 <tr class="odd">
+<td align="left">room_temp</td>
+<td align="left">~1</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="right">70.0800000</td>
+<td align="right">0.0000000</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">70.0800000</td>
+<td align="right">70.0800000</td>
+<td align="right">70.0800000</td>
+<td align="right">78.6671223</td>
+<td align="right">70.0800000</td>
+</tr>
+<tr class="even">
 <td align="left">ab</td>
 <td align="left">:=</td>
 <td align="left">a*b</td>
 <td align="left">ab</td>
 <td align="right">0.2644793</td>
 <td align="right">0.1234479</td>
-<td align="right">2.1424361</td>
+<td align="right">2.1424364</td>
 <td align="right">0.0321584</td>
 <td align="right">0.0644499</td>
-<td align="right">0.5583698</td>
+<td align="right">0.5583697</td>
 <td align="right">0.2644793</td>
-<td align="right">0.2099309</td>
+<td align="right">0.2099308</td>
 <td align="right">0.2356543</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">total</td>
 <td align="left">:=</td>
 <td align="left">cp+ab</td>
 <td align="left">total</td>
 <td align="right">0.3004032</td>
 <td align="right">0.1758694</td>
-<td align="right">1.7081042</td>
+<td align="right">1.7081041</td>
 <td align="right">0.0876170</td>
-<td align="right">0.0007138</td>
-<td align="right">0.7019997</td>
+<td align="right">0.0007142</td>
+<td align="right">0.7019998</td>
 <td align="right">0.3004032</td>
 <td align="right">0.2384455</td>
 <td align="right">0.2676630</td>
@@ -382,7 +432,7 @@ library(MBESS)</code></pre>
 <div id="interpretation" class="section level2">
 <h2>Interpretation</h2>
 <blockquote>
-<p>Every 1°F increase in room temperature was associated with an <em>a</em> = 0.76 (<em>S.E.</em> = 0.15) increase in thirstiness units. Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking 0.35 (<em>S.E.</em> = 0.14) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness. Specifically, for every <em>a</em> = 0.76 unit increase in the association between room temperature and thirstiness, there was an <em>ab</em> = 0.26 (<em>S.E.</em> = 0.12) increase in deciliters of water people drank. Importatnly, a bias-corrected bootstrapped confidence interval with 10,000 samples was above zero, 95% CI [0.06, 0.32]. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.04 (<em>S.E.</em> = 0.19).</p>
+<p>Every 1°F increase in room temperature was associated with an <em>a</em> = 0.76 (<em>S.E.</em> = 0.15) increase in thirstiness units. Adjusting for room temperature, every 1-unit increase in thirstiness was associated with drinking 0.35 (<em>S.E.</em> = 0.14) more deciliters of water. Increases in room temperature were associated with increases in water drinking indirectly through increases in thirstiness. Specifically, for every <em>a</em> = 0.76 unit increase in the association between room temperature and thirstiness, there was an <em>ab</em> = 0.26 (<em>S.E.</em> = 0.12) increase in deciliters of water people drank. Importatnly, a bias-corrected bootstrapped confidence interval with 10,000 samples was above zero, 95% CI []. Last, there was no sufficient evidence that room temperature was associated with how many deciliters of water people drank independent of its association with thirstiness, <em>c’</em> = 0.04 (<em>S.E.</em> = 0.19).</p>
 </blockquote>
 </div>
 <div id="test-same-model-using-mediation-from-mbess" class="section level2">
