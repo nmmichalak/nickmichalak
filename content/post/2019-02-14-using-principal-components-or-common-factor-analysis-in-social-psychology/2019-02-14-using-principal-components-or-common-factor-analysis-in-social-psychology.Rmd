@@ -283,6 +283,7 @@ bfi25 <- bfi %>%
 ```
 
 ## Extract 5 components even though the parallel analysis suggested 6
+> Deciding how many components to extract should balance meaning with statistics-based heuristics or cutoffs. Extracting 5 components makes sense given previous research and theory on the 5 factors of personality, and, based on the screeplot, 5 components capture a lot of variance. Varimax rotation finds a solution that maximizes the variance captured by the components, which results in components that as much variance as possible for some items and almost no variance for other items (i.e., big loadings for some items, and small loadings for others). Importantly, the varimax solution effectively assumes components are uncorrelated. 
 
 ```{r}
 
@@ -301,6 +302,7 @@ principal(bfi25, nfactors = 5, rotate = "varimax") %>%
 # Common Factor Analysis
 
 ## Extract 5 factors even though the parallel analysis suggested 6
+> Oblimin refers to an "oblique" rotation, which simply means the extracted factors are not constrained to be uncorrelated. Minres refers to minimum residual (i.e., that's what ordinary least squares regression does).
 
 ```{r}
 
@@ -314,7 +316,7 @@ fa(bfi25, nfactors = 5, rotate = "oblimin", fm = "minres") %>%
 ```
 
 ### Interpretation
-> The factor diagram gives you a big picture sense of the solution: there are 5 factors, and the items vary in how much they load (correlate) with each factor. The output is a little harder to parse, but notice that items also correlate with other factors. Factors also correlate with other factors. You also get some model fit indices, which give you a sense of how much the model impled correlation matrix deviates from the original matrix (like residuals in regression). For more information about the output, see `help(fa)`.
+> The factor diagram gives you a big picture sense of the solution: there are 5 factors, and the items vary in how much they load (correlate) with each factor. The output is a little harder to parse, but notice that items also correlate with other factors. Factors also correlate with other factors. You also get some model fit indices, which give you a sense of how much the model implied correlation matrix deviates from the original matrix (like residuals in regression). For more information about the output, see `help(fa)`.
 
 # Compare correlations among factors extracted from each model
 
@@ -445,7 +447,7 @@ isoMDS.data1 %>%
 ```
 
 #### Interpretation
-> To be rigorous, I used a non-metric version of Multidimensional Scaling that uses a "non-monotonic" function (i.e., ordinal, non-linear) to find a solution. I only asked for 2 dimensions, so the solution doesn't quite capture all the meaningful information contained in these 25 questions. However, you can still tell that items that tap into a given trait tend to "land" in a similar space on the plot as their "friends" (i.e., N items land next to other N items). Some items don't land among their trait friends because they were negatively worded (no N items were negatively worded, so they all landed together). For example, had I negatively scored item C4 ("Do things in a half-way manner.") and item C5 ("Waste my time."), those items would likely have landed with item C1 ("Am exacting in my work."), item C2 ("Continue until everything is perfect."), and item C3 ("Do things according to a plan."). So, given the information it had to work with, the Non-Metric Multidimensional Scaling procedure did a pretty good job!
+> To be rigorous, I used a non-metric version of Multidimensional Scaling that uses a "monotonic" function (i.e., ordinal, non-linear) to find a solution. I only asked for 2 dimensions, so the solution doesn't quite capture all the meaningful information contained in these 25 questions. However, you can still tell that items that tap into a given trait tend to "land" in a similar space on the plot as their "friends" (i.e., N items land next to other N items). Some items don't land among their trait friends because they were negatively worded (no N items were negatively worded, so they all landed together). For example, had I negatively scored item C4 ("Do things in a half-way manner.") and item C5 ("Waste my time."), those items would likely have landed with item C1 ("Am exacting in my work."), item C2 ("Continue until everything is perfect."), and item C3 ("Do things according to a plan."). So, given the information it had to work with, the Non-Metric Multidimensional Scaling procedure did a pretty good job!
 
 # Footnotes
 1. Although it many cases it's useful to distinguish between factors and components (I do in this post), the information you need to interpret differences in solutions boils down to differences among models, not terms. Here's a case where it's confusing to refer to factors and components because it makes it seems like the congruence test is comparing apples to oranges; but it's comparing "factor" (or "component") solutions from two different models.
