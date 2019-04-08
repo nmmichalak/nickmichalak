@@ -1,0 +1,941 @@
+---
+title: Dummy coding is a poor default
+author: Nick Michalak
+date: '2019-03-05'
+slug: dummy-coding-is-a-poor-default
+categories:
+  - ANOVA
+  - contrasts
+  - interactions
+  - demonstration
+  - general linear model
+  - moderation
+  - R
+  - regression
+  - tutorial
+tags:
+  - ANOVA
+  - contrasts
+  - general linear model
+  - moderation
+  - R
+  - tutorial
+  - demonstration
+  - interactions
+  - regression
+image:
+  caption: ''
+  focal_point: ''
+draft: true
+---
+
+
+
+<div id="reference-cell-model-for-4-groups" class="section level1">
+<h1>Reference Cell Model for 4 groups</h1>
+<p><span class="math display">\[Y_i = \beta_0X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + \beta_4X_{4i} + \epsilon_i\]</span></p>
+<p><span class="math display">\[Y_i = \beta_0X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + (0)X_{4i} + \epsilon_i\]</span></p>
+<p><span class="math display">\[Y_i = \beta_0X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + \epsilon_i\]</span></p>
+</div>
+<div id="cell-means-model-for-4-groups" class="section level1">
+<h1>Cell Means Model for 4 groups</h1>
+<p><span class="math display">\[Y_i = \beta_0X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + \beta_4X_{4i} + \epsilon_i\]</span></p>
+<p><span class="math display">\[Y_i = (0)X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + \beta_4X_{4i} + \epsilon_{ij}\]</span></p>
+<p><span class="math display">\[Y_i = \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + \beta_4X_{4i} + \epsilon_i\]</span></p>
+</div>
+<div id="effects-model-for-4-groups" class="section level1">
+<h1>Effects Model for 4 groups</h1>
+<p><span class="math display">\[Y_i = \beta_0X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + \beta_4X_{4i} + \epsilon_i\]</span></p>
+<p><span class="math display">\[Y_i = \beta_0X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} - (\beta_1 + \beta_2 + \beta_3)X_{4i} + \epsilon_i\]</span></p>
+<p><span class="math display">\[Y_i = \beta_0X_{0i} + \beta_1(X_{1i} - X_{4i}) + \beta_2(X_{2i} - X_{4i}) + \beta_3(X_{3i} - X_{4i}) + \epsilon_i\]</span></p>
+<div id="install-packages-andor-load-libraries" class="section level2">
+<h2>Install packages and/or load libraries</h2>
+<pre class="r"><code># install.packages(&quot;tidyverse&quot;)
+# install.packages(&quot;knitr&quot;)
+# install.packages(&quot;AMCP&quot;)
+
+library(tidyverse)
+library(knitr)
+library(AMCP)</code></pre>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<blockquote>
+<p><code>help(C7T15)</code><br />
+“The following hypothetical salary data represents a nonorthogonal two-by-two factorial design. The first factor (sex) is crossed with college (degree or no degree). The primary question of interest is whether or not there is sex discrimination in terms of salary.</p>
+</blockquote>
+<blockquote>
+<p>The data in Table 7.15 presents hypothetical data (in thousands) for 12 feMale and 10 Male who have just been hired by the organization. The mean salary for the 12 females is $22,333, whereas the mean for the 10 Male is $22,100. The data in Table 7.15 also contains information about an additional characteristic of employees, namely whether they received a college degree. It is clear from the data that a majority of the new female employees are college graduates, whereas a majority of the Male are not.&quot;</p>
+</blockquote>
+<div id="load-data" class="section level3">
+<h3>Load data</h3>
+<pre class="r"><code>data(&quot;C7T15&quot;)</code></pre>
+</div>
+<div id="print-data" class="section level3">
+<h3>Print data</h3>
+<pre class="r"><code>C7T15 %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Sex</th>
+<th align="right">Education</th>
+<th align="right">Salary</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">24</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">26</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">25</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">24</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">27</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">24</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">27</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">23</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">15</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">17</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">20</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">16</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">25</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">29</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">27</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">19</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">18</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">21</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">20</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">21</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">22</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">19</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="convert-salary-values-into-values-in-thousands" class="section level3">
+<h3>Convert Salary values into values in thousands</h3>
+<pre class="r"><code>C7T15$Salary &lt;- C7T15$Salary * 1000</code></pre>
+</div>
+<div id="add-factors-with-meaningful-level-labels" class="section level3">
+<h3>Add factors with meaningful level labels</h3>
+<blockquote>
+<ul>
+<li><strong>Sex.</strong> 1 = Male, 2 = Female<br />
+</li>
+<li><strong>Education.</strong> 1 = No degree, 2 = Degree<br />
+</li>
+<li><strong>Education.</strong> 1 = No degree, 2 = Degree</li>
+</ul>
+</blockquote>
+<pre class="r"><code>C7T15 &lt;- C7T15 %&gt;% 
+  mutate(Sex.lbl = factor(recode(Sex, &quot;1&quot; = &quot;Male&quot;, &quot;2&quot; = &quot;Female&quot;), levels = c(&quot;Male&quot;, &quot;Female&quot;), labels = c(&quot;Male&quot;, &quot;Female&quot;)),
+         Education.lbl = factor(recode(Education, &quot;1&quot; = &quot;No degree&quot;, &quot;2&quot; = &quot;Degree&quot;), levels = c(&quot;No degree&quot;, &quot;Degree&quot;), labels = c(&quot;No degree&quot;, &quot;Degree&quot;)),
+         Sex.Education = interaction(Sex.lbl, Education.lbl, sep = &quot; &amp; &quot;))</code></pre>
+</div>
+<div id="add-dummy-codesreference-codes-as-numeric-variables" class="section level3">
+<h3>Add dummy codes/reference codes as numeric variables</h3>
+<div id="sex" class="section level4">
+<h4>Sex</h4>
+<pre class="r"><code># print contrasts
+contrasts(C7T15$Sex.lbl)</code></pre>
+<pre><code>##        Female
+## Male        0
+## Female      1</code></pre>
+<pre class="r"><code># represent these contrasts as numeric variables
+# first column represents the intercept contrast
+# second column represents the dummy coded contrast (0 = Male, 1 = Female)
+C7T15$female.dummy &lt;- model.matrix.lm(~ Sex.lbl, data = C7T15)[, 2]</code></pre>
+</div>
+<div id="education" class="section level4">
+<h4>Education</h4>
+<pre class="r"><code># print contrasts
+contrasts(C7T15$Education.lbl)</code></pre>
+<pre><code>##           Degree
+## No degree      0
+## Degree         1</code></pre>
+<pre class="r"><code># represent these contrasts as numeric variables
+# first column represents the intercept contrast
+# second column represents the dummy coded contrast (0 = No degree, 1 = Degree)
+C7T15$degree.dummy &lt;- model.matrix.lm(~ Education.lbl, data = C7T15)[, 2]</code></pre>
+</div>
+</div>
+<div id="add-effect-codes-as-numeric-variables" class="section level3">
+<h3>Add effect codes as numeric variables</h3>
+<pre class="r"><code># create new contrasts
+contrasts(C7T15$Sex.lbl) &lt;- cbind(Female = c(-1, 1) / 2)
+
+# print contrasts
+contrasts(C7T15$Sex.lbl)</code></pre>
+<pre><code>##        Female
+## Male     -0.5
+## Female    0.5</code></pre>
+<pre class="r"><code># represent these contrasts as numeric variables
+# first column represents the intercept contrast
+# second column represents the effect coded contrast (-0.5 = Male, 0.5 = Female)
+C7T15$female.effect &lt;- model.matrix.lm(~ Sex.lbl, data = C7T15)[, 2]
+
+# create new contrasts
+contrasts(C7T15$Education.lbl) &lt;- cbind(Degree = c(-1, 1) / 2)
+
+# print contrasts
+contrasts(C7T15$Education.lbl)</code></pre>
+<pre><code>##           Degree
+## No degree   -0.5
+## Degree       0.5</code></pre>
+<pre class="r"><code># represent these contrasts as numeric variables
+# first column represents the intercept contrast
+# second column represents the effect coded contrast (-0.5 = No degree, 0.5 = Degree)
+C7T15$degree.effect &lt;- model.matrix.lm(~ Education.lbl, data = C7T15)[, 2]</code></pre>
+</div>
+<div id="print-new-data" class="section level3">
+<h3>Print new data</h3>
+<pre class="r"><code>C7T15 %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Sex</th>
+<th align="right">Education</th>
+<th align="right">Salary</th>
+<th align="left">Sex.lbl</th>
+<th align="left">Education.lbl</th>
+<th align="left">Sex.Education</th>
+<th align="right">female.dummy</th>
+<th align="right">degree.dummy</th>
+<th align="right">female.effect</th>
+<th align="right">degree.effect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">24000</td>
+<td align="left">Male</td>
+<td align="left">No degree</td>
+<td align="left">Male &amp; No degree</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">-0.5</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">26000</td>
+<td align="left">Male</td>
+<td align="left">No degree</td>
+<td align="left">Male &amp; No degree</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">-0.5</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">25000</td>
+<td align="left">Male</td>
+<td align="left">No degree</td>
+<td align="left">Male &amp; No degree</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">-0.5</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">24000</td>
+<td align="left">Male</td>
+<td align="left">No degree</td>
+<td align="left">Male &amp; No degree</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">-0.5</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">27000</td>
+<td align="left">Male</td>
+<td align="left">No degree</td>
+<td align="left">Male &amp; No degree</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">-0.5</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">24000</td>
+<td align="left">Male</td>
+<td align="left">No degree</td>
+<td align="left">Male &amp; No degree</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">-0.5</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">27000</td>
+<td align="left">Male</td>
+<td align="left">No degree</td>
+<td align="left">Male &amp; No degree</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">-0.5</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">23000</td>
+<td align="left">Male</td>
+<td align="left">No degree</td>
+<td align="left">Male &amp; No degree</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">-0.5</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">15000</td>
+<td align="left">Male</td>
+<td align="left">Degree</td>
+<td align="left">Male &amp; Degree</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">-0.5</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">17000</td>
+<td align="left">Male</td>
+<td align="left">Degree</td>
+<td align="left">Male &amp; Degree</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">-0.5</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">20000</td>
+<td align="left">Male</td>
+<td align="left">Degree</td>
+<td align="left">Male &amp; Degree</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">-0.5</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="even">
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">16000</td>
+<td align="left">Male</td>
+<td align="left">Degree</td>
+<td align="left">Male &amp; Degree</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">-0.5</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">25000</td>
+<td align="left">Female</td>
+<td align="left">No degree</td>
+<td align="left">Female &amp; No degree</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0.5</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">29000</td>
+<td align="left">Female</td>
+<td align="left">No degree</td>
+<td align="left">Female &amp; No degree</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0.5</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">27000</td>
+<td align="left">Female</td>
+<td align="left">No degree</td>
+<td align="left">Female &amp; No degree</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0.5</td>
+<td align="right">-0.5</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">19000</td>
+<td align="left">Female</td>
+<td align="left">Degree</td>
+<td align="left">Female &amp; Degree</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.5</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">18000</td>
+<td align="left">Female</td>
+<td align="left">Degree</td>
+<td align="left">Female &amp; Degree</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.5</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">21000</td>
+<td align="left">Female</td>
+<td align="left">Degree</td>
+<td align="left">Female &amp; Degree</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.5</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">20000</td>
+<td align="left">Female</td>
+<td align="left">Degree</td>
+<td align="left">Female &amp; Degree</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.5</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">21000</td>
+<td align="left">Female</td>
+<td align="left">Degree</td>
+<td align="left">Female &amp; Degree</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.5</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="odd">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">22000</td>
+<td align="left">Female</td>
+<td align="left">Degree</td>
+<td align="left">Female &amp; Degree</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.5</td>
+<td align="right">0.5</td>
+</tr>
+<tr class="even">
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">19000</td>
+<td align="left">Female</td>
+<td align="left">Degree</td>
+<td align="left">Female &amp; Degree</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.5</td>
+<td align="right">0.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="visualize" class="section level2">
+<h2>Visualize</h2>
+<div id="group-data" class="section level3">
+<h3>Group data</h3>
+<pre class="r"><code>C7T15 %&gt;% 
+  ggplot(mapping = aes(x = Sex.lbl, y = Salary, color = Education.lbl)) +
+  geom_violin(position = position_dodge(width = 0.90), alpha = 0) +
+  geom_boxplot(position = position_dodge(width = 0.90), width = 0.25, alpha = 0, outlier.color = NULL) +
+  geom_point(position = position_jitterdodge(jitter.width = 0.20, jitter.height = 0.20, dodge.width = 0.90)) +
+  scale_y_continuous(breaks = seq(0, 30000, 2000)) +
+  labs(x = &quot;Sex&quot;, y = &quot;Salary&quot;, color = &quot;Education&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2019-03-03-dummy-coding-is-a-poor-default_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
+<div id="group-means" class="section level3">
+<h3>Group means</h3>
+<pre class="r"><code>C7T15 %&gt;% 
+  ggplot(mapping = aes(x = Sex.lbl, y = Salary, fill = Education.lbl)) +
+  stat_summary(geom = &quot;bar&quot;, fun.data = mean_cl_normal, position = position_dodge(width = 0.90)) +
+  stat_summary(geom = &quot;errorbar&quot;, fun.data = mean_cl_normal, position = position_dodge(width = 0.90), width = 0) +
+  scale_y_continuous(breaks = seq(0, 40000, 2000)) +
+  labs(x = &quot;Sex&quot;, y = &quot;Salary&quot;, color = &quot;Education&quot;) +
+  theme_bw()</code></pre>
+<p><img src="/post/2019-03-03-dummy-coding-is-a-poor-default_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+</div>
+<div id="model-data" class="section level2">
+<h2>Model data</h2>
+<div id="fit-model-with-dummy-coded-predictors" class="section level3">
+<h3>Fit model with dummy-coded predictors</h3>
+<p><span class="math display">\[Y_i = \beta_0(1) + \beta_1(\text{Female Dummy}) + \beta_2(\text{Degree Dummy}) + \beta_3(\text{Female Dummy ⋅ Degree Dummy}) + \epsilon_i\]</span></p>
+<pre class="r"><code>lm.dummy &lt;- lm(Salary ~ female.dummy * degree.dummy, data = C7T15)</code></pre>
+</div>
+<div id="fit-model-with-effect-coded-predictors" class="section level3">
+<h3>Fit model with effect-coded predictors</h3>
+<p><span class="math display">\[Y_i = \beta_0(1) + \beta_1(\text{Female Effect}) + \beta_2(\text{Degree Effect}) + \beta_3(\text{Female Effect ⋅ Degree Effect}) + \epsilon_i\]</span></p>
+<pre class="r"><code>lm.effect &lt;- lm(Salary ~ female.effect * degree.effect, data = C7T15)</code></pre>
+</div>
+<div id="save-group-means" class="section level3">
+<h3>Save group means</h3>
+<pre class="r"><code>group.means &lt;- with(C7T15, by(Salary, Sex.Education, mean))</code></pre>
+</div>
+</div>
+<div id="results" class="section level2">
+<h2>Results</h2>
+<div id="remember-dummy-codes" class="section level3">
+<h3>Remember dummy-codes</h3>
+<pre class="r"><code>C7T15 %&gt;% 
+  count(Sex.lbl, Education.lbl, Sex.Education, female.dummy, degree.dummy, female.dummy * degree.dummy) %&gt;%
+  rename(interaction = `female.dummy * degree.dummy`) %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Sex.lbl</th>
+<th align="left">Education.lbl</th>
+<th align="left">Sex.Education</th>
+<th align="right">female.dummy</th>
+<th align="right">degree.dummy</th>
+<th align="right">interaction</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Male</td>
+<td align="left">No degree</td>
+<td align="left">Male &amp; No degree</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">8</td>
+</tr>
+<tr class="even">
+<td align="left">Male</td>
+<td align="left">Degree</td>
+<td align="left">Male &amp; Degree</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">4</td>
+</tr>
+<tr class="odd">
+<td align="left">Female</td>
+<td align="left">No degree</td>
+<td align="left">Female &amp; No degree</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">Female</td>
+<td align="left">Degree</td>
+<td align="left">Female &amp; Degree</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">7</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="results-using-dummy-coded-predictors" class="section level3">
+<h3>Results using dummy-coded predictors</h3>
+<pre class="r"><code>summary(lm.dummy)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Salary ~ female.dummy * degree.dummy, data = C7T15)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+##  -2000  -1000      0   1000   3000 
+## 
+## Coefficients:
+##                           Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                25000.0      589.3  42.426  &lt; 2e-16 ***
+## female.dummy                2000.0     1128.3   1.773   0.0932 .  
+## degree.dummy               -8000.0     1020.6  -7.838 3.27e-07 ***
+## female.dummy:degree.dummy   1000.0     1537.7   0.650   0.5237    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1667 on 18 degrees of freedom
+## Multiple R-squared:  0.8456, Adjusted R-squared:  0.8199 
+## F-statistic: 32.86 on 3 and 18 DF,  p-value: 1.629e-07</code></pre>
+</div>
+<div id="interpret-coefficients" class="section level3">
+<h3>Interpret coefficients</h3>
+</div>
+<div id="beta_0-text-the-intercept-represents-the-mean-salary-for-men-without-a-degree" class="section level3">
+<h3><span class="math display">\[\beta_0 \text{ (the intercept) represents the mean salary for men without a degree}\]</span></h3>
+<p><span class="math display">\[Y_i = \beta_0(1) + \beta_1(0) + \beta_2(0) + \beta_3(0) + \epsilon_i\]</span></p>
+<p><span class="math display">\[\overline{Y}_\text{Male &amp; No Degree} = \beta_0 + \epsilon_i\]</span></p>
+<pre class="r"><code># apply weights for male &amp; no degree
+coefficients(lm.dummy) %*% c(1, 0, 0, 0)</code></pre>
+<pre><code>##       [,1]
+## [1,] 25000</code></pre>
+<pre class="r"><code># male &amp; no degree
+group.means[&quot;Male &amp; No degree&quot;]</code></pre>
+<pre><code>## Male &amp; No degree 
+##            25000</code></pre>
+<div id="beta_1-text-represents-the-salary-mean-difference-between-males-and-females-without-degrees" class="section level4">
+<h4><span class="math display">\[\beta_1 \text{ represents the salary mean difference between males and females without degrees}\]</span></h4>
+<p><span class="math display">\[Y_i = \beta_0(1) + \beta_1(1) + \beta_2(0) + \beta_3(0) + \epsilon_i\]</span></p>
+<p><span class="math display">\[\overline{Y}_\text{Female &amp; No degree} - \beta_0 = \beta_1 + \epsilon_i\]</span></p>
+<p><span class="math display">\[\overline{Y}_\text{Female &amp; No degree} - \overline{Y}_\text{Male &amp; No degree} = \beta_1 + \epsilon_i\]</span></p>
+<pre class="r"><code># apply weights for female &amp; no degree
+coefficients(lm.dummy) %*% c(1, 1, 0, 0)</code></pre>
+<pre><code>##       [,1]
+## [1,] 27000</code></pre>
+<pre class="r"><code># female &amp; no degree
+group.means[&quot;Female &amp; No degree&quot;]</code></pre>
+<pre><code>## Female &amp; No degree 
+##              27000</code></pre>
+<pre class="r"><code># b1
+coefficients(lm.dummy) %*% c(0, 1, 0, 0)</code></pre>
+<pre><code>##      [,1]
+## [1,] 2000</code></pre>
+<pre class="r"><code># female &amp; no degree - male &amp; no degree
+group.means[&quot;Female &amp; No degree&quot;] - group.means[&quot;Male &amp; No degree&quot;]</code></pre>
+<pre><code>## Female &amp; No degree 
+##               2000</code></pre>
+</div>
+<div id="beta_2-text-represents-the-salary-mean-difference-between-males-with-a-degree-and-males-without-degrees" class="section level4">
+<h4><span class="math display">\[\beta_2 \text{ represents the salary mean difference between males with a degree and males without degrees}\]</span></h4>
+<p><span class="math display">\[Y_i = \beta_0(1) + \beta_1(0) + \beta_2(1) + \beta_3(0) + \epsilon_i\]</span></p>
+<p><span class="math display">\[\overline{Y}_\text{Male &amp; Degree} - \beta_0 = \beta_2 + \epsilon_i\]</span></p>
+<p><span class="math display">\[\overline{Y}_\text{Male &amp; Degree} - \overline{Y}_\text{Male &amp; No degree} = \beta_2 + \epsilon_i\]</span></p>
+<pre class="r"><code># apply weights for male &amp; degree
+coefficients(lm.dummy) %*% c(1, 0, 1, 0)</code></pre>
+<pre><code>##       [,1]
+## [1,] 17000</code></pre>
+<pre class="r"><code># female &amp; no degree
+group.means[&quot;Male &amp; Degree&quot;]</code></pre>
+<pre><code>## Male &amp; Degree 
+##         17000</code></pre>
+<pre class="r"><code># b2
+coefficients(lm.dummy) %*% c(0, 0, 1, 0)</code></pre>
+<pre><code>##       [,1]
+## [1,] -8000</code></pre>
+<pre class="r"><code># male &amp; degree - male &amp; no degree
+group.means[&quot;Male &amp; Degree&quot;] - group.means[&quot;Male &amp; No degree&quot;]</code></pre>
+<pre><code>## Male &amp; Degree 
+##         -8000</code></pre>
+</div>
+<div id="beta_3-text-represents-the-salary-mean-difference-between-the-degree-effect-for-females-and-the-degree-effect-for-males" class="section level4">
+<h4><span class="math display">\[\beta_3 \text{ represents the salary mean difference between the degree effect for females and the degree effect for males}\]</span></h4>
+<p><span class="math display">\[Y_i = \beta_0(1) + \beta_1(1) + \beta_2(1) + \beta_3(1) + \epsilon_i\]</span></p>
+<p><span class="math display">\[\overline{Y}_\text{Female &amp; Degree} - \beta_0 - \beta_1 - \beta_2 = \beta_3 + \epsilon_i\]</span></p>
+<p><span class="math display">\[\overline{Y}_\text{Female &amp; Degree} - \overline{Y}_\text{Male &amp; No degree} - (\overline{Y}_\text{Female &amp; No degree} - \overline{Y}_\text{Male &amp; No degree}) - (\overline{Y}_\text{Male &amp; Degree} - \overline{Y}_\text{Male &amp; No degree}) = \beta_3 + \epsilon_i\]</span></p>
+<p><span class="math display">\[(\overline{Y}_\text{Female &amp; Degree} - \overline{Y}_\text{Female &amp; No degree}) - (\overline{Y}_\text{Male &amp; Degree} - \overline{Y}_\text{Male &amp; No degree}) = \beta_3 + \epsilon_i\]</span></p>
+<pre class="r"><code># apply weights for female &amp; degree
+coefficients(lm.dummy) %*% c(1, 1, 1, 1)</code></pre>
+<pre><code>##       [,1]
+## [1,] 20000</code></pre>
+<pre class="r"><code># female &amp; degree
+group.means[&quot;Female &amp; Degree&quot;]</code></pre>
+<pre><code>## Female &amp; Degree 
+##           20000</code></pre>
+<pre class="r"><code># b3
+coefficients(lm.dummy) %*% c(0, 0, 0, 1)</code></pre>
+<pre><code>##      [,1]
+## [1,] 1000</code></pre>
+<pre class="r"><code># (female &amp; degree - female &amp; no degree) - (male &amp; degree - male &amp; no degree)
+(group.means[&quot;Female &amp; Degree&quot;] - group.means[&quot;Female &amp; No degree&quot;]) - (group.means[&quot;Male &amp; Degree&quot;] - group.means[&quot;Male &amp; No degree&quot;])</code></pre>
+<pre><code>## Female &amp; Degree 
+##            1000</code></pre>
+</div>
+</div>
+<div id="remember-effect-codes" class="section level3">
+<h3>Remember effect-codes</h3>
+<pre class="r"><code>C7T15 %&gt;% 
+  count(Sex.lbl, Education.lbl, Sex.Education, female.effect, degree.effect, female.effect * degree.effect) %&gt;%
+  rename(interaction = `female.effect * degree.effect`) %&gt;% 
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Sex.lbl</th>
+<th align="left">Education.lbl</th>
+<th align="left">Sex.Education</th>
+<th align="right">female.effect</th>
+<th align="right">degree.effect</th>
+<th align="right">interaction</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Male</td>
+<td align="left">No degree</td>
+<td align="left">Male &amp; No degree</td>
+<td align="right">-0.5</td>
+<td align="right">-0.5</td>
+<td align="right">0.25</td>
+<td align="right">8</td>
+</tr>
+<tr class="even">
+<td align="left">Male</td>
+<td align="left">Degree</td>
+<td align="left">Male &amp; Degree</td>
+<td align="right">-0.5</td>
+<td align="right">0.5</td>
+<td align="right">-0.25</td>
+<td align="right">4</td>
+</tr>
+<tr class="odd">
+<td align="left">Female</td>
+<td align="left">No degree</td>
+<td align="left">Female &amp; No degree</td>
+<td align="right">0.5</td>
+<td align="right">-0.5</td>
+<td align="right">-0.25</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">Female</td>
+<td align="left">Degree</td>
+<td align="left">Female &amp; Degree</td>
+<td align="right">0.5</td>
+<td align="right">0.5</td>
+<td align="right">0.25</td>
+<td align="right">7</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="results-using-effect-coded-predictors" class="section level3">
+<h3>Results using effect-coded predictors</h3>
+<pre class="r"><code>summary(lm.effect)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Salary ~ female.effect * degree.effect, data = C7T15)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+##  -2000  -1000      0   1000   3000 
+## 
+## Coefficients:
+##                             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                  22250.0      384.4  57.880  &lt; 2e-16 ***
+## female.effect                 2500.0      768.8   3.252  0.00443 ** 
+## degree.effect                -7500.0      768.8  -9.755 1.31e-08 ***
+## female.effect:degree.effect   1000.0     1537.7   0.650  0.52369    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 1667 on 18 degrees of freedom
+## Multiple R-squared:  0.8456, Adjusted R-squared:  0.8199 
+## F-statistic: 32.86 on 3 and 18 DF,  p-value: 1.629e-07</code></pre>
+</div>
+<div id="interpret-coefficients-1" class="section level3">
+<h3>Interpret coefficients</h3>
+<div id="beta_0-text-the-intercept-represents-the-mean-of-the-group-means-i.e.-the-unweighted-grand-mean" class="section level4">
+<h4><span class="math display">\[\beta_0 \text{ (the intercept) represents the mean of the group means (i.e., the unweighted grand mean)}\]</span></h4>
+<p><span class="math display">\[Y_i = \beta_0(1) + \beta_1(0) + \beta_2(0) + \beta_3(0) + \epsilon_i\]</span></p>
+<p><span class="math display">\[\overline{Y}_\text{u} = \beta_0 + \epsilon_i\]</span></p>
+<pre class="r"><code># apply weights for intercept
+coefficients(lm.effect) %*% c(1, 0, 0, 0)</code></pre>
+<pre><code>##       [,1]
+## [1,] 22250</code></pre>
+<pre class="r"><code># mean of group means
+mean(group.means)</code></pre>
+<pre><code>## [1] 22250</code></pre>
+</div>
+<div id="beta_1-text-represents-the-difference-between-the-unweighted-marginal-salary-means-between-females-and-males" class="section level4">
+<h4><span class="math display">\[\beta_1 \text{ represents the difference between the unweighted marginal salary means between females and males}\]</span></h4>
+<p><span class="math display">\[Y_i = \beta_0(0) + \beta_1(1) + \beta_2(0) + \beta_3(0) + \epsilon_i\]</span></p>
+<p><span class="math display">\[\frac{(\overline{Y}_\text{Female &amp; No degree} + \overline{Y}_\text{Female &amp; Degree} - \overline{Y}_\text{Male &amp; No degree} + \overline{Y}_\text{Male &amp; Degree})}{2} = \beta_1 + \epsilon_i\]</span></p>
+<pre class="r"><code># apply weights for gender main effect (female - male)
+coefficients(lm.effect) %*% c(0, 1, 0, 0)</code></pre>
+<pre><code>##      [,1]
+## [1,] 2500</code></pre>
+<pre class="r"><code># mean of female means - mean of male means
+(group.means[&quot;Female &amp; No degree&quot;] + group.means[&quot;Female &amp; Degree&quot;] - group.means[&quot;Male &amp; No degree&quot;] - group.means[&quot;Male &amp; Degree&quot;]) / 2</code></pre>
+<pre><code>## Female &amp; No degree 
+##               2500</code></pre>
+</div>
+<div id="beta_2-text-represents-the-difference-between-the-unweighted-marginal-salary-means-between-participants-with-and-without-degrees" class="section level4">
+<h4><span class="math display">\[\beta_2 \text{ represents the difference between the unweighted marginal salary means between participants with and without degrees}\]</span></h4>
+<p><span class="math display">\[Y_i = \beta_0(0) + \beta_1(0) + \beta_2(1) + \beta_3(0) + \epsilon_i\]</span></p>
+<p><span class="math display">\[\frac{(\overline{Y}_\text{Female &amp; Degree} + \overline{Y}_\text{Male &amp; Degree} - \overline{Y}_\text{Female &amp; No degree} + \overline{Y}_\text{Male &amp; No degree})}{2} = \beta_2 + \epsilon_i\]</span></p>
+<pre class="r"><code># apply weights for degree main effect (degree - no degree)
+coefficients(lm.effect) %*% c(0, 0, 1, 0)</code></pre>
+<pre><code>##       [,1]
+## [1,] -7500</code></pre>
+<pre class="r"><code># mean of degree means - mean of no degree means
+(group.means[&quot;Male &amp; Degree&quot;] + group.means[&quot;Female &amp; Degree&quot;] - group.means[&quot;Male &amp; No degree&quot;] - group.means[&quot;Female &amp; No degree&quot;]) / 2</code></pre>
+<pre><code>## Male &amp; Degree 
+##         -7500</code></pre>
+</div>
+<div id="beta_3-text-represents-the-salary-mean-difference-between-the-degree-effect-for-females-and-the-degree-effect-for-males-1" class="section level4">
+<h4><span class="math display">\[\beta_3 \text{ represents the salary mean difference between the degree effect for females and the degree effect for males}\]</span></h4>
+<p><span class="math display">\[Y_i = \beta_0(0) + \beta_1(0) + \beta_2(0) + \beta_3(1) + \epsilon_i\]</span></p>
+<p><span class="math display">\[\frac{(\overline{Y}_\text{Female &amp; Degree} - \overline{Y}_\text{Female &amp; No degree} - \overline{Y}_\text{Male &amp; Degree} + \overline{Y}_\text{Male &amp; No degree})}{2} = \beta_3 + \epsilon_i\]</span></p>
+<pre class="r"><code># apply weights for female &amp; degree
+coefficients(lm.effect) %*% c(0, 0, 0, 1)</code></pre>
+<pre><code>##      [,1]
+## [1,] 1000</code></pre>
+<pre class="r"><code># (female &amp; degree - female &amp; no degree) - (male &amp; degree - male &amp; no degree)
+(group.means[&quot;Female &amp; Degree&quot;] - group.means[&quot;Female &amp; No degree&quot;]) - (group.means[&quot;Male &amp; Degree&quot;] - group.means[&quot;Male &amp; No degree&quot;])</code></pre>
+<pre><code>## Female &amp; Degree 
+##            1000</code></pre>
+</div>
+</div>
+</div>
+<div id="manually-create-interaction-terms" class="section level2">
+<h2>Manually create interaction terms</h2>
+<pre class="r"><code>C7T15 &lt;- C7T15 %&gt;% 
+  mutate(interaction.dummy = recode(Sex.Education, &quot;Male &amp; No degree&quot; = 1, &quot;Male &amp; Degree&quot; = 0, &quot;Female &amp; No degree&quot; = 0, &quot;Female &amp; Degree&quot; = 1),
+         interaction.effect = recode(Sex.Education, &quot;Male &amp; No degree&quot; = 0.5, &quot;Male &amp; Degree&quot; = -0.5, &quot;Female &amp; No degree&quot; = -0.5, &quot;Female &amp; Degree&quot; = 0.5))</code></pre>
+</div>
+<div id="coefficients-are-the-same-except-for-the-intercept" class="section level2">
+<h2>Coefficients are the same, except for the intercept</h2>
+<pre class="r"><code>coefficients(lm(Salary ~ female.dummy + degree.dummy + interaction.dummy, data = C7T15))</code></pre>
+<pre><code>##       (Intercept)      female.dummy      degree.dummy interaction.dummy 
+##             24500              2500             -7500               500</code></pre>
+<pre class="r"><code>coefficients(lm(Salary ~ female.effect + degree.effect + interaction.effect, data = C7T15))</code></pre>
+<pre><code>##        (Intercept)      female.effect      degree.effect 
+##              22250               2500              -7500 
+## interaction.effect 
+##                500</code></pre>
+</div>
+</div>
+<div id="resources" class="section level1">
+<h1>Resources</h1>
+<blockquote>
+<ul>
+<li>Maxwell, S., Delaney, H., &amp; Kelley, K. (2018). <a href="https://www.dropbox.com/s/l4fwymgta7qqibj/Designing_Experiments_and_Analyzing_Data_3rd__Tutorial_3.pdf?dl=1">Linear Models: The Relation Between ANOVA and Regression</a>. Retrieved from <a href="https://designingexperiments.com/supplements/">designingexperiments.com/supplements/</a>.</li>
+</ul>
+</blockquote>
+</div>
+<div id="general-word-of-caution" class="section level1">
+<h1>General word of caution</h1>
+<blockquote>
+<p>Above, I listed resources prepared by experts on these and related topics. Although I generally do my best to write accurate posts, don’t assume my posts are 100% accurate or that they apply to your data or research questions. Trust statistics and methodology experts, not blog posts.</p>
+</blockquote>
+</div>

@@ -1,0 +1,460 @@
+---
+title: Dummy coding is a poor default
+author: Nick Michalak
+date: '2019-03-05'
+slug: dummy-coding-is-a-poor-default
+categories:
+  - ANOVA
+  - contrasts
+  - interactions
+  - demonstration
+  - general linear model
+  - moderation
+  - R
+  - regression
+  - tutorial
+tags:
+  - ANOVA
+  - contrasts
+  - general linear model
+  - moderation
+  - R
+  - tutorial
+  - demonstration
+  - interactions
+  - regression
+image:
+  caption: ''
+  focal_point: ''
+draft: true
+---
+
+# Reference Cell Model for 4 groups
+
+$$Y_i = \beta_0X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + \beta_4X_{4i} + \epsilon_i$$  
+
+$$Y_i = \beta_0X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + (0)X_{4i} + \epsilon_i$$  
+
+$$Y_i = \beta_0X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + \epsilon_i$$  
+
+# Cell Means Model for 4 groups
+
+$$Y_i = \beta_0X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + \beta_4X_{4i} + \epsilon_i$$  
+
+$$Y_i = (0)X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + \beta_4X_{4i} + \epsilon_{ij}$$  
+
+$$Y_i = \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + \beta_4X_{4i} + \epsilon_i$$  
+
+# Effects Model for 4 groups
+
+$$Y_i = \beta_0X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} + \beta_4X_{4i} + \epsilon_i$$  
+
+$$Y_i = \beta_0X_{0i} + \beta_1X_{1i} + \beta_2X_{2i} + \beta_3X_{3i} - (\beta_1 + \beta_2 + \beta_3)X_{4i} + \epsilon_i$$  
+
+$$Y_i = \beta_0X_{0i} + \beta_1(X_{1i} - X_{4i}) + \beta_2(X_{2i} - X_{4i}) + \beta_3(X_{3i} - X_{4i}) + \epsilon_i$$  
+
+## Install packages and/or load libraries
+
+```{r, warning = FALSE, message = FALSE}
+
+# install.packages("tidyverse")
+# install.packages("knitr")
+# install.packages("AMCP")
+
+library(tidyverse)
+library(knitr)
+library(AMCP)
+
+```
+
+## Data
+> `help(C7T15)`  
+> "The following hypothetical salary data represents a nonorthogonal two-by-two factorial design. The first factor (sex) is crossed with college (degree or no degree). The primary question of interest is whether or not there is sex discrimination in terms of salary.  
+
+> The data in Table 7.15 presents hypothetical data (in thousands) for 12 feMale and 10 Male who have just been hired by the organization. The mean salary for the 12 females is $22,333, whereas the mean for the 10 Male is $22,100. The data in Table 7.15 also contains information about an additional characteristic of employees, namely whether they received a college degree. It is clear from the data that a majority of the new female employees are college graduates, whereas a majority of the Male are not."
+
+### Load data
+
+```{r}
+
+data("C7T15")
+
+```
+
+### Print data
+
+```{r}
+
+C7T15 %>% 
+  kable()
+
+```
+
+### Convert Salary values into values in thousands
+
+```{r}
+
+C7T15$Salary <- C7T15$Salary * 1000
+
+```
+
+### Add factors with meaningful level labels
+> - **Sex.** 1 = Male, 2 = Female  
+> - **Education.** 1 = No degree, 2 = Degree  
+> - **Education.** 1 = No degree, 2 = Degree
+
+```{r}
+
+C7T15 <- C7T15 %>% 
+  mutate(Sex.lbl = factor(recode(Sex, "1" = "Male", "2" = "Female"), levels = c("Male", "Female"), labels = c("Male", "Female")),
+         Education.lbl = factor(recode(Education, "1" = "No degree", "2" = "Degree"), levels = c("No degree", "Degree"), labels = c("No degree", "Degree")),
+         Sex.Education = interaction(Sex.lbl, Education.lbl, sep = " & "))
+
+```
+
+### Add dummy codes/reference codes as numeric variables
+
+#### Sex
+
+```{r}
+
+# print contrasts
+contrasts(C7T15$Sex.lbl)
+
+# represent these contrasts as numeric variables
+# first column represents the intercept contrast
+# second column represents the dummy coded contrast (0 = Male, 1 = Female)
+C7T15$female.dummy <- model.matrix.lm(~ Sex.lbl, data = C7T15)[, 2]
+
+```
+
+#### Education
+
+```{r}
+
+# print contrasts
+contrasts(C7T15$Education.lbl)
+
+# represent these contrasts as numeric variables
+# first column represents the intercept contrast
+# second column represents the dummy coded contrast (0 = No degree, 1 = Degree)
+C7T15$degree.dummy <- model.matrix.lm(~ Education.lbl, data = C7T15)[, 2]
+
+```
+
+### Add effect codes as numeric variables
+
+```{r}
+
+# create new contrasts
+contrasts(C7T15$Sex.lbl) <- cbind(Female = c(-1, 1) / 2)
+
+# print contrasts
+contrasts(C7T15$Sex.lbl)
+
+# represent these contrasts as numeric variables
+# first column represents the intercept contrast
+# second column represents the effect coded contrast (-0.5 = Male, 0.5 = Female)
+C7T15$female.effect <- model.matrix.lm(~ Sex.lbl, data = C7T15)[, 2]
+
+# create new contrasts
+contrasts(C7T15$Education.lbl) <- cbind(Degree = c(-1, 1) / 2)
+
+# print contrasts
+contrasts(C7T15$Education.lbl)
+
+# represent these contrasts as numeric variables
+# first column represents the intercept contrast
+# second column represents the effect coded contrast (-0.5 = No degree, 0.5 = Degree)
+C7T15$degree.effect <- model.matrix.lm(~ Education.lbl, data = C7T15)[, 2]
+
+```
+
+### Print new data
+
+```{r}
+
+C7T15 %>% 
+  kable()
+
+```
+
+## Visualize
+
+### Group data
+
+```{r}
+
+C7T15 %>% 
+  ggplot(mapping = aes(x = Sex.lbl, y = Salary, color = Education.lbl)) +
+  geom_violin(position = position_dodge(width = 0.90), alpha = 0) +
+  geom_boxplot(position = position_dodge(width = 0.90), width = 0.25, alpha = 0, outlier.color = NULL) +
+  geom_point(position = position_jitterdodge(jitter.width = 0.20, jitter.height = 0.20, dodge.width = 0.90)) +
+  scale_y_continuous(breaks = seq(0, 30000, 2000)) +
+  labs(x = "Sex", y = "Salary", color = "Education") +
+  theme_bw()
+
+```
+
+### Group means
+
+```{r}
+
+C7T15 %>% 
+  ggplot(mapping = aes(x = Sex.lbl, y = Salary, fill = Education.lbl)) +
+  stat_summary(geom = "bar", fun.data = mean_cl_normal, position = position_dodge(width = 0.90)) +
+  stat_summary(geom = "errorbar", fun.data = mean_cl_normal, position = position_dodge(width = 0.90), width = 0) +
+  scale_y_continuous(breaks = seq(0, 40000, 2000)) +
+  labs(x = "Sex", y = "Salary", color = "Education") +
+  theme_bw()
+
+```
+
+## Model data
+
+### Fit model with dummy-coded predictors
+$$Y_i = \beta_0(1) + \beta_1(\text{Female Dummy}) + \beta_2(\text{Degree Dummy}) + \beta_3(\text{Female Dummy ⋅ Degree Dummy}) + \epsilon_i$$
+
+```{r}
+
+lm.dummy <- lm(Salary ~ female.dummy * degree.dummy, data = C7T15)
+
+```
+
+### Fit model with effect-coded predictors
+$$Y_i = \beta_0(1) + \beta_1(\text{Female Effect}) + \beta_2(\text{Degree Effect}) + \beta_3(\text{Female Effect ⋅ Degree Effect}) + \epsilon_i$$
+
+```{r}
+
+lm.effect <- lm(Salary ~ female.effect * degree.effect, data = C7T15)
+
+```
+
+### Save group means
+
+```{r}
+
+group.means <- with(C7T15, by(Salary, Sex.Education, mean))
+
+```
+
+## Results
+
+### Remember dummy-codes
+
+```{r}
+
+C7T15 %>% 
+  count(Sex.lbl, Education.lbl, Sex.Education, female.dummy, degree.dummy, female.dummy * degree.dummy) %>%
+  rename(interaction = `female.dummy * degree.dummy`) %>% 
+  kable()
+
+```
+
+### Results using dummy-coded predictors
+
+```{r}
+
+summary(lm.dummy)
+
+```
+
+### Interpret coefficients
+
+### $$\beta_0 \text{ (the intercept) represents the mean salary for men without a degree}$$
+$$Y_i = \beta_0(1) + \beta_1(0) + \beta_2(0) + \beta_3(0) + \epsilon_i$$  
+
+$$\overline{Y}_\text{Male & No Degree} = \beta_0 + \epsilon_i$$
+
+```{r}
+
+# apply weights for male & no degree
+coefficients(lm.dummy) %*% c(1, 0, 0, 0)
+
+# male & no degree
+group.means["Male & No degree"]
+
+```
+
+#### $$\beta_1 \text{ represents the salary mean difference between males and females without degrees}$$
+$$Y_i = \beta_0(1) + \beta_1(1) + \beta_2(0) + \beta_3(0) + \epsilon_i$$  
+
+$$\overline{Y}_\text{Female & No degree} - \beta_0 = \beta_1 + \epsilon_i$$  
+
+$$\overline{Y}_\text{Female & No degree} - \overline{Y}_\text{Male & No degree} = \beta_1 + \epsilon_i$$  
+
+```{r}
+
+# apply weights for female & no degree
+coefficients(lm.dummy) %*% c(1, 1, 0, 0)
+
+# female & no degree
+group.means["Female & No degree"]
+
+# b1
+coefficients(lm.dummy) %*% c(0, 1, 0, 0)
+
+# female & no degree - male & no degree
+group.means["Female & No degree"] - group.means["Male & No degree"]
+
+```
+
+#### $$\beta_2 \text{ represents the salary mean difference between males with a degree and males without degrees}$$
+
+$$Y_i = \beta_0(1) + \beta_1(0) + \beta_2(1) + \beta_3(0) + \epsilon_i$$  
+
+$$\overline{Y}_\text{Male & Degree} - \beta_0 = \beta_2 + \epsilon_i$$  
+
+$$\overline{Y}_\text{Male & Degree} - \overline{Y}_\text{Male & No degree} = \beta_2 + \epsilon_i$$  
+
+```{r}
+
+# apply weights for male & degree
+coefficients(lm.dummy) %*% c(1, 0, 1, 0)
+
+# female & no degree
+group.means["Male & Degree"]
+
+# b2
+coefficients(lm.dummy) %*% c(0, 0, 1, 0)
+
+# male & degree - male & no degree
+group.means["Male & Degree"] - group.means["Male & No degree"]
+
+```
+
+#### $$\beta_3 \text{ represents the salary mean difference between the degree effect for females and the degree effect for males}$$
+
+$$Y_i = \beta_0(1) + \beta_1(1) + \beta_2(1) + \beta_3(1) + \epsilon_i$$  
+
+$$\overline{Y}_\text{Female & Degree} - \beta_0 - \beta_1 - \beta_2 = \beta_3 + \epsilon_i$$  
+
+$$\overline{Y}_\text{Female & Degree} - \overline{Y}_\text{Male & No degree} - (\overline{Y}_\text{Female & No degree} - \overline{Y}_\text{Male & No degree}) - (\overline{Y}_\text{Male & Degree} - \overline{Y}_\text{Male & No degree}) = \beta_3 + \epsilon_i$$  
+
+$$(\overline{Y}_\text{Female & Degree} - \overline{Y}_\text{Female & No degree}) - (\overline{Y}_\text{Male & Degree} - \overline{Y}_\text{Male & No degree}) = \beta_3 + \epsilon_i$$  
+
+```{r}
+
+# apply weights for female & degree
+coefficients(lm.dummy) %*% c(1, 1, 1, 1)
+
+# female & degree
+group.means["Female & Degree"]
+
+# b3
+coefficients(lm.dummy) %*% c(0, 0, 0, 1)
+
+# (female & degree - female & no degree) - (male & degree - male & no degree)
+(group.means["Female & Degree"] - group.means["Female & No degree"]) - (group.means["Male & Degree"] - group.means["Male & No degree"])
+
+```
+
+### Remember effect-codes
+
+```{r}
+
+C7T15 %>% 
+  count(Sex.lbl, Education.lbl, Sex.Education, female.effect, degree.effect, female.effect * degree.effect) %>%
+  rename(interaction = `female.effect * degree.effect`) %>% 
+  kable()
+
+```
+
+### Results using effect-coded predictors
+
+```{r}
+
+summary(lm.effect)
+
+```
+
+### Interpret coefficients
+
+#### $$\beta_0 \text{ (the intercept) represents the mean of the group means (i.e., the unweighted grand mean)}$$
+
+$$Y_i = \beta_0(1) + \beta_1(0) + \beta_2(0) + \beta_3(0) + \epsilon_i$$  
+
+$$\overline{Y}_\text{u} = \beta_0 + \epsilon_i$$  
+
+```{r}
+
+# apply weights for intercept
+coefficients(lm.effect) %*% c(1, 0, 0, 0)
+
+# mean of group means
+mean(group.means)
+
+```
+
+#### $$\beta_1 \text{ represents the difference between the unweighted marginal salary means between females and males}$$  
+
+$$Y_i = \beta_0(0) + \beta_1(1) + \beta_2(0) + \beta_3(0) + \epsilon_i$$
+
+$$\frac{(\overline{Y}_\text{Female & No degree} + \overline{Y}_\text{Female & Degree} - \overline{Y}_\text{Male & No degree} + \overline{Y}_\text{Male & Degree})}{2} = \beta_1 + \epsilon_i$$  
+
+```{r}
+
+# apply weights for gender main effect (female - male)
+coefficients(lm.effect) %*% c(0, 1, 0, 0)
+
+# mean of female means - mean of male means
+(group.means["Female & No degree"] + group.means["Female & Degree"] - group.means["Male & No degree"] - group.means["Male & Degree"]) / 2
+
+```
+
+#### $$\beta_2 \text{ represents the difference between the unweighted marginal salary means between participants with and without degrees}$$
+
+$$Y_i = \beta_0(0) + \beta_1(0) + \beta_2(1) + \beta_3(0) + \epsilon_i$$  
+
+$$\frac{(\overline{Y}_\text{Female & Degree} + \overline{Y}_\text{Male & Degree} - \overline{Y}_\text{Female & No degree} + \overline{Y}_\text{Male & No degree})}{2} = \beta_2 + \epsilon_i$$  
+
+```{r}
+
+# apply weights for degree main effect (degree - no degree)
+coefficients(lm.effect) %*% c(0, 0, 1, 0)
+
+# mean of degree means - mean of no degree means
+(group.means["Male & Degree"] + group.means["Female & Degree"] - group.means["Male & No degree"] - group.means["Female & No degree"]) / 2
+
+```
+
+#### $$\beta_3 \text{ represents the salary mean difference between the degree effect for females and the degree effect for males}$$
+
+$$Y_i = \beta_0(0) + \beta_1(0) + \beta_2(0) + \beta_3(1) + \epsilon_i$$  
+
+$$\frac{(\overline{Y}_\text{Female & Degree} - \overline{Y}_\text{Female & No degree} - \overline{Y}_\text{Male & Degree} + \overline{Y}_\text{Male & No degree})}{2} = \beta_3 + \epsilon_i$$  
+
+```{r}
+
+# apply weights for female & degree
+coefficients(lm.effect) %*% c(0, 0, 0, 1)
+
+# (female & degree - female & no degree) - (male & degree - male & no degree)
+(group.means["Female & Degree"] - group.means["Female & No degree"]) - (group.means["Male & Degree"] - group.means["Male & No degree"])
+
+```
+
+## Manually create interaction terms
+
+```{r}
+
+C7T15 <- C7T15 %>% 
+  mutate(interaction.dummy = recode(Sex.Education, "Male & No degree" = 1, "Male & Degree" = 0, "Female & No degree" = 0, "Female & Degree" = 1),
+         interaction.effect = recode(Sex.Education, "Male & No degree" = 0.5, "Male & Degree" = -0.5, "Female & No degree" = -0.5, "Female & Degree" = 0.5))
+
+```
+
+## Coefficients are the same, except for the intercept
+
+```{r}
+
+coefficients(lm(Salary ~ female.dummy + degree.dummy + interaction.dummy, data = C7T15))
+coefficients(lm(Salary ~ female.effect + degree.effect + interaction.effect, data = C7T15))
+
+```
+
+# Resources
+> * Maxwell, S., Delaney, H., & Kelley, K. (2018). [Linear Models: The Relation Between ANOVA and Regression](https://www.dropbox.com/s/l4fwymgta7qqibj/Designing_Experiments_and_Analyzing_Data_3rd__Tutorial_3.pdf?dl=1). Retrieved from [designingexperiments.com/supplements/](https://designingexperiments.com/supplements/).
+
+# General word of caution
+> Above, I listed resources prepared by experts on these and related topics. Although I generally do my best to write accurate posts, don't assume my posts are 100% accurate or that they apply to your data or research questions. Trust statistics and methodology experts, not blog posts.

@@ -78,7 +78,7 @@ link = "https://www.linkedin.com/in/nicholas-michalak-27ab2021/"
  [[social]]
    icon = "cv"
    icon_pack = "ai"
-   link = "files/cv/2019/2019_february_vitae_michalak.pdf"
+   link = "files/cv/2019/2019_april_vitae_michalak.pdf"
 
 +++
 
