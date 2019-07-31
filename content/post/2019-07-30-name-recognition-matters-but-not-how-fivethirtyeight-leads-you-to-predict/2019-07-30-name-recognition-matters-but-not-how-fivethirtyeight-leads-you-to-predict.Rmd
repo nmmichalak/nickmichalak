@@ -253,7 +253,7 @@ list(glm.fit0, glm.fit1, glm.fit2) %>%
     # return table
     tibble(auc = roc.fit$auc,
            lower = roc.fit$ci[1],
-           upper = roc.fit$ci[2]) %>% 
+           upper = roc.fit$ci[3]) %>% 
       mutate_if(is.numeric, round, 2)
     
   }) %>% 
