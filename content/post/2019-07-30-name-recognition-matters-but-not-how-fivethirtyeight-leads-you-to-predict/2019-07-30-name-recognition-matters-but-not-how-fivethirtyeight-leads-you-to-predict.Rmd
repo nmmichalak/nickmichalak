@@ -1,5 +1,5 @@
 ---
-title: Name recognition matters
+title: Presidential primary candidate name recognition matters
 subtitle: But not how FiveThirtyEight leads you to predict
 author: Nick Michalak
 date: '2019-07-30'
@@ -8,13 +8,13 @@ categories:
   - opinion
   - U.S. politics
 tags:
-  - U.S. presidential primary
-  - prediction
-  - FiveThirtyEight
   - U.S. politics
+  - U.S. presidential primary
+  - FiveThirtyEight
+  - prediction
+  - prediction error
   - logistic regression
   - data visualization
-  - prediction error
 image:
   caption: ''
   focal_point: ''
