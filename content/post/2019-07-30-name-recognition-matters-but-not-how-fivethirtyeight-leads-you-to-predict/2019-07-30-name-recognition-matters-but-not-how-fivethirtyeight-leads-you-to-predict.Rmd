@@ -191,7 +191,7 @@ primary_pollavrg_nr %>%
   arrange(desc(poll_avrg1_group), name_recognition1) %>% 
   set_names(c("Early Stage National Polling Average", "Name Recognition", "# of Candidates", "# Lost", "# Won")) %>%
   kable(format = "html", escape = FALSE, caption = "Number of Candidates Who Won Their Party's Nomination Depending on Their Early Stage National Polling Average and Name Recognition") %>%
-  kable_styling("hover", full_width = F)
+  kable_styling("hover", full_width = FALSE)
 
 ```
 
