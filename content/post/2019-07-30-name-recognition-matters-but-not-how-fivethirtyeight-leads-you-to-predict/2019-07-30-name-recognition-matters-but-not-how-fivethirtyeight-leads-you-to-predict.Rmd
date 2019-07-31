@@ -199,7 +199,7 @@ primary_pollavrg_nr %>%
   select(poll_avrg1_group, name_recognition1, cell_size, lost, won) %>% 
   arrange(desc(poll_avrg1_group), name_recognition1) %>% 
   set_names(c("Early Stage National Polling Average", "Name Recognition", "# of Candidates", "# Lost", "# Won")) %>%
-  kable(format = "html", escape = FALSE, caption = "Table displays the number of candidates who won their party's nomination depending on their early stage national polling average and name recognition. The blank polling average represents the 1992 Republican primary for which no early stage polling data are avaialble for George H.W. Bush, a high name recognition incumbent who won the nomination.") %>%
+  kable(format = "html", escape = FALSE, caption = "Table displays the number of candidates who won their party's nomination depending on their early stage national polling average and name recognition. The single winner next to the blank polling average represents George H.W. Bush, a high name recognition incumbent who won the Republican nomination in 1922 (no early national polling data were available).") %>%
   kable_styling("hover", full_width = FALSE)
 
 ```
