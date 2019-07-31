@@ -115,7 +115,7 @@ FiveThirtyEight claims that national primary polls can become more useful for pr
 
 # Methods
 
-I created my own datasets by copying and pasting data from tables found in FiveThirtyEight's blog posts and at [CQ Voting and Elections Collection](http://www.lib.umich.edu/database/link/28027). I've made these data available [here](INSERT LINK).
+I created my own datasets by copying and pasting data from tables found in FiveThirtyEight's blog posts and at [CQ Voting and Elections Collection](http://www.lib.umich.edu/database/link/28027). I've made those data available on my [GitHub](https://github.com/nmmichalak/academic-kickstart/tree/master/content/post/2019-07-30-name-recognition-matters-but-not-how-fivethirtyeight-leads-you-to-predict/data).
 
 # National primay polls predict nomination success and national primary vote share.
 
