@@ -243,6 +243,9 @@ glm.fit2 <- glm(nominee ~ scale(poll_avrg1, scale = FALSE) * demVrep, data = pri
 
 list(glm.fit0, glm.fit1, glm.fit2) %>% 
   map_df(function(fit) {
+    # set random seed
+    set.seed(7940823)
+    
     # fit roc
     roc.fit <- roc(response = primary_pollavrg_nr$nominee, predictor = predict(fit, type = "response"), plot = FALSE, ci = TRUE, ci.method = "boot")
     
@@ -256,7 +259,7 @@ list(glm.fit0, glm.fit1, glm.fit2) %>%
   mutate(model = c("National Polling Average Only", "National Polling Average x Name Recognition", "National Polling Average x Major Political Party")) %>% 
   select(model, auc, lower, upper) %>% 
   set_names(c("Model Description", "Diagnostic Accuracy", "Lower Bound", "Upper Bound")) %>%
-  kable(format = "html", escape = FALSE, caption = "The table displays each models abilty 'diagnose' a candidate's nomination success. Diagnostic Accuracy is estimated from the Area Under the [Receiver Operating Characteristic Curve.](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)") %>%
+  kable(format = "html", escape = FALSE, caption = "The table displays each models abilty 'diagnose' a candidate's nomination success. The lower and upper bounds together represent the [bootstrapped](https://en.wikipedia.org/wiki/Bootstrapping_(statistics)) 95% confidence interval. Diagnostic Accuracy is estimated from the Area Under the [Receiver Operating Characteristic Curve.](https://en.wikipedia.org/wiki/Receiver_operating_characteristic)") %>%
   kable_styling("hover", full_width = F)
 
 ```
