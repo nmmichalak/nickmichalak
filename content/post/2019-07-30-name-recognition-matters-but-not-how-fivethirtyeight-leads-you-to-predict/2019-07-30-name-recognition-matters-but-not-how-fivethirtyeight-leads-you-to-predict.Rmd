@@ -183,6 +183,8 @@ This limitation applies equally to predicting nomination success. In the case of
 
 ```{r, warning = FALSE, message = FALSE, echo = FALSE}
 
+options(knitr.kable.NA = "—")
+
 primary_pollavrg_nr %>% 
   count(poll_avrg1_group, name_recognition1, nominee) %>% 
   group_by(poll_avrg1_group, name_recognition1) %>% 
@@ -197,7 +199,7 @@ primary_pollavrg_nr %>%
   select(poll_avrg1_group, name_recognition1, cell_size, lost, won) %>% 
   arrange(desc(poll_avrg1_group), name_recognition1) %>% 
   set_names(c("Early Stage National Polling Average", "Name Recognition", "# of Candidates", "# Lost", "# Won")) %>%
-  kable(format = "html", escape = FALSE, caption = "Number of Candidates Who Won Their Party's Nomination Depending on Their Early Stage National Polling Average and Name Recognition") %>%
+  kable(format = "html", escape = FALSE, caption = "Table displays the number of candidates who won their party's nomination depending on their early stage national polling average and name recognition. The blank polling average represents the 1992 Republican primary for which no early stage polling data are avaialble for George H.W. Bush, a high name recognition incumbent who won the nomination.") %>%
   kable_styling("hover", full_width = FALSE)
 
 ```
