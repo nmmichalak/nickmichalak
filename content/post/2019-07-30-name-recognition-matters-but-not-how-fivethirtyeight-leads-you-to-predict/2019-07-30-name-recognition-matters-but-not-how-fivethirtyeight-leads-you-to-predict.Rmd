@@ -184,7 +184,6 @@ This limitation applies equally to predicting nomination success. In the case of
 ```{r, warning = FALSE, message = FALSE, echo = FALSE}
 
 primary_pollavrg_nr %>% 
-  filter(!is.na(name_recognition1)) %>% 
   count(poll_avrg1_group, name_recognition1, nominee) %>% 
   group_by(poll_avrg1_group, name_recognition1) %>% 
   mutate(nominee = recode(nominee, "0" = "lost", "1" = "won")) %>% 
