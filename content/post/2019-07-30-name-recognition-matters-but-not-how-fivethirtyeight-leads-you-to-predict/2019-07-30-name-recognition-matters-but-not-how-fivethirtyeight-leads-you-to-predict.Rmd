@@ -138,10 +138,11 @@ primary_pollavrg_nr %>%
 ```{r, warning = FALSE, message = FALSE, echo = FALSE, fig.cap = "The ribbon represents [95% confidence intervals](https://rpsychologist.com/d3/CI/) around the predictions. The vote share data are a little different from those presented by FiveThirtyEight because our sources were likely different."}
 
 presidential_primary_results_pollavrg %>% 
+  filter(!duplicated(poll_avrg1, primary_voteshare)) %>% 
   ggplot(mapping = aes(x = poll_avrg1, y = primary_voteshare)) +
   geom_hline(yintercept = 0.50, linetype = "dotted") +
   geom_smooth(method = "glm", se = TRUE, method.args = list(family = quasibinomial(link = "logit")), fill = "#cc79a7", color = "#cc79a7") +
-  geom_point(size = 4, alpha = 0.025, color = "#cc79a7", position = position_jitter(height = 0.005, seed = 473928)) +
+  geom_point(size = 4, alpha = 0.50, color = "#cc79a7", position = position_jitter(height = 0.005, seed = 473928)) +
   scale_x_continuous(breaks = seq(0, 1, 0.10), labels = percent_format(accuracy = 1)) +
   scale_y_continuous(breaks = seq(0, 1, 0.25), labels = percent_format(accuracy = 1)) +
   labs(title = "National Primary Vote Share", subtitle = "Early stage national primay polls predict national primary vote share (1972-2016)") +
