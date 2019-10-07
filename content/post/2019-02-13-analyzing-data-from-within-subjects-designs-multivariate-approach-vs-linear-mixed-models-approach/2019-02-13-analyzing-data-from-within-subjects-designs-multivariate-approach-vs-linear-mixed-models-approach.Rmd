@@ -19,6 +19,7 @@ tags:
 image:
   caption: ''
   focal_point: ''
+draft: true
 ---
 
 Note I'm not done with this post yet. Don't trust my content here too much and lower expectations about how much I explain here!
