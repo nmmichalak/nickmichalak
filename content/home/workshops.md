@@ -10,9 +10,9 @@ title = "Workshops"
 subtitle = ""
 
 # Order that this section will appear in.
-weight = 60
+weight = 50
 
 +++
 
-> * A gentle crash course in R using tidyverse (co-taught with Loek Brinkman) [[**OSF project**](https://osf.io/69gub)]
-> * R Programming for Research (co-taught with Iris M. Wang) [[**OSF project**](https://osf.io/xj7cq/)]
+> * R Programming for Psychology Research (co-taught with Iris M. Wang) [[**OSF project**](https://osf.io/xj7cq/)]
+> * SPSS for Psychology Research [**OSF project**](https://osf.io/peq8t/)

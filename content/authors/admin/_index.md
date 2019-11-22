@@ -51,7 +51,7 @@ link = "#contact"  # For a direct email link, use "mailto:nickmm@umich.edu".
 icon = "google-scholar"
 icon_pack = "ai"
 link = "https://scholar.google.com/citations?user=XuA8fSkAAAAJ&hl=en"
-  
+
 [[social]]
 icon = "osf"
 icon_pack = "ai"
@@ -61,12 +61,12 @@ link = "https://osf.io/gb5xj/"
 icon = "github"
 icon_pack = "fab"
 link = "https://github.com/nmmichalak"
-  
+
 [[social]]
 icon = "twitter"
 icon_pack = "fab"
 link = "https://twitter.com/nmmichalak"
-  
+
 [[social]]
 icon = "linkedin"
 icon_pack = "fab"
@@ -78,7 +78,7 @@ link = "https://www.linkedin.com/in/nicholas-michalak-27ab2021/"
  [[social]]
    icon = "cv"
    icon_pack = "ai"
-   link = "files/cv/2019/2019_april_vitae_michalak.pdf"
+   link = "files/cv/2019/2019_october_vitae_michalak.pdf"
 
 +++
 
