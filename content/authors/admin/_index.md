@@ -20,10 +20,10 @@ email = "nickmm@umich.edu"
 
 # List (academic) interests or hobbies
 interests = [
-  "person perception",
-  "nonverbal",
-  "threat",
-  "evolution"
+  "Person {erception",
+  "Nonverbal",
+  "Threat",
+  "Evolution"
 ]
 
 # List qualifications (such as academic degrees)
@@ -82,8 +82,6 @@ link = "https://www.linkedin.com/in/nicholas-michalak-27ab2021/"
 
 +++
 
-I’m a PhD candidate in social psychology working with [Josh Ackerman](https://sites.lsa.umich.edu/esplab/) at the University of Michigan. Before I started at Michigan, I received my bachelor’s degree in neuroscience from the University of St. Thomas in St. Paul, MN. After graduating, I worked as a research assistant and lab manager at the University of Minnesota and the Carlson School of Management.
-
-Broadly, I use advanced methods and statistics to study how both modern and evolutionarily-relevant threats affect how people perceive themselves and others. For example, in my current work, I use the reverse correlation image classification task to estimate mental representations of infected persons. I’m also conducting a Cross-Temporal Meta-Analysis to test whether stereotype threat effects have dissapated over time, depending on negatively stereotyped group (e.g., Women, Black Americans).
+I’m a PhD candidate in social psychology working with [Josh Ackerman](https://sites.lsa.umich.edu/esplab/) at the University of Michigan. Broadly, I use advanced methods and statistics to study how both modern and evolutionarily-relevant threats affect how people perceive themselves and others. For example, in my current work, I use the reverse correlation image classification task to estimate mental representations of infected persons. I’m also conducting a Cross-Temporal Meta-Analysis to test whether stereotype threat effects have dissapated over time, depending on negatively stereotyped group (e.g., Women, Black Americans).
 
 I’m asking three main questions right now: (1) How do people mentally represent threatening persons, (2) How do people use emotional expressions in trait judgements, and (3) What are the effects of negative stereotypes changing over time?
