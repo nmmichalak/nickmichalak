@@ -8,4 +8,3 @@ featured = false
 publication = "*Journal of Personality*"
 doi = "https://doi.org/10.1111/jopy.12401"
 +++
-

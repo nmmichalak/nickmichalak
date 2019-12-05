@@ -9,4 +9,3 @@ publication = "*PsyArXiv*"
 url_pdf = "https://psyarxiv.com/w4ta2/"
 doi = "10.31234/osf.io/w4ta2"
 +++
-
