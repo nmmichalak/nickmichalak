@@ -1,0 +1,1036 @@
+---
+title: Logistic Regression in R
+author: "Nick Michalak"
+date: "2019-12-17"
+slug: logistic-regression-in-r
+categories:
+  - tutorial
+tags:
+  - R
+  - logistic regression
+  - classification
+  - interactions
+subtitle: ''
+summary: ''
+authors: []
+lastmod: "2019-12-11T20:59:08-05:00"
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+# Introduction  
+In this post, I'll introduce the logistic regression model in a semi-formal, fancy way. Then, I'll generate data from some simple models:  
+
+* 1 quantitative predictor  
+* 1 categorical predictor  
+* 2 quantitative predictors  
+* 1 quantitative predictor with a quadratic term  
+
+I'll model data from each example using linear and logistic regression. Throughout the post, I'll explain equations, terms, output, and plots. Here are some key takeaways:  
+
+1. With regard to diagnostic accuracy (i.e., correctly classifying 1s and 0s), linear regression and logistic regression perform equally well in the simple cases I present in this post.  
+
+2. However, linear regression often makes impossible predictions (probabilities below 0% or above 100%).  
+
+3. Partly because of the S-shape of the logistic function, the predicted values from multiple logistic regression depend on the values of all the predictors in the model, even when there is no true interaction. The rotating, 3-D response surfaces at the end of each multiple regression example should make this point clearer.
+
+## Install and/or load packages for this post  
+I've commented out the code for installing packages above code for loading those packages.
+
+```{r, message = FALSE, warning = FALSE}
+
+# install.packages("tidyverse")
+# install.packages("gifski")
+# install.packages("lattice")
+# install.packages("scales")
+# install.packages("kableExtra")
+# install.packages("pROC")
+
+library(tidyverse)
+library(gifski)
+library(lattice)
+library(scales)
+library(kableExtra)
+library(pROC)
+
+```
+
+## Save ggplot2 theme for this post  
+I'll use this theme in ggplot2 plots throughout the post.
+
+```{r}
+
+post_theme <- theme_bw() +
+  theme(legend.position = "top",
+        plot.title = element_text(hjust = 0, size = rel(1.5), face = "bold"),
+        plot.margin = unit(c(1, 1, 1, 1), units = "lines"),
+        axis.title.x = element_text(family = "Times New Roman", color = "Black", size = 12),
+        axis.title.y = element_text(family = "Times New Roman", color = "Black", size = 12),
+        axis.text.x = element_text(family = "Times New Roman", color = "Black", size = 12),
+        axis.text.y = element_text(family = "Times New Roman", color = "Black", size = 12),
+        legend.title = element_text(family = "Times New Roman", color = "Black", size = 12),
+        legend.text = element_text(family = "Times New Roman", color = "Black", size = 12))
+
+```
+
+# What is logistic regression?  
+Logistic regression models binary random variables, which take on two values, 1 or 0, whose probabilities are represented as $\pi$ and $1 - \pi$. The model relies on the logistic function to estimate the probability, $\pi$, that the binary dependent variable equals 1. The logistic function looks like this:  
+
+$f(x) = \frac{1}{1 + e^{-x}}$
+
+
+where *e* represents [Euler's number](https://en.wikipedia.org/wiki/E_(mathematical_constant)). If you are familiar with the multiple linear regression equation:  
+
+$Y_i = \beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1} + \epsilon_i$  
+
+where *i* represent random observations, *Y* represents a random dependent variable; $\beta$ represents the population regression coefficient; *x* represent random predictor variables; *p* represents any number of random predictor variables; and $\epsilon$ represents random error, then you will be familiar with the same linear combination of predictors as they appear in the logistic function below:  
+
+$\pi_i = \frac{1}{1 + e^-({\beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1}})} + \epsilon_i$.  
+
+Logistic regression relies on [maximum likelihood](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation) to estimate regression coefficients using a "logit link": It "links" the linear combination of predictor variables to the natural logarithm of the odds,  
+
+$log_e(\frac{\pi}{1 - \pi})$.  
+
+The odds are simply the ratio of the probability that the dependent variable equals 1 (the numerator) to the probability that the dependent variable equals 0 (or not 1, the denominator):  
+
+$\frac{\pi}{1 - \pi}$  
+
+The logarithm of the odds (log-odds) represents the power to which *e* (Euler's number) must be raised to produce the odds. Transforming probability, $\pi$, into log-odds and necessary algebra applied to the right side of the equation results in this equation for logistic regression:  
+
+$\log_e(\frac{\pi_i}{1 - \pi_i}) = \beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1} + \epsilon_i$.  
+
+# What is the relationship between probability and odds?  
+Below you can see a table whose first column displays a sequence of proportions, from 0 to 1 in steps of 0.10. You can also see how to transform proportions to odds and log-odds using R code (the rest is just fancy).
+
+## Table
+
+```{r}
+
+tibble(event = seq(0, 1, 0.10),
+       noevent = 1 - event,
+       odds = event / noevent,
+       # The default base is Euler's number. I make that explicit in the code below.
+       logodds = log(odds, base = exp(1))) %>%
+  round(2) %>% 
+  set_names(c("p", "1 - p", "Odds", "Log-Odds")) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+  
+```
+
+## View the relationship between probablity and odds  
+The function "speeds up" between 90% and 100%.
+
+```{r}
+
+tibble(event = seq(0, 1, 0.01),
+       noevent = 1 - event,
+       odds = event / noevent,
+       logodds = log(odds, base = exp(1))) %>% 
+  ggplot(mapping = aes(x = event, y = odds)) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(0, 1, 0.10), labels = percent_format(accuracy = 1)) +
+  labs(x = expression("Probability that Y = 1": pi), y = NULL, title = expression(Odds: frac(pi, (1 - pi)))) +
+  post_theme
+
+```
+
+## View the relationship between probablity and log-odds  
+The function is almost linear between 20 and 80%, and it "speeds up" between 0% and 20% and between 80% and 100%.
+
+```{r}
+
+tibble(event = seq(0, 1, 0.01),
+       noevent = 1 - event,
+       odds = event / noevent,
+       logodds = log(odds, base = exp(1))) %>% 
+  ggplot(mapping = aes(x = event, y = logodds)) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(0, 1, 0.10), labels = percent_format(accuracy = 1)) +
+  labs(x = expression("Probability that Y = 1": pi), y = NULL, title = expression(Logit: log[e](frac(pi, (1 - pi))))) +
+  post_theme
+
+```
+
+# What are some problems with using linear regression to model binary dependent variables?  
+The simple answer is that the model will not best represent the process that generated the data. Here's what can (or will happen) when you model a binary dependent variable with linear regression.  
+
+1. **Residuals ($Y_{Observed} - Y_{Predicted}$) won't have a normal distribution.** When $Y_i = 1$, the residual, $\epsilon_i$, will equal  
+
+$1 - \hat{\pi_i} = 1 - \beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1}$.  
+
+Corresponingly, When $Y_i = 0$, the residual, $\epsilon_i$, will equal  
+
+$0 - \hat{\pi_i} = -\beta_0 - \beta_1x_{i1} - ... \beta_{p - 1}x_{i, p-1}$.  
+
+So, any given predicted value for an observation, $\hat{\pi}$, can result in only 1 of 2 possible error values. Such errors are binary, not normal.  
+
+2. **The variability in residuals, $r_i$, will depend on the predicted values themselves.** The formula for the variance of the predicted values, $\hat{\pi_i}$, includes the predicted value:  
+
+$var(r_i) = \hat{\pi_i}(1 - \hat{\pi_i})$.  
+
+It's like if the variability of the mean depends on the mean. Look at the inverted-U relationship between probability that $Y_i = 1$ and the variance of its residual, $r_i$:  
+
+```{r}
+
+tibble(pihat = seq(0, 1, 0.10),
+       var_resid = pihat * (1 - pihat)) %>% 
+  ggplot(mapping = aes(x = pihat, y = var_resid)) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = expression(hat(pi)), y = NULL, title = expression(var(r[i]))) +
+  post_theme
+
+```
+
+3. **The model can make impossible predictions outside of 0% or 100%.** The mean of 0s and 1s can't be below 0 or above 1. The probability of *Y* = 1 cannot be below 0% or above 100%. Linear regression does not guarantee this.  
+
+# Simple Model: 1 Quantitative Predictor
+$\log_e(\frac{\pi}{1 - \pi}) = \beta_0 + \beta_1x_1$  
+
+## Generate data
+
+### Save parameters  
+* Sample Size = 250  
+* $\beta_0$ (the intercept) = 0  
+* $\beta_1$ = 1
+
+```{r}
+
+N <- 250
+b0 <- 0
+b1 <- 1
+
+```
+
+### Sample predictor (Normal distribution)  
+$X_1 \sim \mathcal{N}(\mu, \sigma^2) = \mathcal{N}(0, 1)$
+
+```{r}
+
+# Set random seed so results can be reproduced
+set.seed(533837)
+
+x1 <- rnorm(n = N, mean = 0, sd = 1)
+
+```
+
+### Generate data as a function of model ([Binomial Distribution](https://en.wikipedia.org/wiki/Binomial_distribution))  
+$\mathcal{B}(n, \pi) = \mathcal{B}(1, \pi)$
+
+```{r}
+
+# Set random seed so results can be reproduced
+set.seed(533837)
+
+# The prob argument asks for the probability of 1 for each replicate, which is a logistic function of the additive, linear equation 
+y <- rbinom(n = N, size = 1, prob = plogis(b0 + b1 * x1))
+
+```
+
+### Table data  
+The table below displays the first 10 of 250 observations.
+
+```{r}
+
+data1 <- tibble(id = 1:N, y, x1)
+
+data1 %>% 
+  head() %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+  
+```
+
+### Plot data  
+Linear and Logistic regressions make different predictions. The logistic regression (blue line) predictions follow an S-shape and fall between 0% and 100%. In contrast, the linear regression (red/orange line) makes some impossible predictions: The fit line makes predictions below 0% and above 100%.
+
+```{r}
+
+data1 %>% 
+  ggplot(mapping = aes(x = x1, y = y)) +
+  geom_hline(yintercept = 0, linetype = "dotted") +
+  geom_hline(yintercept = 1, linetype = "dotted") +
+  geom_smooth(mapping = aes(color = "Linear"), method = "glm", formula = y ~ x, method.args = list(family = gaussian(link = "identity")), se = FALSE) +
+  geom_smooth(mapping = aes(color = "Logistic"), method = "glm", formula = y ~ x, method.args = list(family = binomial(link = "logit")), se = FALSE) +
+  geom_point(size = 3, alpha = 0.50) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c("#d55e00", "#0072b2")) +
+  labs(x = expression(x[1]), y = NULL, title = bquote("Prediction:" ~ hat(pi)), color = "Model Form") +
+  post_theme
+
+```
+
+### Fit linear regression  
+The model below is equivalent to `lm(formula, data)`, but it uses maximum likelihood instead of the least squares method.
+
+```{r}
+
+glm.fit1 <- glm(y ~ x1, family = gaussian(link = "identity"), data = data1)
+
+```
+
+#### Plot residuals vs. predicted values  
+The plot below displays the linear regression predictions from a different perspective: residuals (i.e., prediction errors). As expected from the linear fit line in the previous plot, some predictions are impossible (orange circles), falling below 0% or above 100%. The black [loess fit line](https://en.wikipedia.org/wiki/Local_regression) can help you interpret the strange relationship between predicted values and residuals: Residuals for a given predicted value can only take on 1 of 2 values, so residuals fall on only 1 of 2 straight lines across the plot. A straight black line is consistent with no relationship between predictions and residuals, whereas a anny pattern in the black line suggestions errors change as some function of the model predictions. 
+
+```{r}
+
+# Save a data frame with residuals and fitted values (pihat)
+pihat_residual1 <- tibble(model_form = "Linear",
+                           pihat = glm.fit1$fitted.values,
+                           residual = residuals.glm
+                          
+                          (glm.fit1, type = "response"))
+
+# Plot fitted values (pihat) and residuals
+pihat_residual1 %>% 
+  mutate(impossible = ifelse(pihat < 0 | pihat > 1, "Impossible Value", "Possible Value")) %>% 
+  ggplot(mapping = aes(x = pihat, y = residual)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_vline(xintercept = 0, linetype = "dotted") +
+  geom_vline(xintercept = 1, linetype = "dotted") +
+  geom_smooth(method = "loess", se = FALSE, span = 0.80, color = "black") +
+  geom_point(mapping = aes(color = impossible), size = 3, alpha = 0.50) +
+  scale_x_continuous(breaks = seq(-1, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c("#e69f00", "#000000")) +
+  labs(x = bquote("Prediction:" ~ hat(pi)), y = expression(Residual: y - hat(pi)), color = NULL) +
+  post_theme
+
+```
+
+#### Results Summary  
+When $x_1$ equals 0, the model predicts a `r round(coefficients(glm.fit1)[1], 2) * 100`% probability that *Y* equals 1. For every 1 unit change in $x_1$, the predicted probability that *Y* equals 1 increases linearly by `r round(coefficients(glm.fit1)[2], 2) * 100`%. Ignore the other information in the output, for now.
+
+```{r}
+
+summary(glm.fit1)
+
+```
+
+#### Receiver Operating Characteristic Curve  
+The area under the [receiver operating characteristic curve](https://en.wikipedia.org/wiki/Receiver_operating_characteristic) is 0.75, which means that 75% of the time the model is expected to decide that a random *Y* = 1 is actually a 1 (true positive) instead of deciding a random Y = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose *Y* = 1 observations rather than incorrectly diagnose Y = 0 observations. This AUROC value (0.75) is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).
+
+```{r}
+
+roc(response = glm.fit1$data$y, predictor = glm.fit1$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+
+```
+
+### Fit logistic regression  
+This syntax for logistic regression is similar to that for the linear regression except you use the [Binomial Distribution](https://en.wikipedia.org/wiki/Binomial_distribution) (a.k.a., [Bernoulli Distribution](https://en.wikipedia.org/wiki/Bernoulli_distribution) because there is only 1 trial) with a logit link.
+
+```{r}
+
+glm.fit2 <- glm(y ~ x1, family = binomial(link = "logit"), data = data1)
+
+```
+
+#### Plot residuals vs. predicted values  
+Like the previous plot of residuals vs. predicted values, a given predicted value can only take on 1 of 2 residual values because the observations equal 0 or 1. So, the residuals fall onto 1 or 2 lines that span the plot. Unlike the predicted probabilities form the linear regression, the predicted probabilities from the logistic regression are bounded between 0% and 100%.
+
+```{r}
+
+# Save a data frame with residuals and fitted values (pihat)
+pihat_residual2 <- tibble(model_form = "Logistic",
+                          pihat = glm.fit2$fitted.values,
+                          residual = residuals.glm(glm.fit2, type = "response"))
+
+# Plot fitted values (pihat) and residuals from both linear and logistic models
+pihat_residual1 %>% 
+  bind_rows(pihat_residual2) %>% 
+  ggplot(mapping = aes(x = pihat, y = residual, color = model_form)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_vline(xintercept = 0, linetype = "dotted") +
+  geom_vline(xintercept = 1, linetype = "dotted") +
+  geom_smooth(method = "loess", se = FALSE, span = 0.80) +
+  geom_point(size = 3, alpha = 0.50) +
+  scale_x_continuous(breaks = seq(-0.20, 1.20, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c("#d55e00", "#0072b2")) +
+  labs(x = expression(Prediction: hat(pi)), y = expression(Residual: y - hat(pi)), color = "Model Form") +
+  post_theme
+
+```
+
+#### Results Summary
+
+```{r}
+
+summary(glm.fit2)
+
+```
+
+#### Odds Ratios  
+When $x_1$ equals 0, the odds that *Y* = 1 are `r round(exp(coefficients(glm.fit2))[1], 2)`, which means *Y* = 0 is `r (1 - round(exp(coefficients(glm.fit2))[1], 2)) * 100`% more likey than *Y* = 1. For every 1 unit change in $x_1$, the odds that *Y* = 1 increase by `r (round(exp(coefficients(glm.fit2))[2], 2) - 1) * 100`% (OR = `r round(exp(coefficients(glm.fit2))[2], 2)`).
+
+```{r}
+
+# exp() (see help("exp)) raises the base value to the given value (e.g., by default, it raises Euler's number to the value given). Raising Euler's number to the given log-odds (logit) is the odds: e^log-odds = odds
+exp(coefficients(glm.fit2))
+
+```
+
+#### Compare regression coefficients to population values
+
+```{r}
+
+tibble(Model = rep(c("Population", "Linear", "Logistic"), times = 2),
+       Coefficient = rep(c("B0 (Intercept)", "B1"), each = 3),
+       "Log-Odds" = c(b0, qlogis(coefficients(glm.fit1)[1]), coefficients(glm.fit2)[1], b1, qlogis(1 - coefficients(glm.fit1)[2]), coefficients(glm.fit2)[2]),
+       "Linear Probability" = c(plogis(b0), coefficients(glm.fit1)[1], plogis(coefficients(glm.fit2)[1]), 1 - plogis(b1), coefficients(glm.fit1)[2], 1 - plogis(coefficients(glm.fit2)[2]))) %>% 
+  mutate_if(is.numeric, round, 2) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+#### Model Fit (compared to the Null Model)
+
+```{r}
+
+anova(glm.fit2, test = "Chisq")
+
+```
+
+##### What is deviance?  
+Deviance is a measure of the lack of fit to the data. As you can see in the equations and R code below, deviance (roughly) represents the difference (i.e., subtraction) between two models.  
+
+**Model Deviance for *k* predictors.** $D_k = -2[log_e(L_k) - log_e(L_{Perfect})]$  
+
+**Null Model Deviance.** $D_{Null} = -2[log_e(L_{Null}) - log_e(L_{Perfect})]$  
+
+where *D* represents deviance (roughly, a measure of the lack of a model's fit to the data) and *L* represents the maximum likelihood.
+
+```{r}
+
+# Maximum Likelihood for the null model (intercept only, no predictors)
+mle_null <- exp(logLik(glm(y ~ 1, family = binomial(link = "logit"), data = data1)))
+
+# Maximum Likelihood for the perfect model
+mle_perfect <- 1
+
+# Maximum Likelihood for the model with 1 predictor
+mle_1 <- exp(logLik(glm.fit2))
+
+# Null Deviance
+D_null <- -2 * (log(mle_null) - log(mle_perfect))
+
+# Model Deviance (1 predictor, k = 1)
+D_1 <- -2 * (log(mle_1) - log(mle_perfect))
+
+# Table and print results
+tibble(Model = c("Null", "Perfect", "k = 1"),
+       "Maximum Likelihood" = c(mle_null, mle_perfect, mle_1),
+       "Log-Likelihood" = log(c(mle_null, mle_perfect, mle_1)),
+       Deviance = c(D_null, 0, D_1)) %>% 
+  mutate_at("Maximum Likelihood", scientific) %>% 
+  mutate_at(c("Log-Likelihood", "Deviance"), round, 2) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+  
+
+```
+
+#### Receiver Operating Characteristic Curve  
+The area under the [receiver operating characteristic curve](https://en.wikipedia.org/wiki/Receiver_operating_characteristic) is 0.75, which means that 75% of the time the model is expected to decide that a random *Y* = 1 is indeed a 1 (true positive) instead of deciding a random *Y* = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose *Y* = 1 observations rather than incorrectly diagnose *Y* = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).
+
+```{r}
+
+roc(response = glm.fit2$data$y, predictor = glm.fit2$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+
+```
+
+# Simple Model: 1 Categorical Predictor
+$\log_e(\frac{\pi}{1 - \pi}) = \beta_0 + \beta_1x_1$  
+
+## Generate data
+
+### Save parameters  
+* Sample Size = 250  
+* $\beta_0$ (the intercept) = `r round(qlogis(0.15), 2)`  
+* $\beta_1$ = 1
+
+```{r}
+
+N <- 250
+
+# Determine the logit for 15%
+(b0 <- qlogis(0.15))
+b1 <- -1
+
+```
+
+### Save predictor with equal group sizes
+
+```{r}
+
+# Set random seed so results can be reproduced
+set.seed(760814)
+
+x1 <- rep(c(-0.5, 0.5), each = N / 2)
+
+```
+
+### Generate data as a function of model ([Binomial Distribution](https://en.wikipedia.org/wiki/Binomial_distribution))  
+$\mathcal{B}(n, \pi) = \mathcal{B}(1, \pi)$
+
+```{r}
+
+# Set random seed so results can be reproduced
+set.seed(760814)
+
+# The prob argument asks for the probability of 1 for each replicate, which is a logistic function of the additive, linear equation
+y <- rbinom(n = N, size = 1, prob = plogis(b0 + b1 * x1))
+
+```
+
+### Table data
+
+```{r}
+
+data2 <- tibble(id = 1:N, y, x1, group_fac = factor(x1, labels = LETTERS[1:2]))
+
+data2 %>% 
+  sample_n(size = 6) %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+  
+```
+
+### Plot data  
+The predicted probabilities in this case are the proportion of *Y* = 1 for each of group. These will be the same for linear and logistic regression. The dashed line represents the grand mean.
+
+```{r}
+
+data2 %>% 
+  ggplot(mapping = aes(x = group_fac, y = y)) +
+  stat_summary(geom = "bar", fun.data = mean_cl_normal) +
+  geom_hline(data = function(x) mutate(x, grand_mean = mean(y)) %>% filter(!duplicated(.)), mapping = aes(yintercept = grand_mean), linetype = "dashed") + 
+  scale_y_continuous(breaks = seq(0, 1, 0.05), labels = percent_format(accuracy = 1)) +
+  labs(x = NULL, y = NULL, title = expression(Prediction: hat(pi))) +
+  post_theme
+
+```
+
+### Fit linear regression
+
+```{r}
+
+glm.fit3 <- glm(y ~ x1, family = gaussian(link = "identity"), data = data2)
+
+```
+
+#### Results Summary  
+When $x_1$ equals 0 (i.e., exactly in between group A and B coded as -0.5 and 0.5), the model predicts a `r round(coefficients(glm.fit3)[1], 2) * 100`% probability that *Y* equals 1. For every 1 unit change in $x_1$ (i.e., "moving" from one group to another), the predicted probability that *Y* equals 1 decreases linearly by `r abs(round(coefficients(glm.fit3)[2], 2)) * 100`%.
+
+```{r}
+
+summary(glm.fit3)
+
+```
+
+#### Receiver Operating Characteristic Curve  
+The area under the [receiver operating characteristic curve](https://en.wikipedia.org/wiki/Receiver_operating_characteristic) is 0.63, which means that 63% of the time the model is expected to decide that a random *Y* = 1 is indeed a 1 (true positive) instead of deciding a random *Y* = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose *Y* = 1 observations rather than incorrectly diagnose *Y* = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).
+
+```{r}
+
+roc(response = glm.fit3$data$y, predictor = glm.fit3$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+
+```
+
+### Fit logistic regression
+
+```{r}
+
+glm.fit4 <- glm(y ~ x1, family = binomial(link = "logit"), data = data2)
+
+```
+
+#### Results Summary
+
+```{r}
+
+summary(glm.fit4)
+
+```
+
+#### Odds Ratios  
+When $x_1$ equals 0 (i.e., exactly in between group A and B coded as -0.5 and 0.5), the odds that *Y* = 1 are `r round(exp(coefficients(glm.fit4))[1], 2)`, which means *Y* = 0 is `r (1 - round(exp(coefficients(glm.fit2))[1], 2)) * 100`% more likey than *Y* = 1. For every 1 unit change in $x_1$ (i.e., "moving" from one group to another), the odds that *Y* = 1 decrease by `r abs(round(1 - exp(coefficients(glm.fit4))[2], 2)) * 100`% (OR = `r round(exp(coefficients(glm.fit4))[2], 2)`).  
+
+```{r}
+
+# exp() (see help("exp)) raises the base value to the given value (e.g., by default, it raises Euler's number to the value given). Raising Euler's number to the given log-odds (logit) is the odds: e^log-odds = odds
+exp(coefficients(glm.fit4))
+
+```
+
+#### Receiver Operating Characteristic Curve  
+The area under the [receiver operating characteristic curve](https://en.wikipedia.org/wiki/Receiver_operating_characteristic) is 0.63, which means that 63% of the time the model is expected to decide that a random *Y* = 1 is indeed a 1 (true positive) instead of deciding a random *Y* = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose *Y* = 1 observations rather than incorrectly diagnose *Y* = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).
+
+```{r}
+
+roc(response = glm.fit4$data$y, predictor = glm.fit4$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+
+```
+
+# Multiple Logistic Regression Model: 2 Quantitative Predictors  
+$\log_e(\frac{\pi}{1 - \pi}) = \beta_0 + \beta_1x_1 + \beta_2x_2$
+
+## Generate data
+
+### Save parameters  
+* Sample Size = 250  
+* $\beta_0$ (the intercept) = 0  
+* $\beta_1$ = 1  
+* $\beta_2$ = 1
+
+```{r}
+
+N <- 250
+b0 <- 0
+b1 <- 1
+b2 <- 1
+
+```
+
+### Sample predictors (Normal distribution)  
+$X_1 \sim \mathcal{N}(\mu, \sigma^2) = \mathcal{N}(0, 1)$  
+$X_2 \sim \mathcal{N}(\mu, \sigma^2) = \mathcal{N}(0, 1)$
+
+```{r}
+
+# Set random seed so results can be reproduced
+set.seed(614513)
+
+x1 <- rnorm(n = N, mean = 0, sd = 1)
+x2 <- rnorm(n = N, mean = 0, sd = 1)
+
+```
+
+### Generate data as a function of model ([Binomial Distribution](https://en.wikipedia.org/wiki/Binomial_distribution))  
+$\mathcal{B}(n, \pi) = \mathcal{B}(1, \pi)$
+
+```{r}
+
+# Set random seed so results can be reproduced
+set.seed(614513)
+
+# The prob argument asks for the probability of 1 for each replicate, which is a logistic function of the additive, linear equation
+y <- rbinom(n = N, size = 1, prob = plogis(b0 + b1 * x1 + b2 * x2))
+
+```
+
+### Table data
+
+```{r}
+
+data3 <- tibble(id = 1:N, y, x1, x2)
+
+data3 %>% 
+  head() %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+  
+```
+
+### Fit linear regression
+
+```{r}
+
+glm.fit5 <- glm(y ~ x1 + x2, family = gaussian(link = "identity"), data = data3)
+
+```
+
+#### Plot residuals  
+Below I've plotted the residuals against the predicted probabilities ($\pi$ or pihat) as well as the observed values for each predictor, $x_1$ and $x_2$. Impossible values are colored orange and possible values are colored black The black loess line is not straight in any of the 3 plots, which suggests some relationship between residuals and predicted probabilities or between residuals and each predictor. These patterns could be spurious too.
+
+```{r}
+
+# Save a data frame with residuals and fitted values (pihat)
+pihat_residual3 <- tibble(model_form = "Linear",
+                           x1 = glm.fit5$data$x1,
+                           x2 = glm.fit5$data$x2,
+                           pihat = glm.fit5$fitted.values,
+                           residual = residuals.glm(glm.fit5, type = "response"))
+
+# Plot fitted values (pihat) and residuals
+pihat_residual3 %>% 
+  mutate(impossible = ifelse(pihat < 0 | pihat > 1, "Impossible Value", "Possible Value")) %>% 
+  gather(key = predictor, value = value, x1, x2, pihat) %>% 
+  ggplot(mapping = aes(x = value, y = residual)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_smooth(method = "loess", se = FALSE, span = 0.80, color = "black") +
+  geom_point(mapping = aes(color = impossible), size = 3, alpha = 0.50) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.25), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c("#e69f00", "#000000")) +
+  facet_wrap(facets = ~ predictor, scales = "free_x") +
+  labs(x = NULL, y = expression(Residual: y - hat(pi)), color = NULL) +
+  post_theme
+
+```
+
+#### Results Summary  
+When $x_1$ and $x_2$ both equal 0, the model predicts a `r round(coefficients(glm.fit5)[1], 2) * 100`% probability that *Y* equals 1. For every 1 unit change in $x_1$, the predicted probability that *Y* equals 1 increases linearly by `r round(coefficients(glm.fit5)[2], 2) * 100`%; for every 1 unit change in $x_2$, the predicted probability that *Y* equals 1 increases linearly by `r round(coefficients(glm.fit5)[3], 2) * 100`%.
+
+```{r}
+
+summary(glm.fit5)
+
+```
+
+#### Receiver Operating Characteristic Curve  
+The area under the [receiver operating characteristic curve](https://en.wikipedia.org/wiki/Receiver_operating_characteristic) is 0.81, which means that 81% of the time the model is expected to decide that a random *Y* = 1 is indeed a 1 (true positive) instead of deciding a random *Y* = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose *Y* = 1 observations rather than incorrectly diagnose *Y* = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).
+
+```{r}
+
+roc(response = glm.fit5$data$y, predictor = glm.fit5$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+
+```
+
+### Fit logistic regression
+
+```{r}
+
+glm.fit6 <- glm(y ~ x1 + x2, family = binomial(link = "logit"), data = data3)
+
+```
+
+#### Plot residuals  
+Below I've plotted residuals from both the linear (red/orange) and logistic (blue) models against their predicted probabilities and two separate predictors ($x_1$ and $x_2$). Based on the loess lines, both model seem to make *similar* patterns of errors (though remember that logistic predictions are bounded between 0% and 100%).
+
+```{r}
+
+# Save a data frame with residuals and fitted values (pihat)
+pihat_residual4 <- tibble(model_form = "Logistic",
+                           x1 = glm.fit6$data$x1,
+                           x2 = glm.fit6$data$x2,
+                           pihat = glm.fit6$fitted.values,
+                           residual = residuals.glm(glm.fit6, type = "response"))
+
+# Plot fitted values (pihat) and residuals from both linear and logistic models
+pihat_residual3 %>% 
+  bind_rows(pihat_residual4) %>% 
+  gather(key = predictor, value = value, x1, x2, pihat) %>% 
+  ggplot(mapping = aes(x = value, y = residual, color = model_form)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_smooth(method = "loess", se = FALSE, span = 0.80) +
+  geom_point(size = 3, alpha = 0.50) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.25), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c("#d55e00", "#0072b2")) +
+  facet_wrap(facets = ~ predictor, scales = "free_x") +
+  labs(x = NULL, y = expression(Residual: y - hat(pi)), color = "Model Form") +
+  post_theme
+
+```
+
+#### Results Summary
+
+```{r}
+
+summary(glm.fit6)
+
+```
+
+#### Odds Ratios  
+When $x_1$ and $x_2$ both equal 0, the odds that *Y* = 1 are `r round(exp(coefficients(glm.fit6))[1], 2)`, which means *Y* = 1 is `r (round(exp(coefficients(glm.fit6))[1], 2) - 1) * 100`% more likey than *Y* = 0. For every 1 unit change in $x_1$, the odds that *Y* = 1 increase by `r (round(exp(coefficients(glm.fit6))[2], 2) - 1 )* 100`% (OR = `r round(exp(coefficients(glm.fit6))[2], 2)`); for every 1 unit change in $x_2$, the odds that *Y* = 1 increase by `r (round(exp(coefficients(glm.fit6))[3], 2) - 1 )* 100`% (OR = `r round(exp(coefficients(glm.fit6))[3], 2)`).
+
+```{r}
+
+# exp() (see help("exp)) raises the base value to the given value (e.g., by default, it raises Euler's number to the value given). Raising Euler's number to the given log-odds (logit) is the odds: e^log-odds = odds
+exp(coefficients(glm.fit6))
+
+```
+
+#### Receiver Operating Characteristic Curve  
+The area under the [receiver operating characteristic curve](https://en.wikipedia.org/wiki/Receiver_operating_characteristic) is 0.81, which means that 81% of the time the model is expected to decide that a random *Y* = 1 is indeed a 1 (true positive) instead of deciding a random *Y* = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose *Y* = 1 observations rather than incorrectly diagnose *Y* = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).
+
+```{r}
+
+roc(response = glm.fit6$data$y, predictor = glm.fit6$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+
+```
+
+### Plot Response Surface
+
+#### Linear Response Surface  
+The response surface from the multiple linear regression is a flat plane, so the slope for $x_1$ is the same at all values for $x_2$ and vice-versa.
+
+```{r, animation.hook = "gifski", interval = 0.2}
+
+# 35 positions for z axis rotation
+for (i in seq(0, 350 , 10)) {
+  print(
+    expand.grid(x1 = seq(-3, 3, length.out = 10),
+                x2 = seq(-3, 3, length.out = 10)) %>% 
+      mutate(pihat_linear = predict.glm(glm.fit5, newdata = data.frame(x1, x2), type = "response"),
+             pihat_logistic = predict.glm(glm.fit6, newdata = data.frame(x1, x2), type = "response")) %>%
+      wireframe(pihat_linear ~ x1 + x2, data = ., drape = TRUE, colorkey = TRUE, scales = list(arrows = FALSE), screen = list(z = i, x = -60), col.regions = colorRampPalette(c("#0072b2", "#d55e00"))(100), zlab = expression(hat(pi)), xlab = expression(x[1]), ylab = expression(x[2]))
+  )
+}
+
+```
+
+#### Logistic Response Surface  
+The response surface from the multiple logistic regression is S-shaped in both directions such that the surface looks like a piece of paper bent like an S from one corner of the cube to the other. Thus, the slope for $x_1$ *changes* depending on the value of $x_2$ and vice-versa.
+
+```{r, animation.hook = "gifski", interval = 0.2}
+
+# 35 positions for z axis rotation
+for (i in seq(0, 350 , 10)) {
+  print(
+    expand.grid(x1 = seq(-3, 3, length.out = 10),
+                x2 = seq(-3, 3, length.out = 10)) %>% 
+      mutate(pihat_linear = predict.glm(glm.fit5, newdata = data.frame(x1, x2), type = "response"),
+             pihat_logistic = predict.glm(glm.fit6, newdata = data.frame(x1, x2), type = "response")) %>%
+      wireframe(pihat_logistic ~ x1 + x2, data = ., drape = TRUE, colorkey = TRUE, scales = list(arrows = FALSE), screen = list(z = i, x = -60), col.regions = colorRampPalette(c("#0072b2", "#d55e00"))(100), zlab = expression(hat(pi)), xlab = expression(x[1]), ylab = expression(x[2]))
+  )
+}
+
+```
+
+# Multiple Logistic Regression Model: 1 quantitative predictor with a quadratic trend
+$\log_e(\frac{\pi}{1 - \pi}) = \beta_0 + \beta_1x_1 + \beta_2x^2_1$
+
+## Generate data
+
+### Save parameters  
+* Sample Size = 250  
+* $\beta_0$ (the intercept) = 0  
+* $\beta_1$ = 1  
+* $\beta_2$ = 1  
+
+### Save parameters
+
+```{r}
+
+N <- 250
+b0 <- 0
+b1 <- 1
+b2 <- 1
+
+```
+
+### Sample predictors (Normal distribution)  
+$X_1 \sim \mathcal{N}(\mu, \sigma^2) = \mathcal{N}(0, 1)$  
+
+```{r}
+
+# Set random seed so results can be reproduced
+set.seed(303786)
+
+x1 <- rnorm(n = N, mean = 0, sd = 1)
+
+```
+
+### Generate data as a function of model ([Binomial Distribution](https://en.wikipedia.org/wiki/Binomial_distribution))  
+$\mathcal{B}(n, \pi) = \mathcal{B}(1, \pi)$  
+
+```{r}
+
+# Set random seed so results can be reproduced
+set.seed(303786)
+
+# The prob argument asks for the probability of 1 for each replicate, which is a logistic function of the additive, linear equation
+y <- rbinom(n = N, size = 1, prob = plogis(b0 + b1 * x1 + b2 * x1^2))
+
+```
+
+### Table data
+
+```{r}
+
+data4 <- tibble(id = 1:N, y, x1, x1_squared = x1^2)
+
+data4 %>% 
+  head() %>% 
+  kable() %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+  
+```
+
+### Plot data  
+Linear and Logistic regressions (both with quadratic terms) make different predictions. The logistic regression (blue line) predictions follow an S-shape on both "sides" of $x_1$, and those predictions fall between 0% and 100%. The predictions from linear regression follow a U-shape such that the slope is negative before $x_1$ = 0 and positive after $x_1$ = 0. But, the linear regression (red/orange line) makes some impossible predictions: The fit line makes predictions below 0% and above 100%.
+
+```{r}
+
+data4 %>% 
+  ggplot(mapping = aes(x = x1, y = y)) +
+  geom_hline(yintercept = 0, linetype = "dotted") +
+  geom_hline(yintercept = 1, linetype = "dotted") +
+  geom_smooth(mapping = aes(color = "Linear"), method = "glm", formula = y ~ poly(x, degree = 2), method.args = list(family = gaussian(link = "identity")), se = FALSE) +
+  geom_smooth(mapping = aes(color = "Logistic"), method = "glm", formula = y ~ poly(x, degree = 2), method.args = list(family = binomial(link = "logit")), se = FALSE) +
+  geom_point(size = 3, alpha = 0.50) +
+  scale_y_continuous(breaks = seq(-2, 2, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c("#d55e00", "#0072b2")) +
+  labs(x = expression(x[1]), y = NULL, title = bquote("Prediction:" ~ hat(pi)), color = "Model Form") +
+  post_theme
+
+```
+
+### Fit linear regression  
+The `stats::poly` function (see `help("poly")`) creates orthogonal polynomial terms for you (e.g., linear, quadratic, cubic). This method scales the variables so that they are not correlated (predicted probabilities will be the same). Thus, you can interpret their independent effects in your regression (see this [stackoverflow answer](https://stackoverflow.com/a/30000214) for more details).
+
+```{r}
+
+glm.fit7 <- glm(y ~ poly(x1, degree = 2), family = gaussian(link = "identity"), data = data4)
+
+```
+
+#### Plot residuals  
+Like before, possible predicted probabilities are black; impossible predicted probabilities are orange. There's a pattern such that larger (and impossible) predicted probabilities have a negative relationship with residuals.
+
+```{r}
+
+# Save a data frame with residuals and fitted values (pihat)
+pihat_residual5 <- tibble(model_form = "Linear",
+                          x1 = glm.fit7$data$x1,
+                          x1_squared = glm.fit7$data$x1_squared,
+                          pihat = glm.fit7$fitted.values,
+                          residual = residuals.glm(glm.fit7, type = "response"))
+
+# Plot fitted values (pihat) and residuals
+pihat_residual5 %>% 
+  mutate(impossible = ifelse(pihat < 0 | pihat > 1, "Impossible Value", "Possible Value")) %>% 
+  gather(key = predictor, value = value, x1, x1_squared, pihat) %>% 
+  ggplot(mapping = aes(x = value, y = residual)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_smooth(method = "loess", se = FALSE, span = 0.80, color = "black") +
+  geom_point(mapping = aes(color = impossible), size = 3, alpha = 0.50) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.25), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c("#e69f00", "#000000")) +
+  facet_wrap(facets = ~ predictor, scales = "free_x") +
+  labs(x = NULL, y = expression(Residual: y - hat(pi)), color = NULL) +
+  post_theme
+
+```
+
+#### Results Summary  
+When $x_1$ and $x^2_1$ both equal 0, the model predicts a `r round(coefficients(glm.fit7)[1], 2) * 100`% probability that *Y* equals 1. For every 1 unit change in $x_1$, the predicted probability that *Y* equals 1 increases linearly by `r round(coefficients(glm.fit7)[2], 2) * 100`%; for every 1 unit change in $x^2_1$ (the quadratic term), the predicted probability that *Y* equals 1 increases linearly by `r round(coefficients(glm.fit7)[3], 2) * 100`% (the quadratic trend still has a linear interpretation). Thus, the relationship between $x_1$ and *Y* depends on the value of $x_1$ itself.
+
+```{r}
+
+summary(glm.fit7)
+
+```
+
+#### Receiver Operating Characteristic Curve  
+The area under the [receiver operating characteristic curve](https://en.wikipedia.org/wiki/Receiver_operating_characteristic) is 0.73, which means that 73% of the time the model is expected to decide that a random *Y* = 1 is indeed a 1 (true positive) instead of deciding a random *Y* = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose *Y* = 1 observations rather than incorrectly diagnose *Y* = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).
+
+```{r}
+
+roc(response = glm.fit7$data$y, predictor = glm.fit7$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+
+```
+
+### Fit logistic regression
+
+```{r}
+
+glm.fit8 <- glm(y ~ poly(x1, degree = 2), family = binomial(link = "logit"), data = data4)
+
+```
+
+#### Plot residuals  
+Compared to the predicted probabilities from the linear regression (red/orange), the logistic regression predicted probabilities (blue) share a much weaker, flatter relationship with the residuals (compare the loess lines in the far left panel).
+
+```{r}
+
+# Save a data frame with residuals and fitted values (pihat)
+pihat_residual6 <- tibble(model_form = "Logistic",
+                          x1 = glm.fit8$data$x1,
+                          x1_squared = glm.fit8$data$x1_squared,
+                          pihat = glm.fit8$fitted.values,
+                          residual = residuals.glm(glm.fit8, type = "response"))
+
+# Plot fitted values (pihat) and residuals from both linear and logistic models
+pihat_residual5 %>% 
+  bind_rows(pihat_residual6) %>% 
+  gather(key = predictor, value = value, x1, x1_squared, pihat) %>% 
+  ggplot(mapping = aes(x = value, y = residual, color = model_form)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_smooth(method = "loess", se = FALSE, span = 0.80) +
+  geom_point(size = 3, alpha = 0.50) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.25), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c("#d55e00", "#0072b2")) +
+  facet_wrap(facets = ~ predictor, scales = "free_x") +
+  labs(x = NULL, y = expression(Residual: y - hat(pi)), color = "Model Form") +
+  post_theme
+
+```
+
+#### Results Summary
+
+```{r}
+
+summary(glm.fit8)
+
+```
+
+#### Odds Ratios  
+When $x_1$ and $x_2$ both equal 0, the odds that *Y* = 1 are `r round(exp(coefficients(glm.fit8))[1], 2)`, which means *Y* = 1 is `r (round(exp(coefficients(glm.fit8))[1], 2) - 1) * 100`% more likey than *Y* = 0. For every 1 unit change in $x_1$, the odds that *Y* = 1 increase by `r (round(exp(coefficients(glm.fit8))[2], 2) - 1 )* 100`% (OR = `r round(exp(coefficients(glm.fit8))[2], 2)`); for every 1 unit change in $x_2$, the odds that *Y* = 1 increase by `r (round(exp(coefficients(glm.fit8))[3], 2) - 1 ) * 100`% (OR = `r round(exp(coefficients(glm.fit8))[3], 2)`).
+
+```{r}
+
+# exp() (see help("exp)) raises the base value to the given value (e.g., by default, it raises Euler's number to the value given). Raising Euler's number to the given log-odds (logit) is the odds: e^log-odds = odds
+exp(coefficients(glm.fit8))
+
+```
+
+#### Receiver Operating Characteristic Curve  
+The area under the [receiver operating characteristic curve](https://en.wikipedia.org/wiki/Receiver_operating_characteristic) is 0.73, which means that 73% of the time the model is expected to decide that a random *Y* = 1 is indeed a 1 (true positive) instead of deciding a random *Y* = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose *Y* = 1 observations rather than incorrectly diagnose *Y* = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).
+
+```{r}
+
+roc(response = glm.fit8$data$y, predictor = glm.fit8$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+
+```
+
+### Plot Response Surface
+
+#### Linear Response Surface  
+The response surface from the multiple linear regression is a U-shaped surface, so the slope for $x_1$ depends on the value of $x_2$ and vice-versa. Roughly, when $x_1$ is below 0, the slope is negative, but when $x_1$ is above 0, the slope is positive. Importantly, the U-shaped surface is not symmetrical: The slope past $x_1$ = 0 "shoots" up beyond predicted probabilities = 100%.
+
+```{r, animation.hook = "gifski", interval = 0.2}
+
+# 35 positions for z axis rotation
+for (i in seq(0, 350 , 10)) {
+  print(
+    expand.grid(x1 = seq(-3, 3, length.out = 10),
+                x1_squared = seq(-3, 3, length.out = 10)^2) %>% 
+      mutate(pihat_linear = predict.glm(glm.fit7, newdata = data.frame(x1, x1_squared), type = "response"),
+             pihat_logistic = predict.glm(glm.fit8, newdata = data.frame(x1, x1_squared), type = "response")) %>%
+      wireframe(pihat_linear ~ x1 + x1_squared, data = ., drape = TRUE, colorkey = TRUE, scales = list(arrows = FALSE), screen = list(z = i, x = -60), col.regions = colorRampPalette(c("#0072b2", "#d55e00"))(100), zlab = expression(hat(pi)), xlab = expression(x[1]), ylab = expression(x[1]^2))
+  )
+}
+
+```
+
+#### Logistic Response Surface  
+Unlike the smooth, U-shaped response surface from the multiple linear regression, the response surface from the logistic regression forms two S-shapes moving in opposite directions. Importantly, unlike with the linear regression response surface, the slope changes on either side of $x_1$ = 0, and predicted probabilities are bounded by 0% and 100%.
+
+```{r, animation.hook = "gifski", interval = 0.2}
+
+# 35 positions for z axis rotation
+for (i in seq(0, 350 , 10)) {
+  print(
+    expand.grid(x1 = seq(-3, 3, length.out = 10),
+                x1_squared = seq(-3, 3, length.out = 10)^2) %>% 
+      mutate(pihat_linear = predict.glm(glm.fit7, newdata = data.frame(x1, x1_squared), type = "response"),
+             pihat_logistic = predict.glm(glm.fit8, newdata = data.frame(x1, x1_squared), type = "response")) %>%
+      wireframe(pihat_logistic ~ x1 + x1_squared, data = ., drape = TRUE, colorkey = TRUE, scales = list(arrows = FALSE), screen = list(z = i, x = -60), col.regions = colorRampPalette(c("#0072b2", "#d55e00"))(100), zlab = expression(hat(pi)), xlab = expression(x[1]), ylab = expression(x[1]^2))
+  )
+}
+
+```
+
+# Resources
+* Cohen, P., West, S. G., & Aiken, L. S. (2014). Applied multiple regression/correlation analysis for the behavioral sciences. Psychology Press.
+* Kutner, M. H., Nachtsheim, C. J., Neter, J., & Li, W. (2005). Applied linear statistical models (Vol. 5). Boston: McGraw-Hill Irwin. [[**PDF**](https://d1b10bmlvqabco.cloudfront.net/attach/is282rqc4001vv/is6ccr3fl0e37q/iwfnjvgvl53z/Michael_H_Kutner_Christopher_J._Nachtsheim_JohnBookFi.org.pdf)] [[**Website**](http://users.stat.ufl.edu/~rrandles/sta4210/Rclassnotes/data/textdatasets/index.html)]
+
+# General Word of Caution
+Above, I listed resources prepared by experts on these and related topics. Although I generally do my best to write accurate posts, don't assume my posts are 100% accurate or that they apply to your data or research questions. Trust statistics and methodology experts, not blog posts.

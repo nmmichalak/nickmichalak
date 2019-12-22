@@ -1,0 +1,1825 @@
+---
+title: Logistic Regression in R
+author: "Nick Michalak"
+date: "2019-12-17"
+slug: logistic-regression-in-r
+categories:
+  - tutorial
+tags:
+  - R
+  - logistic regression
+  - classification
+  - interactions
+subtitle: ''
+summary: ''
+authors: []
+lastmod: "2019-12-11T20:59:08-05:00"
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>In this post, I’ll introduce the logistic regression model in a semi-formal, fancy way. Then, I’ll generate data from some simple models:</p>
+<ul>
+<li>1 quantitative predictor<br />
+</li>
+<li>1 categorical predictor<br />
+</li>
+<li>2 quantitative predictors<br />
+</li>
+<li>1 quantitative predictor with a quadratic term</li>
+</ul>
+<p>I’ll model data from each example using linear and logistic regression. Throughout the post, I’ll explain equations, terms, output, and plots. Here are some key takeaways:</p>
+<ol style="list-style-type: decimal">
+<li><p>With regard to diagnostic accuracy (i.e., correctly classifying 1s and 0s), linear regression and logistic regression perform equally well in the simple cases I present in this post.</p></li>
+<li><p>However, linear regression often makes impossible predictions (probabilities below 0% or above 100%).</p></li>
+<li><p>Partly because of the S-shape of the logistic function, the predicted values from multiple logistic regression depend on the values of all the predictors in the model, even when there is no true interaction. The rotating, 3-D response surfaces at the end of each multiple regression example should make this point clearer.</p></li>
+</ol>
+<div id="install-andor-load-packages-for-this-post" class="section level2">
+<h2>Install and/or load packages for this post</h2>
+<p>I’ve commented out the code for installing packages above code for loading those packages.</p>
+<pre class="r"><code># install.packages(&quot;tidyverse&quot;)
+# install.packages(&quot;gifski&quot;)
+# install.packages(&quot;lattice&quot;)
+# install.packages(&quot;scales&quot;)
+# install.packages(&quot;kableExtra&quot;)
+# install.packages(&quot;pROC&quot;)
+
+library(tidyverse)
+library(gifski)
+library(lattice)
+library(scales)
+library(kableExtra)
+library(pROC)</code></pre>
+</div>
+<div id="save-ggplot2-theme-for-this-post" class="section level2">
+<h2>Save ggplot2 theme for this post</h2>
+<p>I’ll use this theme in ggplot2 plots throughout the post.</p>
+<pre class="r"><code>post_theme &lt;- theme_bw() +
+  theme(legend.position = &quot;top&quot;,
+        plot.title = element_text(hjust = 0, size = rel(1.5), face = &quot;bold&quot;),
+        plot.margin = unit(c(1, 1, 1, 1), units = &quot;lines&quot;),
+        axis.title.x = element_text(family = &quot;Times New Roman&quot;, color = &quot;Black&quot;, size = 12),
+        axis.title.y = element_text(family = &quot;Times New Roman&quot;, color = &quot;Black&quot;, size = 12),
+        axis.text.x = element_text(family = &quot;Times New Roman&quot;, color = &quot;Black&quot;, size = 12),
+        axis.text.y = element_text(family = &quot;Times New Roman&quot;, color = &quot;Black&quot;, size = 12),
+        legend.title = element_text(family = &quot;Times New Roman&quot;, color = &quot;Black&quot;, size = 12),
+        legend.text = element_text(family = &quot;Times New Roman&quot;, color = &quot;Black&quot;, size = 12))</code></pre>
+</div>
+</div>
+<div id="what-is-logistic-regression" class="section level1">
+<h1>What is logistic regression?</h1>
+<p>Logistic regression models binary random variables, which take on two values, 1 or 0, whose probabilities are represented as <span class="math inline">\(\pi\)</span> and <span class="math inline">\(1 - \pi\)</span>. The model relies on the logistic function to estimate the probability, <span class="math inline">\(\pi\)</span>, that the binary dependent variable equals 1. The logistic function looks like this:</p>
+<p><span class="math inline">\(f(x) = \frac{1}{1 + e^{-x}}\)</span></p>
+<p>where <em>e</em> represents <a href="https://en.wikipedia.org/wiki/E_(mathematical_constant)">Euler’s number</a>. If you are familiar with the multiple linear regression equation:</p>
+<p><span class="math inline">\(Y_i = \beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1} + \epsilon_i\)</span></p>
+<p>where <em>i</em> represent random observations, <em>Y</em> represents a random dependent variable; <span class="math inline">\(\beta\)</span> represents the population regression coefficient; <em>x</em> represent random predictor variables; <em>p</em> represents any number of random predictor variables; and <span class="math inline">\(\epsilon\)</span> represents random error, then you will be familiar with the same linear combination of predictors as they appear in the logistic function below:</p>
+<p><span class="math inline">\(\pi_i = \frac{1}{1 + e^-({\beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1}})} + \epsilon_i\)</span>.</p>
+<p>Logistic regression relies on <a href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation">maximum likelihood</a> to estimate regression coefficients using a “logit link”: It “links” the linear combination of predictor variables to the natural logarithm of the odds,</p>
+<p><span class="math inline">\(log_e(\frac{\pi}{1 - \pi})\)</span>.</p>
+<p>The odds are simply the ratio of the probability that the dependent variable equals 1 (the numerator) to the probability that the dependent variable equals 0 (or not 1, the denominator):</p>
+<p><span class="math inline">\(\frac{\pi}{1 - \pi}\)</span></p>
+<p>The logarithm of the odds (log-odds) represents the power to which <em>e</em> (Euler’s number) must be raised to produce the odds. Transforming probability, <span class="math inline">\(\pi\)</span>, into log-odds and necessary algebra applied to the right side of the equation results in this equation for logistic regression:</p>
+<p><span class="math inline">\(\log_e(\frac{\pi_i}{1 - \pi_i}) = \beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1} + \epsilon_i\)</span>.</p>
+</div>
+<div id="what-is-the-relationship-between-probability-and-odds" class="section level1">
+<h1>What is the relationship between probability and odds?</h1>
+<p>Below you can see a table whose first column displays a sequence of proportions, from 0 to 1 in steps of 0.10. You can also see how to transform proportions to odds and log-odds using R code (the rest is just fancy).</p>
+<div id="table" class="section level2">
+<h2>Table</h2>
+<pre class="r"><code>tibble(event = seq(0, 1, 0.10),
+       noevent = 1 - event,
+       odds = event / noevent,
+       # The default base is Euler&#39;s number. I make that explicit in the code below.
+       logodds = log(odds, base = exp(1))) %&gt;%
+  round(2) %&gt;% 
+  set_names(c(&quot;p&quot;, &quot;1 - p&quot;, &quot;Odds&quot;, &quot;Log-Odds&quot;)) %&gt;% 
+  kable() %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;))</code></pre>
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+p
+</th>
+<th style="text-align:right;">
+1 - p
+</th>
+<th style="text-align:right;">
+Odds
+</th>
+<th style="text-align:right;">
+Log-Odds
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+<td style="text-align:right;">
+-Inf
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.1
+</td>
+<td style="text-align:right;">
+0.9
+</td>
+<td style="text-align:right;">
+0.11
+</td>
+<td style="text-align:right;">
+-2.20
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.2
+</td>
+<td style="text-align:right;">
+0.8
+</td>
+<td style="text-align:right;">
+0.25
+</td>
+<td style="text-align:right;">
+-1.39
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.3
+</td>
+<td style="text-align:right;">
+0.7
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+<td style="text-align:right;">
+-0.85
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.4
+</td>
+<td style="text-align:right;">
+0.6
+</td>
+<td style="text-align:right;">
+0.67
+</td>
+<td style="text-align:right;">
+-0.41
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.6
+</td>
+<td style="text-align:right;">
+0.4
+</td>
+<td style="text-align:right;">
+1.50
+</td>
+<td style="text-align:right;">
+0.41
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.7
+</td>
+<td style="text-align:right;">
+0.3
+</td>
+<td style="text-align:right;">
+2.33
+</td>
+<td style="text-align:right;">
+0.85
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.8
+</td>
+<td style="text-align:right;">
+0.2
+</td>
+<td style="text-align:right;">
+4.00
+</td>
+<td style="text-align:right;">
+1.39
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.9
+</td>
+<td style="text-align:right;">
+0.1
+</td>
+<td style="text-align:right;">
+9.00
+</td>
+<td style="text-align:right;">
+2.20
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1.0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+Inf
+</td>
+<td style="text-align:right;">
+Inf
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="view-the-relationship-between-probablity-and-odds" class="section level2">
+<h2>View the relationship between probablity and odds</h2>
+<p>The function “speeds up” between 90% and 100%.</p>
+<pre class="r"><code>tibble(event = seq(0, 1, 0.01),
+       noevent = 1 - event,
+       odds = event / noevent,
+       logodds = log(odds, base = exp(1))) %&gt;% 
+  ggplot(mapping = aes(x = event, y = odds)) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(0, 1, 0.10), labels = percent_format(accuracy = 1)) +
+  labs(x = expression(&quot;Probability that Y = 1&quot;: pi), y = NULL, title = expression(Odds: frac(pi, (1 - pi)))) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="view-the-relationship-between-probablity-and-log-odds" class="section level2">
+<h2>View the relationship between probablity and log-odds</h2>
+<p>The function is almost linear between 20 and 80%, and it “speeds up” between 0% and 20% and between 80% and 100%.</p>
+<pre class="r"><code>tibble(event = seq(0, 1, 0.01),
+       noevent = 1 - event,
+       odds = event / noevent,
+       logodds = log(odds, base = exp(1))) %&gt;% 
+  ggplot(mapping = aes(x = event, y = logodds)) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(0, 1, 0.10), labels = percent_format(accuracy = 1)) +
+  labs(x = expression(&quot;Probability that Y = 1&quot;: pi), y = NULL, title = expression(Logit: log[e](frac(pi, (1 - pi))))) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
+</div>
+<div id="what-are-some-problems-with-using-linear-regression-to-model-binary-dependent-variables" class="section level1">
+<h1>What are some problems with using linear regression to model binary dependent variables?</h1>
+<p>The simple answer is that the model will not best represent the process that generated the data. Here’s what can (or will happen) when you model a binary dependent variable with linear regression.</p>
+<ol style="list-style-type: decimal">
+<li><strong>Residuals (<span class="math inline">\(Y_{Observed} - Y_{Predicted}\)</span>) won’t have a normal distribution.</strong> When <span class="math inline">\(Y_i = 1\)</span>, the residual, <span class="math inline">\(\epsilon_i\)</span>, will equal</li>
+</ol>
+<p><span class="math inline">\(1 - \hat{\pi_i} = 1 - \beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1}\)</span>.</p>
+<p>Corresponingly, When <span class="math inline">\(Y_i = 0\)</span>, the residual, <span class="math inline">\(\epsilon_i\)</span>, will equal</p>
+<p><span class="math inline">\(0 - \hat{\pi_i} = -\beta_0 - \beta_1x_{i1} - ... \beta_{p - 1}x_{i, p-1}\)</span>.</p>
+<p>So, any given predicted value for an observation, <span class="math inline">\(\hat{\pi}\)</span>, can result in only 1 of 2 possible error values. Such errors are binary, not normal.</p>
+<ol start="2" style="list-style-type: decimal">
+<li><strong>The variability in residuals, <span class="math inline">\(r_i\)</span>, will depend on the predicted values themselves.</strong> The formula for the variance of the predicted values, <span class="math inline">\(\hat{\pi_i}\)</span>, includes the predicted value:</li>
+</ol>
+<p><span class="math inline">\(var(r_i) = \hat{\pi_i}(1 - \hat{\pi_i})\)</span>.</p>
+<p>It’s like if the variability of the mean depends on the mean. Look at the inverted-U relationship between probability that <span class="math inline">\(Y_i = 1\)</span> and the variance of its residual, <span class="math inline">\(r_i\)</span>:</p>
+<pre class="r"><code>tibble(pihat = seq(0, 1, 0.10),
+       var_resid = pihat * (1 - pihat)) %&gt;% 
+  ggplot(mapping = aes(x = pihat, y = var_resid)) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = expression(hat(pi)), y = NULL, title = expression(var(r[i]))) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<ol start="3" style="list-style-type: decimal">
+<li><strong>The model can make impossible predictions outside of 0% or 100%.</strong> The mean of 0s and 1s can’t be below 0 or above 1. The probability of <em>Y</em> = 1 cannot be below 0% or above 100%. Linear regression does not guarantee this.</li>
+</ol>
+</div>
+<div id="simple-model-1-quantitative-predictor" class="section level1">
+<h1>Simple Model: 1 Quantitative Predictor</h1>
+<p><span class="math inline">\(\log_e(\frac{\pi}{1 - \pi}) = \beta_0 + \beta_1x_1\)</span></p>
+<div id="generate-data" class="section level2">
+<h2>Generate data</h2>
+<div id="save-parameters" class="section level3">
+<h3>Save parameters</h3>
+<ul>
+<li>Sample Size = 250<br />
+</li>
+<li><span class="math inline">\(\beta_0\)</span> (the intercept) = 0<br />
+</li>
+<li><span class="math inline">\(\beta_1\)</span> = 1</li>
+</ul>
+<pre class="r"><code>N &lt;- 250
+b0 &lt;- 0
+b1 &lt;- 1</code></pre>
+</div>
+<div id="sample-predictor-normal-distribution" class="section level3">
+<h3>Sample predictor (Normal distribution)</h3>
+<p><span class="math inline">\(X_1 \sim \mathcal{N}(\mu, \sigma^2) = \mathcal{N}(0, 1)\)</span></p>
+<pre class="r"><code># Set random seed so results can be reproduced
+set.seed(533837)
+
+x1 &lt;- rnorm(n = N, mean = 0, sd = 1)</code></pre>
+</div>
+<div id="generate-data-as-a-function-of-model-binomial-distribution" class="section level3">
+<h3>Generate data as a function of model (<a href="https://en.wikipedia.org/wiki/Binomial_distribution">Binomial Distribution</a>)</h3>
+<p><span class="math inline">\(\mathcal{B}(n, \pi) = \mathcal{B}(1, \pi)\)</span></p>
+<pre class="r"><code># Set random seed so results can be reproduced
+set.seed(533837)
+
+# The prob argument asks for the probability of 1 for each replicate, which is a logistic function of the additive, linear equation 
+y &lt;- rbinom(n = N, size = 1, prob = plogis(b0 + b1 * x1))</code></pre>
+</div>
+<div id="table-data" class="section level3">
+<h3>Table data</h3>
+<p>The table below displays the first 10 of 250 observations.</p>
+<pre class="r"><code>data1 &lt;- tibble(id = 1:N, y, x1)
+
+data1 %&gt;% 
+  head() %&gt;% 
+  kable() %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;))</code></pre>
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+id
+</th>
+<th style="text-align:right;">
+y
+</th>
+<th style="text-align:right;">
+x1
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+-0.6198364
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1.3877764
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-0.1336061
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.2216941
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+-0.3351392
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1.2521676
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="plot-data" class="section level3">
+<h3>Plot data</h3>
+<p>Linear and Logistic regressions make different predictions. The logistic regression (blue line) predictions follow an S-shape and fall between 0% and 100%. In contrast, the linear regression (red/orange line) makes some impossible predictions: The fit line makes predictions below 0% and above 100%.</p>
+<pre class="r"><code>data1 %&gt;% 
+  ggplot(mapping = aes(x = x1, y = y)) +
+  geom_hline(yintercept = 0, linetype = &quot;dotted&quot;) +
+  geom_hline(yintercept = 1, linetype = &quot;dotted&quot;) +
+  geom_smooth(mapping = aes(color = &quot;Linear&quot;), method = &quot;glm&quot;, formula = y ~ x, method.args = list(family = gaussian(link = &quot;identity&quot;)), se = FALSE) +
+  geom_smooth(mapping = aes(color = &quot;Logistic&quot;), method = &quot;glm&quot;, formula = y ~ x, method.args = list(family = binomial(link = &quot;logit&quot;)), se = FALSE) +
+  geom_point(size = 3, alpha = 0.50) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c(&quot;#d55e00&quot;, &quot;#0072b2&quot;)) +
+  labs(x = expression(x[1]), y = NULL, title = bquote(&quot;Prediction:&quot; ~ hat(pi)), color = &quot;Model Form&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+<div id="fit-linear-regression" class="section level3">
+<h3>Fit linear regression</h3>
+<p>The model below is equivalent to <code>lm(formula, data)</code>, but it uses maximum likelihood instead of the least squares method.</p>
+<pre class="r"><code>glm.fit1 &lt;- glm(y ~ x1, family = gaussian(link = &quot;identity&quot;), data = data1)</code></pre>
+<div id="plot-residuals-vs.predicted-values" class="section level4">
+<h4>Plot residuals vs. predicted values</h4>
+<p>The plot below displays the linear regression predictions from a different perspective: residuals (i.e., prediction errors). As expected from the linear fit line in the previous plot, some predictions are impossible (orange circles), falling below 0% or above 100%. The black <a href="https://en.wikipedia.org/wiki/Local_regression">loess fit line</a> can help you interpret the strange relationship between predicted values and residuals: Residuals for a given predicted value can only take on 1 of 2 values, so residuals fall on only 1 of 2 straight lines across the plot. A straight black line is consistent with no relationship between predictions and residuals, whereas a anny pattern in the black line suggestions errors change as some function of the model predictions.</p>
+<pre class="r"><code># Save a data frame with residuals and fitted values (pihat)
+pihat_residual1 &lt;- tibble(model_form = &quot;Linear&quot;,
+                           pihat = glm.fit1$fitted.values,
+                           residual = residuals.glm
+                          
+                          (glm.fit1, type = &quot;response&quot;))
+
+# Plot fitted values (pihat) and residuals
+pihat_residual1 %&gt;% 
+  mutate(impossible = ifelse(pihat &lt; 0 | pihat &gt; 1, &quot;Impossible Value&quot;, &quot;Possible Value&quot;)) %&gt;% 
+  ggplot(mapping = aes(x = pihat, y = residual)) +
+  geom_hline(yintercept = 0, linetype = &quot;dashed&quot;) +
+  geom_vline(xintercept = 0, linetype = &quot;dotted&quot;) +
+  geom_vline(xintercept = 1, linetype = &quot;dotted&quot;) +
+  geom_smooth(method = &quot;loess&quot;, se = FALSE, span = 0.80, color = &quot;black&quot;) +
+  geom_point(mapping = aes(color = impossible), size = 3, alpha = 0.50) +
+  scale_x_continuous(breaks = seq(-1, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c(&quot;#e69f00&quot;, &quot;#000000&quot;)) +
+  labs(x = bquote(&quot;Prediction:&quot; ~ hat(pi)), y = expression(Residual: y - hat(pi)), color = NULL) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-13-1.png" width="672" /></p>
+</div>
+<div id="results-summary" class="section level4">
+<h4>Results Summary</h4>
+<p>When <span class="math inline">\(x_1\)</span> equals 0, the model predicts a 45% probability that <em>Y</em> equals 1. For every 1 unit change in <span class="math inline">\(x_1\)</span>, the predicted probability that <em>Y</em> equals 1 increases linearly by 23%. Ignore the other information in the output, for now.</p>
+<pre class="r"><code>summary(glm.fit1)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ x1, family = gaussian(link = &quot;identity&quot;), data = data1)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -0.7594  -0.3771  -0.1019   0.4589   0.9929  
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  0.44658    0.02842  15.711  &lt; 2e-16 ***
+## x1           0.22524    0.02938   7.667 3.99e-13 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for gaussian family taken to be 0.2018494)
+## 
+##     Null deviance: 61.924  on 249  degrees of freedom
+## Residual deviance: 50.059  on 248  degrees of freedom
+## AIC: 313.4
+## 
+## Number of Fisher Scoring iterations: 2</code></pre>
+</div>
+<div id="receiver-operating-characteristic-curve" class="section level4">
+<h4>Receiver Operating Characteristic Curve</h4>
+<p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.75, which means that 75% of the time the model is expected to decide that a random <em>Y</em> = 1 is actually a 1 (true positive) instead of deciding a random Y = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose Y = 0 observations. This AUROC value (0.75) is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
+<pre class="r"><code>roc(response = glm.fit1$data$y, predictor = glm.fit1$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre><code>## Setting levels: control = 0, case = 1</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre><code>## 
+## Call:
+## roc.default(response = glm.fit1$data$y, predictor = glm.fit1$fitted.values,     direction = &quot;&lt;&quot;, ci = TRUE, plot = TRUE, ci.method = &quot;boot&quot;,     boot.n = 1000)
+## 
+## Data: glm.fit1$fitted.values in 137 controls (glm.fit1$data$y 0) &lt; 113 cases (glm.fit1$data$y 1).
+## Area under the curve: 0.7471
+## 95% CI: 0.6839-0.8068 (1000 stratified bootstrap replicates)</code></pre>
+</div>
+</div>
+<div id="fit-logistic-regression" class="section level3">
+<h3>Fit logistic regression</h3>
+<p>This syntax for logistic regression is similar to that for the linear regression except you use the <a href="https://en.wikipedia.org/wiki/Binomial_distribution">Binomial Distribution</a> (a.k.a., <a href="https://en.wikipedia.org/wiki/Bernoulli_distribution">Bernoulli Distribution</a> because there is only 1 trial) with a logit link.</p>
+<pre class="r"><code>glm.fit2 &lt;- glm(y ~ x1, family = binomial(link = &quot;logit&quot;), data = data1)</code></pre>
+<div id="plot-residuals-vs.predicted-values-1" class="section level4">
+<h4>Plot residuals vs. predicted values</h4>
+<p>Like the previous plot of residuals vs. predicted values, a given predicted value can only take on 1 of 2 residual values because the observations equal 0 or 1. So, the residuals fall onto 1 or 2 lines that span the plot. Unlike the predicted probabilities form the linear regression, the predicted probabilities from the logistic regression are bounded between 0% and 100%.</p>
+<pre class="r"><code># Save a data frame with residuals and fitted values (pihat)
+pihat_residual2 &lt;- tibble(model_form = &quot;Logistic&quot;,
+                          pihat = glm.fit2$fitted.values,
+                          residual = residuals.glm(glm.fit2, type = &quot;response&quot;))
+
+# Plot fitted values (pihat) and residuals from both linear and logistic models
+pihat_residual1 %&gt;% 
+  bind_rows(pihat_residual2) %&gt;% 
+  ggplot(mapping = aes(x = pihat, y = residual, color = model_form)) +
+  geom_hline(yintercept = 0, linetype = &quot;dashed&quot;) +
+  geom_vline(xintercept = 0, linetype = &quot;dotted&quot;) +
+  geom_vline(xintercept = 1, linetype = &quot;dotted&quot;) +
+  geom_smooth(method = &quot;loess&quot;, se = FALSE, span = 0.80) +
+  geom_point(size = 3, alpha = 0.50) +
+  scale_x_continuous(breaks = seq(-0.20, 1.20, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c(&quot;#d55e00&quot;, &quot;#0072b2&quot;)) +
+  labs(x = expression(Prediction: hat(pi)), y = expression(Residual: y - hat(pi)), color = &quot;Model Form&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+</div>
+<div id="results-summary-1" class="section level4">
+<h4>Results Summary</h4>
+<pre class="r"><code>summary(glm.fit2)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ x1, family = binomial(link = &quot;logit&quot;), data = data1)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -1.7748  -0.9260  -0.4941   1.0859   2.2829  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  -0.2673     0.1428  -1.872   0.0612 .  
+## x1            1.1593     0.1864   6.219 5.01e-10 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 344.27  on 249  degrees of freedom
+## Residual deviance: 290.42  on 248  degrees of freedom
+## AIC: 294.42
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+<div id="odds-ratios" class="section level4">
+<h4>Odds Ratios</h4>
+<p>When <span class="math inline">\(x_1\)</span> equals 0, the odds that <em>Y</em> = 1 are 0.77, which means <em>Y</em> = 0 is 23% more likey than <em>Y</em> = 1. For every 1 unit change in <span class="math inline">\(x_1\)</span>, the odds that <em>Y</em> = 1 increase by 219% (OR = 3.19).</p>
+<pre class="r"><code># exp() (see help(&quot;exp)) raises the base value to the given value (e.g., by default, it raises Euler&#39;s number to the value given). Raising Euler&#39;s number to the given log-odds (logit) is the odds: e^log-odds = odds
+exp(coefficients(glm.fit2))</code></pre>
+<pre><code>## (Intercept)          x1 
+##   0.7654192   3.1877508</code></pre>
+</div>
+<div id="compare-regression-coefficients-to-population-values" class="section level4">
+<h4>Compare regression coefficients to population values</h4>
+<pre class="r"><code>tibble(Model = rep(c(&quot;Population&quot;, &quot;Linear&quot;, &quot;Logistic&quot;), times = 2),
+       Coefficient = rep(c(&quot;B0 (Intercept)&quot;, &quot;B1&quot;), each = 3),
+       &quot;Log-Odds&quot; = c(b0, qlogis(coefficients(glm.fit1)[1]), coefficients(glm.fit2)[1], b1, qlogis(1 - coefficients(glm.fit1)[2]), coefficients(glm.fit2)[2]),
+       &quot;Linear Probability&quot; = c(plogis(b0), coefficients(glm.fit1)[1], plogis(coefficients(glm.fit2)[1]), 1 - plogis(b1), coefficients(glm.fit1)[2], 1 - plogis(coefficients(glm.fit2)[2]))) %&gt;% 
+  mutate_if(is.numeric, round, 2) %&gt;% 
+  kable() %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;))</code></pre>
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Model
+</th>
+<th style="text-align:left;">
+Coefficient
+</th>
+<th style="text-align:right;">
+Log-Odds
+</th>
+<th style="text-align:right;">
+Linear Probability
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Population
+</td>
+<td style="text-align:left;">
+B0 (Intercept)
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Linear
+</td>
+<td style="text-align:left;">
+B0 (Intercept)
+</td>
+<td style="text-align:right;">
+-0.21
+</td>
+<td style="text-align:right;">
+0.45
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Logistic
+</td>
+<td style="text-align:left;">
+B0 (Intercept)
+</td>
+<td style="text-align:right;">
+-0.27
+</td>
+<td style="text-align:right;">
+0.43
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Population
+</td>
+<td style="text-align:left;">
+B1
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+0.27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Linear
+</td>
+<td style="text-align:left;">
+B1
+</td>
+<td style="text-align:right;">
+1.24
+</td>
+<td style="text-align:right;">
+0.23
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Logistic
+</td>
+<td style="text-align:left;">
+B1
+</td>
+<td style="text-align:right;">
+1.16
+</td>
+<td style="text-align:right;">
+0.24
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="model-fit-compared-to-the-null-model" class="section level4">
+<h4>Model Fit (compared to the Null Model)</h4>
+<pre class="r"><code>anova(glm.fit2, test = &quot;Chisq&quot;)</code></pre>
+<pre><code>## Analysis of Deviance Table
+## 
+## Model: binomial, link: logit
+## 
+## Response: y
+## 
+## Terms added sequentially (first to last)
+## 
+## 
+##      Df Deviance Resid. Df Resid. Dev  Pr(&gt;Chi)    
+## NULL                   249     344.27              
+## x1    1   53.847       248     290.42 2.167e-13 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div id="what-is-deviance" class="section level5">
+<h5>What is deviance?</h5>
+<p>Deviance is a measure of the lack of fit to the data. As you can see in the equations and R code below, deviance (roughly) represents the difference (i.e., subtraction) between two models.</p>
+<p><strong>Model Deviance for <em>k</em> predictors.</strong> <span class="math inline">\(D_k = -2[log_e(L_k) - log_e(L_{Perfect})]\)</span></p>
+<p><strong>Null Model Deviance.</strong> <span class="math inline">\(D_{Null} = -2[log_e(L_{Null}) - log_e(L_{Perfect})]\)</span></p>
+<p>where <em>D</em> represents deviance (roughly, a measure of the lack of a model’s fit to the data) and <em>L</em> represents the maximum likelihood.</p>
+<pre class="r"><code># Maximum Likelihood for the null model (intercept only, no predictors)
+mle_null &lt;- exp(logLik(glm(y ~ 1, family = binomial(link = &quot;logit&quot;), data = data1)))
+
+# Maximum Likelihood for the perfect model
+mle_perfect &lt;- 1
+
+# Maximum Likelihood for the model with 1 predictor
+mle_1 &lt;- exp(logLik(glm.fit2))
+
+# Null Deviance
+D_null &lt;- -2 * (log(mle_null) - log(mle_perfect))
+
+# Model Deviance (1 predictor, k = 1)
+D_1 &lt;- -2 * (log(mle_1) - log(mle_perfect))
+
+# Table and print results
+tibble(Model = c(&quot;Null&quot;, &quot;Perfect&quot;, &quot;k = 1&quot;),
+       &quot;Maximum Likelihood&quot; = c(mle_null, mle_perfect, mle_1),
+       &quot;Log-Likelihood&quot; = log(c(mle_null, mle_perfect, mle_1)),
+       Deviance = c(D_null, 0, D_1)) %&gt;% 
+  mutate_at(&quot;Maximum Likelihood&quot;, scientific) %&gt;% 
+  mutate_at(c(&quot;Log-Likelihood&quot;, &quot;Deviance&quot;), round, 2) %&gt;% 
+  kable() %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;))</code></pre>
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Model
+</th>
+<th style="text-align:left;">
+Maximum Likelihood
+</th>
+<th style="text-align:right;">
+Log-Likelihood
+</th>
+<th style="text-align:right;">
+Deviance
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Null
+</td>
+<td style="text-align:left;">
+1.75e-75
+</td>
+<td style="text-align:right;">
+-172.13
+</td>
+<td style="text-align:right;">
+344.27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Perfect
+</td>
+<td style="text-align:left;">
+1.00e+00
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+<td style="text-align:right;">
+0.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+k = 1
+</td>
+<td style="text-align:left;">
+8.64e-64
+</td>
+<td style="text-align:right;">
+-145.21
+</td>
+<td style="text-align:right;">
+290.42
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="receiver-operating-characteristic-curve-1" class="section level4">
+<h4>Receiver Operating Characteristic Curve</h4>
+<p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.75, which means that 75% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
+<pre class="r"><code>roc(response = glm.fit2$data$y, predictor = glm.fit2$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre><code>## Setting levels: control = 0, case = 1</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<pre><code>## 
+## Call:
+## roc.default(response = glm.fit2$data$y, predictor = glm.fit2$fitted.values,     direction = &quot;&lt;&quot;, ci = TRUE, plot = TRUE, ci.method = &quot;boot&quot;,     boot.n = 1000)
+## 
+## Data: glm.fit2$fitted.values in 137 controls (glm.fit2$data$y 0) &lt; 113 cases (glm.fit2$data$y 1).
+## Area under the curve: 0.7471
+## 95% CI: 0.6817-0.8066 (1000 stratified bootstrap replicates)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div id="simple-model-1-categorical-predictor" class="section level1">
+<h1>Simple Model: 1 Categorical Predictor</h1>
+<p><span class="math inline">\(\log_e(\frac{\pi}{1 - \pi}) = \beta_0 + \beta_1x_1\)</span></p>
+<div id="generate-data-1" class="section level2">
+<h2>Generate data</h2>
+<div id="save-parameters-1" class="section level3">
+<h3>Save parameters</h3>
+<ul>
+<li>Sample Size = 250<br />
+</li>
+<li><span class="math inline">\(\beta_0\)</span> (the intercept) = -1.73<br />
+</li>
+<li><span class="math inline">\(\beta_1\)</span> = 1</li>
+</ul>
+<pre class="r"><code>N &lt;- 250
+
+# Determine the logit for 15%
+(b0 &lt;- qlogis(0.15))</code></pre>
+<pre><code>## [1] -1.734601</code></pre>
+<pre class="r"><code>b1 &lt;- -1</code></pre>
+</div>
+<div id="save-predictor-with-equal-group-sizes" class="section level3">
+<h3>Save predictor with equal group sizes</h3>
+<pre class="r"><code># Set random seed so results can be reproduced
+set.seed(760814)
+
+x1 &lt;- rep(c(-0.5, 0.5), each = N / 2)</code></pre>
+</div>
+<div id="generate-data-as-a-function-of-model-binomial-distribution-1" class="section level3">
+<h3>Generate data as a function of model (<a href="https://en.wikipedia.org/wiki/Binomial_distribution">Binomial Distribution</a>)</h3>
+<p><span class="math inline">\(\mathcal{B}(n, \pi) = \mathcal{B}(1, \pi)\)</span></p>
+<pre class="r"><code># Set random seed so results can be reproduced
+set.seed(760814)
+
+# The prob argument asks for the probability of 1 for each replicate, which is a logistic function of the additive, linear equation
+y &lt;- rbinom(n = N, size = 1, prob = plogis(b0 + b1 * x1))</code></pre>
+</div>
+<div id="table-data-1" class="section level3">
+<h3>Table data</h3>
+<pre class="r"><code>data2 &lt;- tibble(id = 1:N, y, x1, group_fac = factor(x1, labels = LETTERS[1:2]))
+
+data2 %&gt;% 
+  sample_n(size = 6) %&gt;% 
+  kable() %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;))</code></pre>
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+id
+</th>
+<th style="text-align:right;">
+y
+</th>
+<th style="text-align:right;">
+x1
+</th>
+<th style="text-align:left;">
+group_fac
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+167
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:left;">
+B
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+49
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+-0.5
+</td>
+<td style="text-align:left;">
+A
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-0.5
+</td>
+<td style="text-align:left;">
+A
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+197
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:left;">
+B
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+191
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.5
+</td>
+<td style="text-align:left;">
+B
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+42
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-0.5
+</td>
+<td style="text-align:left;">
+A
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="plot-data-1" class="section level3">
+<h3>Plot data</h3>
+<p>The predicted probabilities in this case are the proportion of <em>Y</em> = 1 for each of group. These will be the same for linear and logistic regression. The dashed line represents the grand mean.</p>
+<pre class="r"><code>data2 %&gt;% 
+  ggplot(mapping = aes(x = group_fac, y = y)) +
+  stat_summary(geom = &quot;bar&quot;, fun.data = mean_cl_normal) +
+  geom_hline(data = function(x) mutate(x, grand_mean = mean(y)) %&gt;% filter(!duplicated(.)), mapping = aes(yintercept = grand_mean), linetype = &quot;dashed&quot;) + 
+  scale_y_continuous(breaks = seq(0, 1, 0.05), labels = percent_format(accuracy = 1)) +
+  labs(x = NULL, y = NULL, title = expression(Prediction: hat(pi))) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+</div>
+<div id="fit-linear-regression-1" class="section level3">
+<h3>Fit linear regression</h3>
+<pre class="r"><code>glm.fit3 &lt;- glm(y ~ x1, family = gaussian(link = &quot;identity&quot;), data = data2)</code></pre>
+<div id="results-summary-2" class="section level4">
+<h4>Results Summary</h4>
+<p>When <span class="math inline">\(x_1\)</span> equals 0 (i.e., exactly in between group A and B coded as -0.5 and 0.5), the model predicts a 12% probability that <em>Y</em> equals 1. For every 1 unit change in <span class="math inline">\(x_1\)</span> (i.e., “moving” from one group to another), the predicted probability that <em>Y</em> equals 1 decreases linearly by 10%.</p>
+<pre class="r"><code>summary(glm.fit3)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ x1, family = gaussian(link = &quot;identity&quot;), data = data2)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -0.168  -0.168  -0.064  -0.064   0.936  
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  0.11600    0.02006   5.781 2.22e-08 ***
+## x1          -0.10400    0.04013  -2.592   0.0101 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for gaussian family taken to be 0.1006452)
+## 
+##     Null deviance: 25.636  on 249  degrees of freedom
+## Residual deviance: 24.960  on 248  degrees of freedom
+## AIC: 139.42
+## 
+## Number of Fisher Scoring iterations: 2</code></pre>
+</div>
+<div id="receiver-operating-characteristic-curve-2" class="section level4">
+<h4>Receiver Operating Characteristic Curve</h4>
+<p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.63, which means that 63% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
+<pre class="r"><code>roc(response = glm.fit3$data$y, predictor = glm.fit3$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre><code>## Setting levels: control = 0, case = 1</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+<pre><code>## 
+## Call:
+## roc.default(response = glm.fit3$data$y, predictor = glm.fit3$fitted.values,     direction = &quot;&lt;&quot;, ci = TRUE, plot = TRUE, ci.method = &quot;boot&quot;,     boot.n = 1000)
+## 
+## Data: glm.fit3$fitted.values in 221 controls (glm.fit3$data$y 0) &lt; 29 cases (glm.fit3$data$y 1).
+## Area under the curve: 0.6268
+## 95% CI: 0.5405-0.7161 (1000 stratified bootstrap replicates)</code></pre>
+</div>
+</div>
+<div id="fit-logistic-regression-1" class="section level3">
+<h3>Fit logistic regression</h3>
+<pre class="r"><code>glm.fit4 &lt;- glm(y ~ x1, family = binomial(link = &quot;logit&quot;), data = data2)</code></pre>
+<div id="results-summary-3" class="section level4">
+<h4>Results Summary</h4>
+<pre class="r"><code>summary(glm.fit4)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ x1, family = binomial(link = &quot;logit&quot;), data = data2)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -0.6065  -0.6065  -0.3637  -0.3637   2.3447  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  -2.1413     0.2184  -9.805   &lt;2e-16 ***
+## x1           -1.0829     0.4368  -2.479   0.0132 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 179.44  on 249  degrees of freedom
+## Residual deviance: 172.63  on 248  degrees of freedom
+## AIC: 176.63
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+</div>
+<div id="odds-ratios-1" class="section level4">
+<h4>Odds Ratios</h4>
+<p>When <span class="math inline">\(x_1\)</span> equals 0 (i.e., exactly in between group A and B coded as -0.5 and 0.5), the odds that <em>Y</em> = 1 are 0.12, which means <em>Y</em> = 0 is 23% more likey than <em>Y</em> = 1. For every 1 unit change in <span class="math inline">\(x_1\)</span> (i.e., “moving” from one group to another), the odds that <em>Y</em> = 1 decrease by 66% (OR = 0.34).</p>
+<pre class="r"><code># exp() (see help(&quot;exp)) raises the base value to the given value (e.g., by default, it raises Euler&#39;s number to the value given). Raising Euler&#39;s number to the given log-odds (logit) is the odds: e^log-odds = odds
+exp(coefficients(glm.fit4))</code></pre>
+<pre><code>## (Intercept)          x1 
+##   0.1175019   0.3386243</code></pre>
+</div>
+<div id="receiver-operating-characteristic-curve-3" class="section level4">
+<h4>Receiver Operating Characteristic Curve</h4>
+<p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.63, which means that 63% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
+<pre class="r"><code>roc(response = glm.fit4$data$y, predictor = glm.fit4$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre><code>## Setting levels: control = 0, case = 1</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
+<pre><code>## 
+## Call:
+## roc.default(response = glm.fit4$data$y, predictor = glm.fit4$fitted.values,     direction = &quot;&lt;&quot;, ci = TRUE, plot = TRUE, ci.method = &quot;boot&quot;,     boot.n = 1000)
+## 
+## Data: glm.fit4$fitted.values in 221 controls (glm.fit4$data$y 0) &lt; 29 cases (glm.fit4$data$y 1).
+## Area under the curve: 0.6268
+## 95% CI: 0.5448-0.7079 (1000 stratified bootstrap replicates)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div id="multiple-logistic-regression-model-2-quantitative-predictors" class="section level1">
+<h1>Multiple Logistic Regression Model: 2 Quantitative Predictors</h1>
+<p><span class="math inline">\(\log_e(\frac{\pi}{1 - \pi}) = \beta_0 + \beta_1x_1 + \beta_2x_2\)</span></p>
+<div id="generate-data-2" class="section level2">
+<h2>Generate data</h2>
+<div id="save-parameters-2" class="section level3">
+<h3>Save parameters</h3>
+<ul>
+<li>Sample Size = 250<br />
+</li>
+<li><span class="math inline">\(\beta_0\)</span> (the intercept) = 0<br />
+</li>
+<li><span class="math inline">\(\beta_1\)</span> = 1<br />
+</li>
+<li><span class="math inline">\(\beta_2\)</span> = 1</li>
+</ul>
+<pre class="r"><code>N &lt;- 250
+b0 &lt;- 0
+b1 &lt;- 1
+b2 &lt;- 1</code></pre>
+</div>
+<div id="sample-predictors-normal-distribution" class="section level3">
+<h3>Sample predictors (Normal distribution)</h3>
+<p><span class="math inline">\(X_1 \sim \mathcal{N}(\mu, \sigma^2) = \mathcal{N}(0, 1)\)</span><br />
+<span class="math inline">\(X_2 \sim \mathcal{N}(\mu, \sigma^2) = \mathcal{N}(0, 1)\)</span></p>
+<pre class="r"><code># Set random seed so results can be reproduced
+set.seed(614513)
+
+x1 &lt;- rnorm(n = N, mean = 0, sd = 1)
+x2 &lt;- rnorm(n = N, mean = 0, sd = 1)</code></pre>
+</div>
+<div id="generate-data-as-a-function-of-model-binomial-distribution-2" class="section level3">
+<h3>Generate data as a function of model (<a href="https://en.wikipedia.org/wiki/Binomial_distribution">Binomial Distribution</a>)</h3>
+<p><span class="math inline">\(\mathcal{B}(n, \pi) = \mathcal{B}(1, \pi)\)</span></p>
+<pre class="r"><code># Set random seed so results can be reproduced
+set.seed(614513)
+
+# The prob argument asks for the probability of 1 for each replicate, which is a logistic function of the additive, linear equation
+y &lt;- rbinom(n = N, size = 1, prob = plogis(b0 + b1 * x1 + b2 * x2))</code></pre>
+</div>
+<div id="table-data-2" class="section level3">
+<h3>Table data</h3>
+<pre class="r"><code>data3 &lt;- tibble(id = 1:N, y, x1, x2)
+
+data3 %&gt;% 
+  head() %&gt;% 
+  kable() %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;))</code></pre>
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+id
+</th>
+<th style="text-align:right;">
+y
+</th>
+<th style="text-align:right;">
+x1
+</th>
+<th style="text-align:right;">
+x2
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-0.0125840
+</td>
+<td style="text-align:right;">
+0.7755981
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+-0.7546030
+</td>
+<td style="text-align:right;">
+-1.3967041
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+-1.3462009
+</td>
+<td style="text-align:right;">
+1.1638134
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.4216914
+</td>
+<td style="text-align:right;">
+-1.4916297
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-1.3765932
+</td>
+<td style="text-align:right;">
+1.6608769
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.0447956
+</td>
+<td style="text-align:right;">
+-0.0339239
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="fit-linear-regression-2" class="section level3">
+<h3>Fit linear regression</h3>
+<pre class="r"><code>glm.fit5 &lt;- glm(y ~ x1 + x2, family = gaussian(link = &quot;identity&quot;), data = data3)</code></pre>
+<div id="plot-residuals" class="section level4">
+<h4>Plot residuals</h4>
+<p>Below I’ve plotted the residuals against the predicted probabilities (<span class="math inline">\(\pi\)</span> or pihat) as well as the observed values for each predictor, <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>. Impossible values are colored orange and possible values are colored black The black loess line is not straight in any of the 3 plots, which suggests some relationship between residuals and predicted probabilities or between residuals and each predictor. These patterns could be spurious too.</p>
+<pre class="r"><code># Save a data frame with residuals and fitted values (pihat)
+pihat_residual3 &lt;- tibble(model_form = &quot;Linear&quot;,
+                           x1 = glm.fit5$data$x1,
+                           x2 = glm.fit5$data$x2,
+                           pihat = glm.fit5$fitted.values,
+                           residual = residuals.glm(glm.fit5, type = &quot;response&quot;))
+
+# Plot fitted values (pihat) and residuals
+pihat_residual3 %&gt;% 
+  mutate(impossible = ifelse(pihat &lt; 0 | pihat &gt; 1, &quot;Impossible Value&quot;, &quot;Possible Value&quot;)) %&gt;% 
+  gather(key = predictor, value = value, x1, x2, pihat) %&gt;% 
+  ggplot(mapping = aes(x = value, y = residual)) +
+  geom_hline(yintercept = 0, linetype = &quot;dashed&quot;) +
+  geom_smooth(method = &quot;loess&quot;, se = FALSE, span = 0.80, color = &quot;black&quot;) +
+  geom_point(mapping = aes(color = impossible), size = 3, alpha = 0.50) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.25), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c(&quot;#e69f00&quot;, &quot;#000000&quot;)) +
+  facet_wrap(facets = ~ predictor, scales = &quot;free_x&quot;) +
+  labs(x = NULL, y = expression(Residual: y - hat(pi)), color = NULL) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-41-1.png" width="672" /></p>
+</div>
+<div id="results-summary-4" class="section level4">
+<h4>Results Summary</h4>
+<p>When <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> both equal 0, the model predicts a 53% probability that <em>Y</em> equals 1. For every 1 unit change in <span class="math inline">\(x_1\)</span>, the predicted probability that <em>Y</em> equals 1 increases linearly by 21%; for every 1 unit change in <span class="math inline">\(x_2\)</span>, the predicted probability that <em>Y</em> equals 1 increases linearly by 15%.</p>
+<pre class="r"><code>summary(glm.fit5)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ x1 + x2, family = gaussian(link = &quot;identity&quot;), 
+##     data = data3)
+## 
+## Deviance Residuals: 
+##      Min        1Q    Median        3Q       Max  
+## -0.85792  -0.38154  -0.02654   0.37938   0.97891  
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  0.52600    0.02742   19.18  &lt; 2e-16 ***
+## x1           0.20969    0.02807    7.47 1.38e-12 ***
+## x2           0.15265    0.02707    5.64 4.64e-08 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for gaussian family taken to be 0.1872653)
+## 
+##     Null deviance: 62.464  on 249  degrees of freedom
+## Residual deviance: 46.255  on 247  degrees of freedom
+## AIC: 295.64
+## 
+## Number of Fisher Scoring iterations: 2</code></pre>
+</div>
+<div id="receiver-operating-characteristic-curve-4" class="section level4">
+<h4>Receiver Operating Characteristic Curve</h4>
+<p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.81, which means that 81% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
+<pre class="r"><code>roc(response = glm.fit5$data$y, predictor = glm.fit5$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre><code>## Setting levels: control = 0, case = 1</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-43-1.png" width="672" /></p>
+<pre><code>## 
+## Call:
+## roc.default(response = glm.fit5$data$y, predictor = glm.fit5$fitted.values,     direction = &quot;&lt;&quot;, ci = TRUE, plot = TRUE, ci.method = &quot;boot&quot;,     boot.n = 1000)
+## 
+## Data: glm.fit5$fitted.values in 122 controls (glm.fit5$data$y 0) &lt; 128 cases (glm.fit5$data$y 1).
+## Area under the curve: 0.8068
+## 95% CI: 0.7486-0.8571 (1000 stratified bootstrap replicates)</code></pre>
+</div>
+</div>
+<div id="fit-logistic-regression-2" class="section level3">
+<h3>Fit logistic regression</h3>
+<pre class="r"><code>glm.fit6 &lt;- glm(y ~ x1 + x2, family = binomial(link = &quot;logit&quot;), data = data3)</code></pre>
+<div id="plot-residuals-1" class="section level4">
+<h4>Plot residuals</h4>
+<p>Below I’ve plotted residuals from both the linear (red/orange) and logistic (blue) models against their predicted probabilities and two separate predictors (<span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>). Based on the loess lines, both model seem to make <em>similar</em> patterns of errors (though remember that logistic predictions are bounded between 0% and 100%).</p>
+<pre class="r"><code># Save a data frame with residuals and fitted values (pihat)
+pihat_residual4 &lt;- tibble(model_form = &quot;Logistic&quot;,
+                           x1 = glm.fit6$data$x1,
+                           x2 = glm.fit6$data$x2,
+                           pihat = glm.fit6$fitted.values,
+                           residual = residuals.glm(glm.fit6, type = &quot;response&quot;))
+
+# Plot fitted values (pihat) and residuals from both linear and logistic models
+pihat_residual3 %&gt;% 
+  bind_rows(pihat_residual4) %&gt;% 
+  gather(key = predictor, value = value, x1, x2, pihat) %&gt;% 
+  ggplot(mapping = aes(x = value, y = residual, color = model_form)) +
+  geom_hline(yintercept = 0, linetype = &quot;dashed&quot;) +
+  geom_smooth(method = &quot;loess&quot;, se = FALSE, span = 0.80) +
+  geom_point(size = 3, alpha = 0.50) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.25), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c(&quot;#d55e00&quot;, &quot;#0072b2&quot;)) +
+  facet_wrap(facets = ~ predictor, scales = &quot;free_x&quot;) +
+  labs(x = NULL, y = expression(Residual: y - hat(pi)), color = &quot;Model Form&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-45-1.png" width="672" /></p>
+</div>
+<div id="results-summary-5" class="section level4">
+<h4>Results Summary</h4>
+<pre class="r"><code>summary(glm.fit6)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ x1 + x2, family = binomial(link = &quot;logit&quot;), 
+##     data = data3)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.0521  -0.9226   0.2534   0.9099   2.3265  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)   0.1553     0.1491   1.042    0.298    
+## x1            1.1512     0.1873   6.145 8.01e-10 ***
+## x2            0.8560     0.1715   4.991 6.00e-07 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 346.43  on 249  degrees of freedom
+## Residual deviance: 270.82  on 247  degrees of freedom
+## AIC: 276.82
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+<div id="odds-ratios-2" class="section level4">
+<h4>Odds Ratios</h4>
+<p>When <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> both equal 0, the odds that <em>Y</em> = 1 are 1.17, which means <em>Y</em> = 1 is 17% more likey than <em>Y</em> = 0. For every 1 unit change in <span class="math inline">\(x_1\)</span>, the odds that <em>Y</em> = 1 increase by 216% (OR = 3.16); for every 1 unit change in <span class="math inline">\(x_2\)</span>, the odds that <em>Y</em> = 1 increase by 135% (OR = 2.35).</p>
+<pre class="r"><code># exp() (see help(&quot;exp)) raises the base value to the given value (e.g., by default, it raises Euler&#39;s number to the value given). Raising Euler&#39;s number to the given log-odds (logit) is the odds: e^log-odds = odds
+exp(coefficients(glm.fit6))</code></pre>
+<pre><code>## (Intercept)          x1          x2 
+##    1.168002    3.161864    2.353724</code></pre>
+</div>
+<div id="receiver-operating-characteristic-curve-5" class="section level4">
+<h4>Receiver Operating Characteristic Curve</h4>
+<p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.81, which means that 81% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
+<pre class="r"><code>roc(response = glm.fit6$data$y, predictor = glm.fit6$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre><code>## Setting levels: control = 0, case = 1</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-48-1.png" width="672" /></p>
+<pre><code>## 
+## Call:
+## roc.default(response = glm.fit6$data$y, predictor = glm.fit6$fitted.values,     direction = &quot;&lt;&quot;, ci = TRUE, plot = TRUE, ci.method = &quot;boot&quot;,     boot.n = 1000)
+## 
+## Data: glm.fit6$fitted.values in 122 controls (glm.fit6$data$y 0) &lt; 128 cases (glm.fit6$data$y 1).
+## Area under the curve: 0.8066
+## 95% CI: 0.7524-0.8614 (1000 stratified bootstrap replicates)</code></pre>
+</div>
+</div>
+<div id="plot-response-surface" class="section level3">
+<h3>Plot Response Surface</h3>
+<div id="linear-response-surface" class="section level4">
+<h4>Linear Response Surface</h4>
+<p>The response surface from the multiple linear regression is a flat plane, so the slope for <span class="math inline">\(x_1\)</span> is the same at all values for <span class="math inline">\(x_2\)</span> and vice-versa.</p>
+<pre class="r"><code># 35 positions for z axis rotation
+for (i in seq(0, 350 , 10)) {
+  print(
+    expand.grid(x1 = seq(-3, 3, length.out = 10),
+                x2 = seq(-3, 3, length.out = 10)) %&gt;% 
+      mutate(pihat_linear = predict.glm(glm.fit5, newdata = data.frame(x1, x2), type = &quot;response&quot;),
+             pihat_logistic = predict.glm(glm.fit6, newdata = data.frame(x1, x2), type = &quot;response&quot;)) %&gt;%
+      wireframe(pihat_linear ~ x1 + x2, data = ., drape = TRUE, colorkey = TRUE, scales = list(arrows = FALSE), screen = list(z = i, x = -60), col.regions = colorRampPalette(c(&quot;#0072b2&quot;, &quot;#d55e00&quot;))(100), zlab = expression(hat(pi)), xlab = expression(x[1]), ylab = expression(x[2]))
+  )
+}</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-49-.gif" width="672" /></p>
+</div>
+<div id="logistic-response-surface" class="section level4">
+<h4>Logistic Response Surface</h4>
+<p>The response surface from the multiple logistic regression is S-shaped in both directions such that the surface looks like a piece of paper bent like an S from one corner of the cube to the other. Thus, the slope for <span class="math inline">\(x_1\)</span> <em>changes</em> depending on the value of <span class="math inline">\(x_2\)</span> and vice-versa.</p>
+<pre class="r"><code># 35 positions for z axis rotation
+for (i in seq(0, 350 , 10)) {
+  print(
+    expand.grid(x1 = seq(-3, 3, length.out = 10),
+                x2 = seq(-3, 3, length.out = 10)) %&gt;% 
+      mutate(pihat_linear = predict.glm(glm.fit5, newdata = data.frame(x1, x2), type = &quot;response&quot;),
+             pihat_logistic = predict.glm(glm.fit6, newdata = data.frame(x1, x2), type = &quot;response&quot;)) %&gt;%
+      wireframe(pihat_logistic ~ x1 + x2, data = ., drape = TRUE, colorkey = TRUE, scales = list(arrows = FALSE), screen = list(z = i, x = -60), col.regions = colorRampPalette(c(&quot;#0072b2&quot;, &quot;#d55e00&quot;))(100), zlab = expression(hat(pi)), xlab = expression(x[1]), ylab = expression(x[2]))
+  )
+}</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-50-.gif" width="672" /></p>
+</div>
+</div>
+</div>
+</div>
+<div id="multiple-logistic-regression-model-1-quantitative-predictor-with-a-quadratic-trend" class="section level1">
+<h1>Multiple Logistic Regression Model: 1 quantitative predictor with a quadratic trend</h1>
+<p><span class="math inline">\(\log_e(\frac{\pi}{1 - \pi}) = \beta_0 + \beta_1x_1 + \beta_2x^2_1\)</span></p>
+<div id="generate-data-3" class="section level2">
+<h2>Generate data</h2>
+<div id="save-parameters-3" class="section level3">
+<h3>Save parameters</h3>
+<ul>
+<li>Sample Size = 250<br />
+</li>
+<li><span class="math inline">\(\beta_0\)</span> (the intercept) = 0<br />
+</li>
+<li><span class="math inline">\(\beta_1\)</span> = 1<br />
+</li>
+<li><span class="math inline">\(\beta_2\)</span> = 1</li>
+</ul>
+</div>
+<div id="save-parameters-4" class="section level3">
+<h3>Save parameters</h3>
+<pre class="r"><code>N &lt;- 250
+b0 &lt;- 0
+b1 &lt;- 1
+b2 &lt;- 1</code></pre>
+</div>
+<div id="sample-predictors-normal-distribution-1" class="section level3">
+<h3>Sample predictors (Normal distribution)</h3>
+<p><span class="math inline">\(X_1 \sim \mathcal{N}(\mu, \sigma^2) = \mathcal{N}(0, 1)\)</span></p>
+<pre class="r"><code># Set random seed so results can be reproduced
+set.seed(303786)
+
+x1 &lt;- rnorm(n = N, mean = 0, sd = 1)</code></pre>
+</div>
+<div id="generate-data-as-a-function-of-model-binomial-distribution-3" class="section level3">
+<h3>Generate data as a function of model (<a href="https://en.wikipedia.org/wiki/Binomial_distribution">Binomial Distribution</a>)</h3>
+<p><span class="math inline">\(\mathcal{B}(n, \pi) = \mathcal{B}(1, \pi)\)</span></p>
+<pre class="r"><code># Set random seed so results can be reproduced
+set.seed(303786)
+
+# The prob argument asks for the probability of 1 for each replicate, which is a logistic function of the additive, linear equation
+y &lt;- rbinom(n = N, size = 1, prob = plogis(b0 + b1 * x1 + b2 * x1^2))</code></pre>
+</div>
+<div id="table-data-3" class="section level3">
+<h3>Table data</h3>
+<pre class="r"><code>data4 &lt;- tibble(id = 1:N, y, x1, x1_squared = x1^2)
+
+data4 %&gt;% 
+  head() %&gt;% 
+  kable() %&gt;% 
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;))</code></pre>
+<table class="table table-striped table-hover" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+id
+</th>
+<th style="text-align:right;">
+y
+</th>
+<th style="text-align:right;">
+x1
+</th>
+<th style="text-align:right;">
+x1_squared
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-1.0359267
+</td>
+<td style="text-align:right;">
+1.0731441
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.0153472
+</td>
+<td style="text-align:right;">
+0.0002355
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.1438260
+</td>
+<td style="text-align:right;">
+0.0206859
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-0.3930759
+</td>
+<td style="text-align:right;">
+0.1545087
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-0.2215981
+</td>
+<td style="text-align:right;">
+0.0491057
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+-0.9376051
+</td>
+<td style="text-align:right;">
+0.8791033
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="plot-data-2" class="section level3">
+<h3>Plot data</h3>
+<p>Linear and Logistic regressions (both with quadratic terms) make different predictions. The logistic regression (blue line) predictions follow an S-shape on both “sides” of <span class="math inline">\(x_1\)</span>, and those predictions fall between 0% and 100%. The predictions from linear regression follow a U-shape such that the slope is negative before <span class="math inline">\(x_1\)</span> = 0 and positive after <span class="math inline">\(x_1\)</span> = 0. But, the linear regression (red/orange line) makes some impossible predictions: The fit line makes predictions below 0% and above 100%.</p>
+<pre class="r"><code>data4 %&gt;% 
+  ggplot(mapping = aes(x = x1, y = y)) +
+  geom_hline(yintercept = 0, linetype = &quot;dotted&quot;) +
+  geom_hline(yintercept = 1, linetype = &quot;dotted&quot;) +
+  geom_smooth(mapping = aes(color = &quot;Linear&quot;), method = &quot;glm&quot;, formula = y ~ poly(x, degree = 2), method.args = list(family = gaussian(link = &quot;identity&quot;)), se = FALSE) +
+  geom_smooth(mapping = aes(color = &quot;Logistic&quot;), method = &quot;glm&quot;, formula = y ~ poly(x, degree = 2), method.args = list(family = binomial(link = &quot;logit&quot;)), se = FALSE) +
+  geom_point(size = 3, alpha = 0.50) +
+  scale_y_continuous(breaks = seq(-2, 2, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c(&quot;#d55e00&quot;, &quot;#0072b2&quot;)) +
+  labs(x = expression(x[1]), y = NULL, title = bquote(&quot;Prediction:&quot; ~ hat(pi)), color = &quot;Model Form&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-55-1.png" width="672" /></p>
+</div>
+<div id="fit-linear-regression-3" class="section level3">
+<h3>Fit linear regression</h3>
+<p>The <code>stats::poly</code> function (see <code>help(&quot;poly&quot;)</code>) creates orthogonal polynomial terms for you (e.g., linear, quadratic, cubic). This method scales the variables so that they are not correlated (predicted probabilities will be the same). Thus, you can interpret their independent effects in your regression (see this <a href="https://stackoverflow.com/a/30000214">stackoverflow answer</a> for more details).</p>
+<pre class="r"><code>glm.fit7 &lt;- glm(y ~ poly(x1, degree = 2), family = gaussian(link = &quot;identity&quot;), data = data4)</code></pre>
+<div id="plot-residuals-2" class="section level4">
+<h4>Plot residuals</h4>
+<p>Like before, possible predicted probabilities are black; impossible predicted probabilities are orange. There’s a pattern such that larger (and impossible) predicted probabilities have a negative relationship with residuals.</p>
+<pre class="r"><code># Save a data frame with residuals and fitted values (pihat)
+pihat_residual5 &lt;- tibble(model_form = &quot;Linear&quot;,
+                          x1 = glm.fit7$data$x1,
+                          x1_squared = glm.fit7$data$x1_squared,
+                          pihat = glm.fit7$fitted.values,
+                          residual = residuals.glm(glm.fit7, type = &quot;response&quot;))
+
+# Plot fitted values (pihat) and residuals
+pihat_residual5 %&gt;% 
+  mutate(impossible = ifelse(pihat &lt; 0 | pihat &gt; 1, &quot;Impossible Value&quot;, &quot;Possible Value&quot;)) %&gt;% 
+  gather(key = predictor, value = value, x1, x1_squared, pihat) %&gt;% 
+  ggplot(mapping = aes(x = value, y = residual)) +
+  geom_hline(yintercept = 0, linetype = &quot;dashed&quot;) +
+  geom_smooth(method = &quot;loess&quot;, se = FALSE, span = 0.80, color = &quot;black&quot;) +
+  geom_point(mapping = aes(color = impossible), size = 3, alpha = 0.50) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.25), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c(&quot;#e69f00&quot;, &quot;#000000&quot;)) +
+  facet_wrap(facets = ~ predictor, scales = &quot;free_x&quot;) +
+  labs(x = NULL, y = expression(Residual: y - hat(pi)), color = NULL) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-57-1.png" width="672" /></p>
+</div>
+<div id="results-summary-6" class="section level4">
+<h4>Results Summary</h4>
+<p>When <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x^2_1\)</span> both equal 0, the model predicts a 67% probability that <em>Y</em> equals 1. For every 1 unit change in <span class="math inline">\(x_1\)</span>, the predicted probability that <em>Y</em> equals 1 increases linearly by 158%; for every 1 unit change in <span class="math inline">\(x^2_1\)</span> (the quadratic term), the predicted probability that <em>Y</em> equals 1 increases linearly by 211% (the quadratic trend still has a linear interpretation). Thus, the relationship between <span class="math inline">\(x_1\)</span> and <em>Y</em> depends on the value of <span class="math inline">\(x_1\)</span> itself.</p>
+<pre class="r"><code>summary(glm.fit7)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ poly(x1, degree = 2), family = gaussian(link = &quot;identity&quot;), 
+##     data = data4)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -0.8133  -0.5528   0.2123   0.4058   0.4529  
+## 
+## Coefficients:
+##                       Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)            0.66800    0.02802  23.837  &lt; 2e-16 ***
+## poly(x1, degree = 2)1  1.57514    0.44310   3.555 0.000453 ***
+## poly(x1, degree = 2)2  2.11365    0.44310   4.770 3.15e-06 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for gaussian family taken to be 0.1963378)
+## 
+##     Null deviance: 55.444  on 249  degrees of freedom
+## Residual deviance: 48.495  on 247  degrees of freedom
+## AIC: 307.47
+## 
+## Number of Fisher Scoring iterations: 2</code></pre>
+</div>
+<div id="receiver-operating-characteristic-curve-6" class="section level4">
+<h4>Receiver Operating Characteristic Curve</h4>
+<p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.73, which means that 73% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
+<pre class="r"><code>roc(response = glm.fit7$data$y, predictor = glm.fit7$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre><code>## Setting levels: control = 0, case = 1</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-59-1.png" width="672" /></p>
+<pre><code>## 
+## Call:
+## roc.default(response = glm.fit7$data$y, predictor = glm.fit7$fitted.values,     direction = &quot;&lt;&quot;, ci = TRUE, plot = TRUE, ci.method = &quot;boot&quot;,     boot.n = 1000)
+## 
+## Data: glm.fit7$fitted.values in 83 controls (glm.fit7$data$y 0) &lt; 167 cases (glm.fit7$data$y 1).
+## Area under the curve: 0.7266
+## 95% CI: 0.662-0.7891 (1000 stratified bootstrap replicates)</code></pre>
+</div>
+</div>
+<div id="fit-logistic-regression-3" class="section level3">
+<h3>Fit logistic regression</h3>
+<pre class="r"><code>glm.fit8 &lt;- glm(y ~ poly(x1, degree = 2), family = binomial(link = &quot;logit&quot;), data = data4)</code></pre>
+<div id="plot-residuals-3" class="section level4">
+<h4>Plot residuals</h4>
+<p>Compared to the predicted probabilities from the linear regression (red/orange), the logistic regression predicted probabilities (blue) share a much weaker, flatter relationship with the residuals (compare the loess lines in the far left panel).</p>
+<pre class="r"><code># Save a data frame with residuals and fitted values (pihat)
+pihat_residual6 &lt;- tibble(model_form = &quot;Logistic&quot;,
+                          x1 = glm.fit8$data$x1,
+                          x1_squared = glm.fit8$data$x1_squared,
+                          pihat = glm.fit8$fitted.values,
+                          residual = residuals.glm(glm.fit8, type = &quot;response&quot;))
+
+# Plot fitted values (pihat) and residuals from both linear and logistic models
+pihat_residual5 %&gt;% 
+  bind_rows(pihat_residual6) %&gt;% 
+  gather(key = predictor, value = value, x1, x1_squared, pihat) %&gt;% 
+  ggplot(mapping = aes(x = value, y = residual, color = model_form)) +
+  geom_hline(yintercept = 0, linetype = &quot;dashed&quot;) +
+  geom_smooth(method = &quot;loess&quot;, se = FALSE, span = 0.80) +
+  geom_point(size = 3, alpha = 0.50) +
+  scale_y_continuous(breaks = seq(-1, 1, 0.25), labels = percent_format(accuracy = 1)) +
+  scale_color_manual(values = c(&quot;#d55e00&quot;, &quot;#0072b2&quot;)) +
+  facet_wrap(facets = ~ predictor, scales = &quot;free_x&quot;) +
+  labs(x = NULL, y = expression(Residual: y - hat(pi)), color = &quot;Model Form&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-61-1.png" width="672" /></p>
+</div>
+<div id="results-summary-7" class="section level4">
+<h4>Results Summary</h4>
+<pre class="r"><code>summary(glm.fit8)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = y ~ poly(x1, degree = 2), family = binomial(link = &quot;logit&quot;), 
+##     data = data4)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.4076  -1.1266   0.3622   1.0384   1.2539  
+## 
+## Coefficients:
+##                       Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)             1.2394     0.2266   5.469 4.53e-08 ***
+## poly(x1, degree = 2)1  16.9026     4.1688   4.055 5.02e-05 ***
+## poly(x1, degree = 2)2  25.8887     5.6333   4.596 4.31e-06 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 317.79  on 249  degrees of freedom
+## Residual deviance: 265.40  on 247  degrees of freedom
+## AIC: 271.4
+## 
+## Number of Fisher Scoring iterations: 6</code></pre>
+</div>
+<div id="odds-ratios-3" class="section level4">
+<h4>Odds Ratios</h4>
+<p>When <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> both equal 0, the odds that <em>Y</em> = 1 are 3.45, which means <em>Y</em> = 1 is 245% more likey than <em>Y</em> = 0. For every 1 unit change in <span class="math inline">\(x_1\)</span>, the odds that <em>Y</em> = 1 increase by 2.191300210^{9}% (OR = 2.191300310^{7}); for every 1 unit change in <span class="math inline">\(x_2\)</span>, the odds that <em>Y</em> = 1 increase by 1.75115810^{13}% (OR = 1.75115810^{11}).</p>
+<pre class="r"><code># exp() (see help(&quot;exp)) raises the base value to the given value (e.g., by default, it raises Euler&#39;s number to the value given). Raising Euler&#39;s number to the given log-odds (logit) is the odds: e^log-odds = odds
+exp(coefficients(glm.fit8))</code></pre>
+<pre><code>##           (Intercept) poly(x1, degree = 2)1 poly(x1, degree = 2)2 
+##          3.453437e+00          2.191300e+07          1.751158e+11</code></pre>
+</div>
+<div id="receiver-operating-characteristic-curve-7" class="section level4">
+<h4>Receiver Operating Characteristic Curve</h4>
+<p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.73, which means that 73% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
+<pre class="r"><code>roc(response = glm.fit8$data$y, predictor = glm.fit8$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre><code>## Setting levels: control = 0, case = 1</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-64-1.png" width="672" /></p>
+<pre><code>## 
+## Call:
+## roc.default(response = glm.fit8$data$y, predictor = glm.fit8$fitted.values,     direction = &quot;&lt;&quot;, ci = TRUE, plot = TRUE, ci.method = &quot;boot&quot;,     boot.n = 1000)
+## 
+## Data: glm.fit8$fitted.values in 83 controls (glm.fit8$data$y 0) &lt; 167 cases (glm.fit8$data$y 1).
+## Area under the curve: 0.7256
+## 95% CI: 0.6623-0.7878 (1000 stratified bootstrap replicates)</code></pre>
+</div>
+</div>
+<div id="plot-response-surface-1" class="section level3">
+<h3>Plot Response Surface</h3>
+<div id="linear-response-surface-1" class="section level4">
+<h4>Linear Response Surface</h4>
+<p>The response surface from the multiple linear regression is a U-shaped surface, so the slope for <span class="math inline">\(x_1\)</span> depends on the value of <span class="math inline">\(x_2\)</span> and vice-versa. Roughly, when <span class="math inline">\(x_1\)</span> is below 0, the slope is negative, but when <span class="math inline">\(x_1\)</span> is above 0, the slope is positive. Importantly, the U-shaped surface is not symmetrical: The slope past <span class="math inline">\(x_1\)</span> = 0 “shoots” up beyond predicted probabilities = 100%.</p>
+<pre class="r"><code># 35 positions for z axis rotation
+for (i in seq(0, 350 , 10)) {
+  print(
+    expand.grid(x1 = seq(-3, 3, length.out = 10),
+                x1_squared = seq(-3, 3, length.out = 10)^2) %&gt;% 
+      mutate(pihat_linear = predict.glm(glm.fit7, newdata = data.frame(x1, x1_squared), type = &quot;response&quot;),
+             pihat_logistic = predict.glm(glm.fit8, newdata = data.frame(x1, x1_squared), type = &quot;response&quot;)) %&gt;%
+      wireframe(pihat_linear ~ x1 + x1_squared, data = ., drape = TRUE, colorkey = TRUE, scales = list(arrows = FALSE), screen = list(z = i, x = -60), col.regions = colorRampPalette(c(&quot;#0072b2&quot;, &quot;#d55e00&quot;))(100), zlab = expression(hat(pi)), xlab = expression(x[1]), ylab = expression(x[1]^2))
+  )
+}</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-65-.gif" width="672" /></p>
+</div>
+<div id="logistic-response-surface-1" class="section level4">
+<h4>Logistic Response Surface</h4>
+<p>Unlike the smooth, U-shaped response surface from the multiple linear regression, the response surface from the logistic regression forms two S-shapes moving in opposite directions. Importantly, unlike with the linear regression response surface, the slope changes on either side of <span class="math inline">\(x_1\)</span> = 0, and predicted probabilities are bounded by 0% and 100%.</p>
+<pre class="r"><code># 35 positions for z axis rotation
+for (i in seq(0, 350 , 10)) {
+  print(
+    expand.grid(x1 = seq(-3, 3, length.out = 10),
+                x1_squared = seq(-3, 3, length.out = 10)^2) %&gt;% 
+      mutate(pihat_linear = predict.glm(glm.fit7, newdata = data.frame(x1, x1_squared), type = &quot;response&quot;),
+             pihat_logistic = predict.glm(glm.fit8, newdata = data.frame(x1, x1_squared), type = &quot;response&quot;)) %&gt;%
+      wireframe(pihat_logistic ~ x1 + x1_squared, data = ., drape = TRUE, colorkey = TRUE, scales = list(arrows = FALSE), screen = list(z = i, x = -60), col.regions = colorRampPalette(c(&quot;#0072b2&quot;, &quot;#d55e00&quot;))(100), zlab = expression(hat(pi)), xlab = expression(x[1]), ylab = expression(x[1]^2))
+  )
+}</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-66-.gif" width="672" /></p>
+</div>
+</div>
+</div>
+</div>
+<div id="resources" class="section level1">
+<h1>Resources</h1>
+<ul>
+<li>Cohen, P., West, S. G., &amp; Aiken, L. S. (2014). Applied multiple regression/correlation analysis for the behavioral sciences. Psychology Press.</li>
+<li>Kutner, M. H., Nachtsheim, C. J., Neter, J., &amp; Li, W. (2005). Applied linear statistical models (Vol. 5). Boston: McGraw-Hill Irwin. [<a href="https://d1b10bmlvqabco.cloudfront.net/attach/is282rqc4001vv/is6ccr3fl0e37q/iwfnjvgvl53z/Michael_H_Kutner_Christopher_J._Nachtsheim_JohnBookFi.org.pdf"><strong>PDF</strong></a>] [<a href="http://users.stat.ufl.edu/~rrandles/sta4210/Rclassnotes/data/textdatasets/index.html"><strong>Website</strong></a>]</li>
+</ul>
+</div>
+<div id="general-word-of-caution" class="section level1">
+<h1>General Word of Caution</h1>
+<p>Above, I listed resources prepared by experts on these and related topics. Although I generally do my best to write accurate posts, don’t assume my posts are 100% accurate or that they apply to your data or research questions. Trust statistics and methodology experts, not blog posts.</p>
+</div>
