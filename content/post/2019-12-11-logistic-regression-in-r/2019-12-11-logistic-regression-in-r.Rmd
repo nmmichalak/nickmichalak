@@ -89,7 +89,7 @@ $Y_i = \beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1} + \epsilon_i$
 
 where *i* represent random observations, *Y* represents a random dependent variable; $\beta$ represents the population regression coefficient; *x* represent random predictor variables; *p* represents any number of random predictor variables; and $\epsilon$ represents random error, then you will be familiar with the same linear combination of predictors as they appear in the logistic function below:  
 
-$\pi_i = \frac{1}{1 + e^-({\beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1}})} + \epsilon_i$.  
+$\pi_i = \frac{1}{1 + e^{-(\beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1})}} + \epsilon_i$.  
 
 Logistic regression relies on [maximum likelihood](https://en.wikipedia.org/wiki/Maximum_likelihood_estimation) to estimate regression coefficients using a "logit link": It "links" the linear combination of predictor variables to the natural logarithm of the odds,  
 
@@ -275,7 +275,7 @@ glm.fit1 <- glm(y ~ x1, family = gaussian(link = "identity"), data = data1)
 ```
 
 #### Plot residuals vs. predicted values  
-The plot below displays the linear regression predictions from a different perspective: residuals (i.e., prediction errors). As expected from the linear fit line in the previous plot, some predictions are impossible (orange circles), falling below 0% or above 100%. The black [loess fit line](https://en.wikipedia.org/wiki/Local_regression) can help you interpret the strange relationship between predicted values and residuals: Residuals for a given predicted value can only take on 1 of 2 values, so residuals fall on only 1 of 2 straight lines across the plot. A straight black line is consistent with no relationship between predictions and residuals, whereas a anny pattern in the black line suggestions errors change as some function of the model predictions. 
+The plot below displays the linear regression predictions from a different perspective: residuals (i.e., prediction errors). As expected from the linear fit line in the previous plot, some predictions are impossible (orange circles), falling below 0% or above 100%. The black [loess fit line](https://en.wikipedia.org/wiki/Local_regression) can help you interpret the strange relationship between predicted values and residuals: Residuals for a given predicted value can only take on 1 of 2 values, so residuals fall on only 1 of 2 straight lines across the plot. A straight black line is consistent with no relationship between predictions and residuals, whereas any pattern in the black line suggestions errors change as some function of the model predictions. 
 
 ```{r}
 
@@ -560,7 +560,7 @@ summary(glm.fit4)
 ```
 
 #### Odds Ratios  
-When $x_1$ equals 0 (i.e., exactly in between group A and B coded as -0.5 and 0.5), the odds that *Y* = 1 are `r round(exp(coefficients(glm.fit4))[1], 2)`, which means *Y* = 0 is `r (1 - round(exp(coefficients(glm.fit2))[1], 2)) * 100`% more likey than *Y* = 1. For every 1 unit change in $x_1$ (i.e., "moving" from one group to another), the odds that *Y* = 1 decrease by `r abs(round(1 - exp(coefficients(glm.fit4))[2], 2)) * 100`% (OR = `r round(exp(coefficients(glm.fit4))[2], 2)`).  
+When $x_1$ equals 0 (i.e., exactly in between group A and B coded as -0.5 and 0.5), the odds that *Y* = 1 are `r round(exp(coefficients(glm.fit4))[1], 2)`, which means *Y* = 0 is `r (1 - round(exp(coefficients(glm.fit4))[1], 2)) * 100`% more likey than *Y* = 1. For every 1 unit change in $x_1$ (i.e., "moving" from one group to another), the odds that *Y* = 1 decrease by `r abs(round(1 - exp(coefficients(glm.fit4))[2], 2)) * 100`% (OR = `r round(exp(coefficients(glm.fit4))[2], 2)`).  
 
 ```{r}
 

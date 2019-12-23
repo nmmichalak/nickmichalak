@@ -82,7 +82,7 @@ library(pROC)</code></pre>
 <p>where <em>e</em> represents <a href="https://en.wikipedia.org/wiki/E_(mathematical_constant)">Euler’s number</a>. If you are familiar with the multiple linear regression equation:</p>
 <p><span class="math inline">\(Y_i = \beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1} + \epsilon_i\)</span></p>
 <p>where <em>i</em> represent random observations, <em>Y</em> represents a random dependent variable; <span class="math inline">\(\beta\)</span> represents the population regression coefficient; <em>x</em> represent random predictor variables; <em>p</em> represents any number of random predictor variables; and <span class="math inline">\(\epsilon\)</span> represents random error, then you will be familiar with the same linear combination of predictors as they appear in the logistic function below:</p>
-<p><span class="math inline">\(\pi_i = \frac{1}{1 + e^-({\beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1}})} + \epsilon_i\)</span>.</p>
+<p><span class="math inline">\(\pi_i = \frac{1}{1 + e^{-(\beta_0 + \beta_1x_{i1} + ... \beta_{p - 1}x_{i, p-1})}} + \epsilon_i\)</span>.</p>
 <p>Logistic regression relies on <a href="https://en.wikipedia.org/wiki/Maximum_likelihood_estimation">maximum likelihood</a> to estimate regression coefficients using a “logit link”: It “links” the linear combination of predictor variables to the natural logarithm of the odds,</p>
 <p><span class="math inline">\(log_e(\frac{\pi}{1 - \pi})\)</span>.</p>
 <p>The odds are simply the ratio of the probability that the dependent variable equals 1 (the numerator) to the probability that the dependent variable equals 0 (or not 1, the denominator):</p>
@@ -485,7 +485,7 @@ x1
 <pre class="r"><code>glm.fit1 &lt;- glm(y ~ x1, family = gaussian(link = &quot;identity&quot;), data = data1)</code></pre>
 <div id="plot-residuals-vs.predicted-values" class="section level4">
 <h4>Plot residuals vs. predicted values</h4>
-<p>The plot below displays the linear regression predictions from a different perspective: residuals (i.e., prediction errors). As expected from the linear fit line in the previous plot, some predictions are impossible (orange circles), falling below 0% or above 100%. The black <a href="https://en.wikipedia.org/wiki/Local_regression">loess fit line</a> can help you interpret the strange relationship between predicted values and residuals: Residuals for a given predicted value can only take on 1 of 2 values, so residuals fall on only 1 of 2 straight lines across the plot. A straight black line is consistent with no relationship between predictions and residuals, whereas a anny pattern in the black line suggestions errors change as some function of the model predictions.</p>
+<p>The plot below displays the linear regression predictions from a different perspective: residuals (i.e., prediction errors). As expected from the linear fit line in the previous plot, some predictions are impossible (orange circles), falling below 0% or above 100%. The black <a href="https://en.wikipedia.org/wiki/Local_regression">loess fit line</a> can help you interpret the strange relationship between predicted values and residuals: Residuals for a given predicted value can only take on 1 of 2 values, so residuals fall on only 1 of 2 straight lines across the plot. A straight black line is consistent with no relationship between predictions and residuals, whereas any pattern in the black line suggestions errors change as some function of the model predictions.</p>
 <pre class="r"><code># Save a data frame with residuals and fitted values (pihat)
 pihat_residual1 &lt;- tibble(model_form = &quot;Linear&quot;,
                            pihat = glm.fit1$fitted.values,
@@ -1093,7 +1093,7 @@ A
 </div>
 <div id="odds-ratios-1" class="section level4">
 <h4>Odds Ratios</h4>
-<p>When <span class="math inline">\(x_1\)</span> equals 0 (i.e., exactly in between group A and B coded as -0.5 and 0.5), the odds that <em>Y</em> = 1 are 0.12, which means <em>Y</em> = 0 is 23% more likey than <em>Y</em> = 1. For every 1 unit change in <span class="math inline">\(x_1\)</span> (i.e., “moving” from one group to another), the odds that <em>Y</em> = 1 decrease by 66% (OR = 0.34).</p>
+<p>When <span class="math inline">\(x_1\)</span> equals 0 (i.e., exactly in between group A and B coded as -0.5 and 0.5), the odds that <em>Y</em> = 1 are 0.12, which means <em>Y</em> = 0 is 88% more likey than <em>Y</em> = 1. For every 1 unit change in <span class="math inline">\(x_1\)</span> (i.e., “moving” from one group to another), the odds that <em>Y</em> = 1 decrease by 66% (OR = 0.34).</p>
 <pre class="r"><code># exp() (see help(&quot;exp)) raises the base value to the given value (e.g., by default, it raises Euler&#39;s number to the value given). Raising Euler&#39;s number to the given log-odds (logit) is the odds: e^log-odds = odds
 exp(coefficients(glm.fit4))</code></pre>
 <pre><code>## (Intercept)          x1 
