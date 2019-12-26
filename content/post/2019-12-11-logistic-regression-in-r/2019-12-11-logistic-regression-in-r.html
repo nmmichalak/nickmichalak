@@ -539,16 +539,27 @@ pihat_residual1 %&gt;%
 <div id="receiver-operating-characteristic-curve" class="section level4">
 <h4>Receiver Operating Characteristic Curve</h4>
 <p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.75, which means that 75% of the time the model is expected to decide that a random <em>Y</em> = 1 is actually a 1 (true positive) instead of deciding a random Y = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose Y = 0 observations. This AUROC value (0.75) is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
-<pre class="r"><code>roc(response = glm.fit1$data$y, predictor = glm.fit1$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre class="r"><code># Wrapping () around the code below allows me to save and print the results together
+(roc.fit1 &lt;- roc(response = glm.fit1$data$y, predictor = glm.fit1$fitted.values, direction = &quot;&lt;&quot;, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000))</code></pre>
 <pre><code>## Setting levels: control = 0, case = 1</code></pre>
-<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 <pre><code>## 
 ## Call:
-## roc.default(response = glm.fit1$data$y, predictor = glm.fit1$fitted.values,     direction = &quot;&lt;&quot;, ci = TRUE, plot = TRUE, ci.method = &quot;boot&quot;,     boot.n = 1000)
+## roc.default(response = glm.fit1$data$y, predictor = glm.fit1$fitted.values,     direction = &quot;&lt;&quot;, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)
 ## 
 ## Data: glm.fit1$fitted.values in 137 controls (glm.fit1$data$y 0) &lt; 113 cases (glm.fit1$data$y 1).
 ## Area under the curve: 0.7471
 ## 95% CI: 0.6839-0.8068 (1000 stratified bootstrap replicates)</code></pre>
+<pre class="r"><code># sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit1$sensitivities, specificity = roc.fit1$specificities, false_positive = 1 - specificity) %&gt;% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = &quot;identity&quot;) +
+  geom_abline(intercept = 0, slope = 1, linetype = &quot;dashed&quot;) +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = &quot;False Positive Rate&quot;, y = &quot;Sensitivity (True Positive Rate)&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
 </div>
 </div>
 <div id="fit-logistic-regression" class="section level3">
@@ -841,16 +852,27 @@ k = 1
 <div id="receiver-operating-characteristic-curve-1" class="section level4">
 <h4>Receiver Operating Characteristic Curve</h4>
 <p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.75, which means that 75% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
-<pre class="r"><code>roc(response = glm.fit2$data$y, predictor = glm.fit2$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre class="r"><code># Wrapping () around the code below allows me to save and print the results together
+(roc.fit2 &lt;- roc(response = glm.fit2$data$y, predictor = glm.fit2$fitted.values, direction = &quot;&lt;&quot;, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000))</code></pre>
 <pre><code>## Setting levels: control = 0, case = 1</code></pre>
-<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
 <pre><code>## 
 ## Call:
-## roc.default(response = glm.fit2$data$y, predictor = glm.fit2$fitted.values,     direction = &quot;&lt;&quot;, ci = TRUE, plot = TRUE, ci.method = &quot;boot&quot;,     boot.n = 1000)
+## roc.default(response = glm.fit2$data$y, predictor = glm.fit2$fitted.values,     direction = &quot;&lt;&quot;, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)
 ## 
 ## Data: glm.fit2$fitted.values in 137 controls (glm.fit2$data$y 0) &lt; 113 cases (glm.fit2$data$y 1).
 ## Area under the curve: 0.7471
 ## 95% CI: 0.6817-0.8066 (1000 stratified bootstrap replicates)</code></pre>
+<pre class="r"><code># sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit2$sensitivities, specificity = roc.fit2$specificities, false_positive = 1 - specificity) %&gt;% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = &quot;identity&quot;) +
+  geom_abline(intercept = 0, slope = 1, linetype = &quot;dashed&quot;) +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = &quot;False Positive Rate&quot;, y = &quot;Sensitivity (True Positive Rate)&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
 </div>
 </div>
 </div>
@@ -1050,7 +1072,8 @@ A
 <div id="receiver-operating-characteristic-curve-2" class="section level4">
 <h4>Receiver Operating Characteristic Curve</h4>
 <p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.63, which means that 63% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
-<pre class="r"><code>roc(response = glm.fit3$data$y, predictor = glm.fit3$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre class="r"><code># Wrapping () around the code below allows me to save and print the results together
+(roc.fit3 &lt;- roc(response = glm.fit3$data$y, predictor = glm.fit3$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000))</code></pre>
 <pre><code>## Setting levels: control = 0, case = 1</code></pre>
 <p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
 <pre><code>## 
@@ -1060,6 +1083,17 @@ A
 ## Data: glm.fit3$fitted.values in 221 controls (glm.fit3$data$y 0) &lt; 29 cases (glm.fit3$data$y 1).
 ## Area under the curve: 0.6268
 ## 95% CI: 0.5405-0.7161 (1000 stratified bootstrap replicates)</code></pre>
+<pre class="r"><code># sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit3$sensitivities, specificity = roc.fit3$specificities, false_positive = 1 - specificity) %&gt;% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = &quot;identity&quot;) +
+  geom_abline(intercept = 0, slope = 1, linetype = &quot;dashed&quot;) +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = &quot;False Positive Rate&quot;, y = &quot;Sensitivity (True Positive Rate)&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-31-2.png" width="672" /></p>
 </div>
 </div>
 <div id="fit-logistic-regression-1" class="section level3">
@@ -1102,7 +1136,8 @@ exp(coefficients(glm.fit4))</code></pre>
 <div id="receiver-operating-characteristic-curve-3" class="section level4">
 <h4>Receiver Operating Characteristic Curve</h4>
 <p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.63, which means that 63% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
-<pre class="r"><code>roc(response = glm.fit4$data$y, predictor = glm.fit4$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre class="r"><code># Wrapping () around the code below allows me to save and print the results together
+(roc.fit4 &lt;- roc(response = glm.fit4$data$y, predictor = glm.fit4$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000))</code></pre>
 <pre><code>## Setting levels: control = 0, case = 1</code></pre>
 <p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
 <pre><code>## 
@@ -1112,6 +1147,17 @@ exp(coefficients(glm.fit4))</code></pre>
 ## Data: glm.fit4$fitted.values in 221 controls (glm.fit4$data$y 0) &lt; 29 cases (glm.fit4$data$y 1).
 ## Area under the curve: 0.6268
 ## 95% CI: 0.5448-0.7079 (1000 stratified bootstrap replicates)</code></pre>
+<pre class="r"><code># sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit4$sensitivities, specificity = roc.fit4$specificities, false_positive = 1 - specificity) %&gt;% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = &quot;identity&quot;) +
+  geom_abline(intercept = 0, slope = 1, linetype = &quot;dashed&quot;) +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = &quot;False Positive Rate&quot;, y = &quot;Sensitivity (True Positive Rate)&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-35-2.png" width="672" /></p>
 </div>
 </div>
 </div>
@@ -1329,7 +1375,8 @@ pihat_residual3 %&gt;%
 <div id="receiver-operating-characteristic-curve-4" class="section level4">
 <h4>Receiver Operating Characteristic Curve</h4>
 <p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.81, which means that 81% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
-<pre class="r"><code>roc(response = glm.fit5$data$y, predictor = glm.fit5$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre class="r"><code># Wrapping () around the code below allows me to save and print the results together
+(roc.fit5 &lt;- roc(response = glm.fit5$data$y, predictor = glm.fit5$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000))</code></pre>
 <pre><code>## Setting levels: control = 0, case = 1</code></pre>
 <p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-43-1.png" width="672" /></p>
 <pre><code>## 
@@ -1339,6 +1386,17 @@ pihat_residual3 %&gt;%
 ## Data: glm.fit5$fitted.values in 122 controls (glm.fit5$data$y 0) &lt; 128 cases (glm.fit5$data$y 1).
 ## Area under the curve: 0.8068
 ## 95% CI: 0.7486-0.8571 (1000 stratified bootstrap replicates)</code></pre>
+<pre class="r"><code># sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit5$sensitivities, specificity = roc.fit5$specificities, false_positive = 1 - specificity) %&gt;% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = &quot;identity&quot;) +
+  geom_abline(intercept = 0, slope = 1, linetype = &quot;dashed&quot;) +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = &quot;False Positive Rate&quot;, y = &quot;Sensitivity (True Positive Rate)&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-43-2.png" width="672" /></p>
 </div>
 </div>
 <div id="fit-logistic-regression-2" class="section level3">
@@ -1408,7 +1466,8 @@ exp(coefficients(glm.fit6))</code></pre>
 <div id="receiver-operating-characteristic-curve-5" class="section level4">
 <h4>Receiver Operating Characteristic Curve</h4>
 <p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.81, which means that 81% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
-<pre class="r"><code>roc(response = glm.fit6$data$y, predictor = glm.fit6$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre class="r"><code># Wrapping () around the code below allows me to save and print the results together
+(roc.fit6 &lt;- roc(response = glm.fit6$data$y, predictor = glm.fit6$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000))</code></pre>
 <pre><code>## Setting levels: control = 0, case = 1</code></pre>
 <p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-48-1.png" width="672" /></p>
 <pre><code>## 
@@ -1418,6 +1477,17 @@ exp(coefficients(glm.fit6))</code></pre>
 ## Data: glm.fit6$fitted.values in 122 controls (glm.fit6$data$y 0) &lt; 128 cases (glm.fit6$data$y 1).
 ## Area under the curve: 0.8066
 ## 95% CI: 0.7524-0.8614 (1000 stratified bootstrap replicates)</code></pre>
+<pre class="r"><code># sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit6$sensitivities, specificity = roc.fit6$specificities, false_positive = 1 - specificity) %&gt;% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = &quot;identity&quot;) +
+  geom_abline(intercept = 0, slope = 1, linetype = &quot;dashed&quot;) +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = &quot;False Positive Rate&quot;, y = &quot;Sensitivity (True Positive Rate)&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-48-2.png" width="672" /></p>
 </div>
 </div>
 <div id="plot-response-surface" class="section level3">
@@ -1686,7 +1756,8 @@ pihat_residual5 %&gt;%
 <div id="receiver-operating-characteristic-curve-6" class="section level4">
 <h4>Receiver Operating Characteristic Curve</h4>
 <p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.73, which means that 73% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
-<pre class="r"><code>roc(response = glm.fit7$data$y, predictor = glm.fit7$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre class="r"><code># Wrapping () around the code below allows me to save and print the results together
+(roc.fit7 &lt;- roc(response = glm.fit7$data$y, predictor = glm.fit7$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000))</code></pre>
 <pre><code>## Setting levels: control = 0, case = 1</code></pre>
 <p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-59-1.png" width="672" /></p>
 <pre><code>## 
@@ -1696,6 +1767,17 @@ pihat_residual5 %&gt;%
 ## Data: glm.fit7$fitted.values in 83 controls (glm.fit7$data$y 0) &lt; 167 cases (glm.fit7$data$y 1).
 ## Area under the curve: 0.7266
 ## 95% CI: 0.662-0.7891 (1000 stratified bootstrap replicates)</code></pre>
+<pre class="r"><code># sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit7$sensitivities, specificity = roc.fit7$specificities, false_positive = 1 - specificity) %&gt;% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = &quot;identity&quot;) +
+  geom_abline(intercept = 0, slope = 1, linetype = &quot;dashed&quot;) +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = &quot;False Positive Rate&quot;, y = &quot;Sensitivity (True Positive Rate)&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-59-2.png" width="672" /></p>
 </div>
 </div>
 <div id="fit-logistic-regression-3" class="section level3">
@@ -1765,7 +1847,8 @@ exp(coefficients(glm.fit8))</code></pre>
 <div id="receiver-operating-characteristic-curve-7" class="section level4">
 <h4>Receiver Operating Characteristic Curve</h4>
 <p>The area under the <a href="https://en.wikipedia.org/wiki/Receiver_operating_characteristic">receiver operating characteristic curve</a> is 0.73, which means that 73% of the time the model is expected to decide that a random <em>Y</em> = 1 is indeed a 1 (true positive) instead of deciding a random <em>Y</em> = 0 is a 1 (false positive). Think of this is a measure of diagnosticity: How often is the model expected to correctly diagnose <em>Y</em> = 1 observations rather than incorrectly diagnose <em>Y</em> = 0 observations. This AUROC value is neither perfect (AUROC = 100%) nor consistent with chance diagnosticity (AUROC = 50%).</p>
-<pre class="r"><code>roc(response = glm.fit8$data$y, predictor = glm.fit8$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000)</code></pre>
+<pre class="r"><code># Wrapping () around the code below allows me to save and print the results together
+(roc.fit8 &lt;- roc(response = glm.fit8$data$y, predictor = glm.fit8$fitted.values, direction = &quot;&lt;&quot;, plot = TRUE, ci = TRUE, ci.method = &quot;boot&quot;, boot.n = 1000))</code></pre>
 <pre><code>## Setting levels: control = 0, case = 1</code></pre>
 <p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-64-1.png" width="672" /></p>
 <pre><code>## 
@@ -1775,6 +1858,17 @@ exp(coefficients(glm.fit8))</code></pre>
 ## Data: glm.fit8$fitted.values in 83 controls (glm.fit8$data$y 0) &lt; 167 cases (glm.fit8$data$y 1).
 ## Area under the curve: 0.7256
 ## 95% CI: 0.6623-0.7878 (1000 stratified bootstrap replicates)</code></pre>
+<pre class="r"><code># sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit8$sensitivities, specificity = roc.fit8$specificities, false_positive = 1 - specificity) %&gt;% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = &quot;identity&quot;) +
+  geom_abline(intercept = 0, slope = 1, linetype = &quot;dashed&quot;) +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = &quot;False Positive Rate&quot;, y = &quot;Sensitivity (True Positive Rate)&quot;) +
+  post_theme</code></pre>
+<p><img src="/post/2019-12-11-logistic-regression-in-r/2019-12-11-logistic-regression-in-r_files/figure-html/unnamed-chunk-64-2.png" width="672" /></p>
 </div>
 </div>
 <div id="plot-response-surface-1" class="section level3">

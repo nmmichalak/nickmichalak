@@ -317,7 +317,19 @@ The area under the [receiver operating characteristic curve](https://en.wikipedi
 
 ```{r}
 
-roc(response = glm.fit1$data$y, predictor = glm.fit1$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+# Wrapping () around the code below allows me to save and print the results together
+(roc.fit1 <- roc(response = glm.fit1$data$y, predictor = glm.fit1$fitted.values, direction = "<", ci = TRUE, ci.method = "boot", boot.n = 1000))
+
+# sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit1$sensitivities, specificity = roc.fit1$specificities, false_positive = 1 - specificity) %>% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = "identity") +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = "False Positive Rate", y = "Sensitivity (True Positive Rate)") +
+  post_theme
 
 ```
 
@@ -441,7 +453,19 @@ The area under the [receiver operating characteristic curve](https://en.wikipedi
 
 ```{r}
 
-roc(response = glm.fit2$data$y, predictor = glm.fit2$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+# Wrapping () around the code below allows me to save and print the results together
+(roc.fit2 <- roc(response = glm.fit2$data$y, predictor = glm.fit2$fitted.values, direction = "<", ci = TRUE, ci.method = "boot", boot.n = 1000))
+
+# sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit2$sensitivities, specificity = roc.fit2$specificities, false_positive = 1 - specificity) %>% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = "identity") +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = "False Positive Rate", y = "Sensitivity (True Positive Rate)") +
+  post_theme
 
 ```
 
@@ -539,7 +563,19 @@ The area under the [receiver operating characteristic curve](https://en.wikipedi
 
 ```{r}
 
-roc(response = glm.fit3$data$y, predictor = glm.fit3$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+# Wrapping () around the code below allows me to save and print the results together
+(roc.fit3 <- roc(response = glm.fit3$data$y, predictor = glm.fit3$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000))
+
+# sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit3$sensitivities, specificity = roc.fit3$specificities, false_positive = 1 - specificity) %>% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = "identity") +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = "False Positive Rate", y = "Sensitivity (True Positive Rate)") +
+  post_theme
 
 ```
 
@@ -574,7 +610,19 @@ The area under the [receiver operating characteristic curve](https://en.wikipedi
 
 ```{r}
 
-roc(response = glm.fit4$data$y, predictor = glm.fit4$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+# Wrapping () around the code below allows me to save and print the results together
+(roc.fit4 <- roc(response = glm.fit4$data$y, predictor = glm.fit4$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000))
+
+# sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit4$sensitivities, specificity = roc.fit4$specificities, false_positive = 1 - specificity) %>% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = "identity") +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = "False Positive Rate", y = "Sensitivity (True Positive Rate)") +
+  post_theme
 
 ```
 
@@ -688,7 +736,19 @@ The area under the [receiver operating characteristic curve](https://en.wikipedi
 
 ```{r}
 
-roc(response = glm.fit5$data$y, predictor = glm.fit5$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+# Wrapping () around the code below allows me to save and print the results together
+(roc.fit5 <- roc(response = glm.fit5$data$y, predictor = glm.fit5$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000))
+
+# sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit5$sensitivities, specificity = roc.fit5$specificities, false_positive = 1 - specificity) %>% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = "identity") +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = "False Positive Rate", y = "Sensitivity (True Positive Rate)") +
+  post_theme
 
 ```
 
@@ -751,7 +811,19 @@ The area under the [receiver operating characteristic curve](https://en.wikipedi
 
 ```{r}
 
-roc(response = glm.fit6$data$y, predictor = glm.fit6$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+# Wrapping () around the code below allows me to save and print the results together
+(roc.fit6 <- roc(response = glm.fit6$data$y, predictor = glm.fit6$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000))
+
+# sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit6$sensitivities, specificity = roc.fit6$specificities, false_positive = 1 - specificity) %>% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = "identity") +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = "False Positive Rate", y = "Sensitivity (True Positive Rate)") +
+  post_theme
 
 ```
 
@@ -923,7 +995,19 @@ The area under the [receiver operating characteristic curve](https://en.wikipedi
 
 ```{r}
 
-roc(response = glm.fit7$data$y, predictor = glm.fit7$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+# Wrapping () around the code below allows me to save and print the results together
+(roc.fit7 <- roc(response = glm.fit7$data$y, predictor = glm.fit7$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000))
+
+# sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit7$sensitivities, specificity = roc.fit7$specificities, false_positive = 1 - specificity) %>% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = "identity") +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = "False Positive Rate", y = "Sensitivity (True Positive Rate)") +
+  post_theme
 
 ```
 
@@ -986,7 +1070,19 @@ The area under the [receiver operating characteristic curve](https://en.wikipedi
 
 ```{r}
 
-roc(response = glm.fit8$data$y, predictor = glm.fit8$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000)
+# Wrapping () around the code below allows me to save and print the results together
+(roc.fit8 <- roc(response = glm.fit8$data$y, predictor = glm.fit8$fitted.values, direction = "<", plot = TRUE, ci = TRUE, ci.method = "boot", boot.n = 1000))
+
+# sensitivity = true positive rate and specificity = 1 - false negative rate = true negative rate
+tibble(sensitivity = roc.fit8$sensitivities, specificity = roc.fit8$specificities, false_positive = 1 - specificity) %>% 
+  ggplot(mapping = aes(x = false_positive, y = sensitivity)) +
+  geom_line() +
+  geom_area(alpha = 0.25, position = "identity") +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed") +
+  scale_x_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  scale_y_continuous(breaks = seq(0, 1, 0.20), labels = percent_format(accuracy = 1)) +
+  labs(x = "False Positive Rate", y = "Sensitivity (True Positive Rate)") +
+  post_theme
 
 ```
 
