@@ -20,7 +20,7 @@ email = "nickmm@umich.edu"
 
 # List (academic) interests or hobbies
 interests = [
-  "Person {erception",
+  "Person perception",
   "Nonverbal",
   "Threat",
   "Evolution"
