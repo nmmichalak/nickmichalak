@@ -20,7 +20,7 @@ email = "nickmm@umich.edu"
 
 # List (academic) interests or hobbies
 interests = [
-  "Person perception",
+  "Person Perception",
   "Nonverbal",
   "Threat",
   "Evolution"
@@ -75,15 +75,15 @@ link = "https://www.linkedin.com/in/nmmichalak/"
 
 # Link to a PDF of your resume/CV from the About widget.
 # To enable, copy your resume/CV to `static/files/cv.pdf` and uncomment the lines below.
- [[social]]
-   icon = "cv"
-   icon_pack = "ai"
-   link = "files/cv/2019/2019_october_vitae_michalak.pdf"
+[[social]]
+icon = "cv"
+icon_pack = "ai"
+link = "files/cv/2019/2019_october_vitae_michalak.pdf"
 
- [[social]]
-   icon = "file-pdf"
-   icon_pack = "fas"
-   link = "files/resume/2019/2019december_1page_resume_michalak.pdf"
+[[social]]
+icon = "file-pdf"
+icon_pack = "fas"
+link = "files/resume/2019/2019december_1page_resume_michalak.pdf"
 
 +++
 
