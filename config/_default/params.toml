@@ -246,7 +246,7 @@ plugins_js  = []
   #   1: Google Maps
   #   2: OpenStreetMap (Mapnik)
   #   3: OpenStreetMap (Mapbox)
-  engine = 2
+  engine = 1
   map_api_key = ""
   latitude = "42.275951"
   longitude = "83.735214"
@@ -257,4 +257,4 @@ plugins_js  = []
 ############################
 [marketing]
   google_analytics = "UA-113944608-1"
-  google_tag_manager = "GTM-MHRT62L"
+  google_tag_manager = ""
