@@ -16,14 +16,24 @@ weight = 20
 # For available icons, see: https://sourcethemes.com/academic/docs/widgets/#icons
 
   [[feature]]
+  icon = "dice"
+  icon_pack = "fas"
+  name = "Experimental Design"
+
+  [[feature]]
   icon = "ruler"
   icon_pack = "fas"
   name = "Measurement"
 
   [[feature]]
-  icon = "dice"
+  icon = "chart-line"
   icon_pack = "fas"
-  name = "Experimental Design"
+  name = "Analytics"
+
+  [[feature]]
+  icon = "brain"
+  icon_pack = "fas"
+  name = "Machine Learning"
 
   [[feature]]
   icon = "r-project"
@@ -31,7 +41,17 @@ weight = 20
   name = "R"
 
   [[feature]]
-  icon = "chart-line"
+  icon = "python"
+  icon_pack = "fab"
+  name = "Python"
+
+  [[feature]]
+  icon = "database"
+  icon_pack = "fas"
+  name = "SQL"
+
+  [[feature]]
+  icon = "chart-pie"
   icon_pack = "fas"
   name = "SPSS"
 
