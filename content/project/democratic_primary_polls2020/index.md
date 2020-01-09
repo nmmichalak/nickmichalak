@@ -1,12 +1,12 @@
 ---
 # Documentation: https://sourcethemes.com/academic/docs/managing-content/
 
-title: "2020 Democratic Presidential Primary Polling Trends"
-summary: "Shiny Application and GitHub repository for 2020 Democratic Presidential Primary Polling Trends"
+title: "2020 Democratic Presidential Primary Polling Averages"
+summary: "R Shiny Application and GitHub repository for 2020 Democratic Presidential Primary Polling Averages"
 authors: [Nick Michalak]
-tags: [R, shiny, U.S. Presidential Primary, U.S. Politics, GAM, logistic regression]
-categories: [shiny]
-date: 2020-01-09
+tags: [R, shinyapps, U.S. Politics, U.S. Democratic Presidential Primary, public opinion, GAM, logistic regression]
+categories: [shinyapp]
+date: 2020-01-09 14:56:55 EST
 
 # Optional external URL for project (replaces project detail page).
 external_link: "https://nickmichalak.shinyapps.io/democratic_primary_polls2020/"
