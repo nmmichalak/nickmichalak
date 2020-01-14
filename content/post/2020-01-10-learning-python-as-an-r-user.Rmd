@@ -26,4 +26,4 @@ projects: []
 
 Below, I've embedded a Python [Jupyter Notebook](https://jupyter.org/) hosted on [Kyso](https://docs.kyso.io/), which is a hub where you, "can publish Jupyter notebooks, charts, code, datasets and write articles in our custom markdown editor." This is a work in progress while I teach myself Python.  
 
-<iframe src="https://kyso.io/nmmichalak/python_selfteach/embed#code=both" width="150%" height="400px" frameBorder="0"></iframe>
+<iframe src="https://kyso.io/nmmichalak/python_selfteach/embed#code=both" width="150%" height="600px" frameBorder="0"></iframe>
