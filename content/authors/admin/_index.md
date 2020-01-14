@@ -83,7 +83,7 @@ link = "files/cv/2019/2019_october_vitae_michalak.pdf"
 [[social]]
 icon = "file-pdf"
 icon_pack = "fas"
-link = "files/resume/2019/2019december_1page_resume_michalak.pdf"
+link = "files/resume/2020/michalak_1pageresume_2020january14.pdf"
 
 +++
 
