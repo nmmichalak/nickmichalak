@@ -8,5 +8,5 @@ featured = false
 publication = "*Nature Human Behaviour*"
 url_pdf = "https://osf.io/n26dy"
 doi = "10.31234/osf.io/n26dy"
+url_code = "https://osf.io/f7v3n/"
 +++
-
