@@ -7,6 +7,6 @@ abstract = "Cough, cough. Is that person sick, or do they just have a throat tic
 featured = true
 publication = "*Proceedings of the Royal Society B: Biological Sciences*"
 url_pdf = "https://psyarxiv.com/ckzvn"
-doi = ""
+doi = "http://dx.doi.org/10.1098/rspb.2020.0944"
 url_code = "https://osf.io/4c7vr/"
 +++

@@ -7,6 +7,6 @@ abstract = "How do people mentally represent distinct interpersonal threats? Acr
 featured = true
 publication = "*Journal of Experimental Psychology: General*"
 url_pdf = "https://psyarxiv.com/r3uea"
-doi = ""
+doi = "http://dx.doi.org/10.1037/xge0000781"
 url_code = "https://osf.io/84vdp/"
 +++
