@@ -83,10 +83,14 @@ link = "files/cv/2020/2020_may_vitae_michalak.pdf"
 [[social]]
 icon = "file-pdf"
 icon_pack = "fas"
-link = "files/resume/2020/michalak_1pageresume_2020january22.pdf"
+link = "files/resume/2020/2020july_resume_michalak.pdf"
 
 +++
 
-I’m a PhD candidate in social psychology working with [Josh Ackerman](https://sites.lsa.umich.edu/esplab/) at the University of Michigan. Broadly, I use advanced methods and statistics to study how both modern and evolutionarily-relevant threats affect how people perceive themselves and others. For example, in my current work, I use the reverse correlation image classification task to estimate mental representations of infected persons. I’m also conducting a Cross-Temporal Meta-Analysis to test whether stereotype threat effects have dissapated over time, depending on negatively stereotyped group (e.g., Women, Black Americans).
+I'm a Data Science Fellow at Insight Data Science as well as a PhD candidate in social psychology working with [Josh Ackerman](https://sites.lsa.umich.edu/esplab/) at the University of Michigan. More broadly, I have 10 years of experience conducting research in the social sciences with a focus on motivation and social cognition. I'm skilled in statistical modeling, machine learning, and experimental design. I'm looking to leverage research and analytical skills to help businesses solve problems ([Resume](files/resume/2020/2020july_resume_michalak.pdf)). 
+
+As a Data Science Fellow, I spent 7 (intense) weeks honing my skills in computer science fundamentals and applied statistical modeling and machine learning. During four of those weeks, I developed a Flask web application—Next Escape ([nextescape.m](http://www.nextescape.me/))—that simplifies web searches for users looking for an ideal escape room or escape rooms similar to ones they’ve played and enjoyed before ([GitHub](https://github.com/nmmichalak/escape_room_reviews) | [Slides](https://docs.google.com/presentation/d/1RCBXn4WkoOG4bJ8z8Ea1XIvNH4y2gdLmdS8SL4KOmgY/edit)).
+
+As a psychology researcher, I use advanced methods and statistics to study how both modern and evolutionarily-relevant threats affect how people perceive themselves and others. For example, in my current work, I use the reverse correlation image classification task to estimate mental representations of infected persons. I’m also conducting a Cross-Temporal Meta-Analysis to test whether stereotype threat effects have dissapated over time, depending on negatively stereotyped group (e.g., Women, Black Americans).
 
 I’m asking three main questions right now: (1) How do people mentally represent threatening persons, (2) How do people use emotional expressions in trait judgements, and (3) What are the effects of negative stereotypes changing over time?
