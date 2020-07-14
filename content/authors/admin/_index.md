@@ -6,11 +6,12 @@ name = "Nicholas M. Michalak"
 superuser = true
 
 # Role/position
-role = "Ph.D. Candidate, Social Psychology"
+role = "Data Scientist | Ph.D. Candidate in Social Psychology"
 
 # Organizations/Affiliations
 #   Separate multiple entries with a comma, using the form: `[ {name="Org1", url=""}, {name="Org2", url=""} ]`.
-organizations = [ { name = "Department of Psychology, University of Michigan", url = "https://lsa.umich.edu/psych" } ]
+organizations = [ { name = "Insight Data Science", url = "https://www.linkedin.com/company/insight-data-science/" },
+{ name = "Department of Psychology, University of Michigan", url = "https://lsa.umich.edu/psych" } ]
 
 # Short bio (displayed in user profile at end of posts)
 bio = "I study how both modern and evolutionarily-relevant threats affect how people perceive themselves and others."
