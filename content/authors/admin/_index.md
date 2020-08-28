@@ -6,7 +6,7 @@ name = "Nicholas M. Michalak"
 superuser = true
 
 # Role/position
-role = "Data Scientist | Ph.D. Candidate in Social Psychology"
+role = "Data Scientist | Ph.D. Social Psychology"
 
 # Organizations/Affiliations
 #   Separate multiple entries with a comma, using the form: `[ {name="Org1", url=""}, {name="Org2", url=""} ]`.
@@ -88,7 +88,7 @@ link = "files/resume/2020/2020august_resume_michalak.pdf"
 
 +++
 
-I'm a Data Science Fellow at [Insight Data Science](https://www.linkedin.com/company/insight-data-science/) as well as a PhD candidate in social psychology working with [Josh Ackerman](https://sites.lsa.umich.edu/esplab/) at the University of Michigan. More broadly, I have 10 years of experience conducting research in the social sciences with a focus on motivation and social cognition. I'm skilled in statistical modeling, machine learning, and experimental design. I'm looking to my leverage research and analytical skills to help businesses solve problems ([my resume](files/resume/2020/2020august_resume_michalak.pdf)). 
+I'm a Data Science Fellow at [Insight Data Science](https://www.linkedin.com/company/insight-data-science/) as well as Social Psychologist working with [Josh Ackerman](https://sites.lsa.umich.edu/esplab/) at the University of Michigan. More broadly, I have 10 years of experience conducting research in the social sciences with a focus on motivation and social cognition. I'm skilled in statistical modeling, machine learning, and experimental design. I'm looking to my leverage research and analytical skills to help businesses solve problems ([my resume](files/resume/2020/2020august_resume_michalak.pdf)). 
 
 As a Data Science Fellow, I spent 7 (intense) weeks honing my skills in computer science fundamentals, applied statistical modeling, and machine learning. During four of those weeks, I developed a Flask web application—Next Escape ([nextescape.me](http://www.nextescape.me/))—that simplifies web searches for users looking for an ideal escape room or escape rooms similar to ones they’ve played and enjoyed before ([GitHub](https://github.com/nmmichalak/escape_room_reviews) | [Slides](https://docs.google.com/presentation/d/1RCBXn4WkoOG4bJ8z8Ea1XIvNH4y2gdLmdS8SL4KOmgY/edit)).
 
