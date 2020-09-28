@@ -29,6 +29,11 @@ interests = [
 
 # List qualifications (such as academic degrees)
 [[education.courses]]
+  course = "Ph.D. in Social Psychology"
+  institution = "University of Michigan"
+  year = 2020
+  
+[[education.courses]]
   course = "M.S. in Social Psychology"
   institution = "University of Michigan"
   year = 2017
