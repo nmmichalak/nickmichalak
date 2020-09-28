@@ -84,7 +84,7 @@ link = "https://www.linkedin.com/in/nmmichalak/"
 [[social]]
 icon = "cv"
 icon_pack = "ai"
-link = "files/cv/2020/2020_may_vitae_michalak.pdf"
+link = "files/cv/2020/2020_september_vitae_michalak.pdf"
 
 [[social]]
 icon = "file-pdf"
