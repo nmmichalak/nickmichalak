@@ -7,6 +7,6 @@ abstract = "Sexual desire and testosterone are widely assumed to be directly and
 featured = false
 publication = "*Archives of sexual behavior*"
 doi = "https://doi.org/10.1007/s10508-018-1231-6"
-url_code = "publication/raisanen-average-2018/analyses_supplement_update.html"
+url_code = "https://osf.io/bg8k4/"
 +++
 
