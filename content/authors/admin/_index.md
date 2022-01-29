@@ -10,14 +10,13 @@ role = "Data Scientist | Ph.D. Social Psychology"
 
 # Organizations/Affiliations
 #   Separate multiple entries with a comma, using the form: `[ {name="Org1", url=""}, {name="Org2", url=""} ]`.
-organizations = [ { name = "Insight Data Science", url = "https://www.linkedin.com/company/insight-data-science/" },
-{ name = "Department of Psychology, University of Michigan", url = "https://lsa.umich.edu/psych" } ]
+organizations = [ { name = "Lumen Technologies, Inc.", url = "https://www.linkedin.com/company/lumentechnologies/" } ]
 
 # Short bio (displayed in user profile at end of posts)
 bio = "I study how both modern and evolutionarily-relevant threats affect how people perceive themselves and others."
 
 # Enter email to display Gravatar (if Gravatar enabled in Config)
-email = "nickmm@umich.edu"
+email = "michalak.nicholas@gmail.com"
 
 # List (academic) interests or hobbies
 interests = [
@@ -51,7 +50,7 @@ interests = [
 [[social]]
 icon = "envelope"
 icon_pack = "fas"
-link = "#contact"  # For a direct email link, use "mailto:nickmm@umich.edu".
+link = "#contact"  # For a direct email link, use "mailto:michalak.nicholas@gmail.com".
 
 [[social]]
 icon = "google-scholar"
@@ -89,11 +88,11 @@ link = "files/cv/2020/2020_september_vitae_michalak.pdf"
 [[social]]
 icon = "file-pdf"
 icon_pack = "fas"
-link = "files/resume/2020/2020september_resume_michalak.pdf"
+link = "files/resume/2021/202107_resume_nicholas_michalak.pdf"
 
 +++
 
-I've been working as a Data Scientist in Telcom for 10 months (see my [LinkedIn](https://www.linkedin.com/in/nmmichalak/)). Before starting my role in industry, I was a Data Science Fellow at [Insight Data Science](https://www.linkedin.com/company/insight-data-science/) and a Social Psychologist working with [Josh Ackerman](https://sites.lsa.umich.edu/esplab/) at the University of Michigan. More broadly, I have 10 years of experience conducting research in the social sciences with a focus on motivation and social cognition. I'm skilled in statistical modeling, machine learning, and experimental design.
+I've been working as a Data Scientist in Telcom for a little over a year (see my [LinkedIn](https://www.linkedin.com/in/nmmichalak/)). Before starting my role in industry, I was a Data Science Fellow at [Insight Data Science](https://www.linkedin.com/company/insight-data-science/) and a Social Psychologist working with [Josh Ackerman](https://sites.lsa.umich.edu/esplab/) at the University of Michigan. More broadly, I have 10 years of experience conducting research in the social sciences with a focus on motivation and social cognition. I'm skilled in statistical modeling, machine learning, and experimental design.
 
 As a Data Science Fellow, I spent 7 (intense) weeks honing my skills in computer science fundamentals, applied statistical modeling, and machine learning. During four of those weeks, I developed a Flask web application—Next Escape ([nextescape.me](http://www.nextescape.me/))—that simplifies web searches for users looking for an ideal escape room or escape rooms similar to ones they’ve played and enjoyed before ([GitHub](https://github.com/nmmichalak/escape_room_reviews) | [Slides](https://docs.google.com/presentation/d/1RCBXn4WkoOG4bJ8z8Ea1XIvNH4y2gdLmdS8SL4KOmgY/edit)).
 
