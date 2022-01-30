@@ -94,7 +94,7 @@ address = {street = "", city = "Boulder", region = "CO", postcode = "", country 
 
 # Geographic coordinates
 # To get your coordinates, right-click on Google Maps and choose "What's here?". The coords will show up at the bottom.
-coordinates = {latitude = "40.0150", longitude = "105.2705"}
+coordinates = {latitude = "40.0150", longitude = "-105.2705"}
 
 # Directions for visitors to locate you.
 directions = ""
@@ -249,8 +249,8 @@ plugins_js  = []
   engine = 3
   map_api_key = "pk.eyJ1Ijoibm1taWNoYWxhayIsImEiOiJja3oxaGZzaGIxbHl2MnZscjl0dHNyaG81In0.kZ19K61nQcAZ7Uxb7_bPRw"
   latitude = "40.0150"
-  longitude = "105.2705"
-  zoom = 15
+  longitude = "-105.2705"
+  zoom = 10
 
 ############################
 ## Marketing
