@@ -246,8 +246,8 @@ plugins_js  = []
   #   1: Google Maps
   #   2: OpenStreetMap (Mapnik)
   #   3: OpenStreetMap (Mapbox)
-  engine = 2
-  map_api_key = ""
+  engine = 3
+  map_api_key = "pk.eyJ1Ijoibm1taWNoYWxhayIsImEiOiJja3oxaGZzaGIxbHl2MnZscjl0dHNyaG81In0.kZ19K61nQcAZ7Uxb7_bPRw"
   latitude = "40.0150"
   longitude = "105.2705"
   zoom = 15
