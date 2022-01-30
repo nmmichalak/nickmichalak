@@ -90,18 +90,18 @@ phone = ""
 
 # Address
 # For country_code, use the 2-letter ISO code (see https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 )
-address = {street = "3236 East Hall", city = "Ann Arbor", region = "MI", postcode = "48109", country = "United States", country_code = "US"}
+address = {street = "", city = "Boulder", region = "CO", postcode = "", country = "United States", country_code = "US"}
 
 # Geographic coordinates
 # To get your coordinates, right-click on Google Maps and choose "What's here?". The coords will show up at the bottom.
-coordinates = {latitude = "42.275951", longitude = "83.735214"}
+coordinates = {latitude = "40.0150", longitude = "105.2705"}
 
 # Directions for visitors to locate you.
 directions = ""
 
 # Office hours
 # A list of your office hours. To remove, set to an empty list `[]`.
-office_hours = ["By Appointment"]
+office_hours = []
 
 # Enter an optional link for booking appointments (e.g. calendly.com).
 appointment_url = ""
@@ -122,7 +122,7 @@ contact_links = [
 sharing_image = ""
 
 # Twitter username (without @). Used when a visitor shares your site on Twitter.
-twitter = ""
+twitter = "@nmmichalak"
 
 ############################
 ## Regional Settings
@@ -130,7 +130,7 @@ twitter = ""
 
 # Date and time format (refer to https://sourcethemes.com/academic/docs/customization/#date-format )
 #   Examples: "Mon, Jan 2, 2006" or "2006-01-02"
-date_format = "Jan 2, 2006"
+date_format = "January 2, 2006"
 #   Examples: "3:04 pm" or "15:04"
 time_format = "3:04 PM"
 
@@ -246,10 +246,10 @@ plugins_js  = []
   #   1: Google Maps
   #   2: OpenStreetMap (Mapnik)
   #   3: OpenStreetMap (Mapbox)
-  engine = 1
+  engine = 2
   map_api_key = ""
-  latitude = "42.275951"
-  longitude = "83.735214"
+  latitude = "40.0150"
+  longitude = "105.2705"
   zoom = 15
 
 ############################
